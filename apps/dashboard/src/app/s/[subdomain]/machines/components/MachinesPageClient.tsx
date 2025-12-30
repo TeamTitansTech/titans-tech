@@ -374,9 +374,9 @@ export function MachinesPageClient() {
           </div>
 
           {/* Filters - Responsive layout */}
-          <div className="flex flex-wrap gap-2 sm:gap-4">
+          <div className="flex flex-wrap gap-2 sm:gap-4 items-center">
             {/* Search */}
-            <div className="relative w-full sm:w-auto sm:flex-1 sm:min-w-[200px] sm:max-w-[300px]">
+            <div className="relative w-full sm:w-[180px]">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder={t('searchPlaceholder') || 'Search machines...'}
@@ -388,8 +388,8 @@ export function MachinesPageClient() {
 
             {/* Branch Filter */}
             <Select value={selectedBranchFilter} onValueChange={setSelectedBranchFilter}>
-              <SelectTrigger className="w-full sm:w-[200px] [&_.branch-location]:hidden">
-                <MapPin className="w-4 h-4 mr-2 shrink-0" />
+              <SelectTrigger className="w-full sm:w-[210px] [&_.branch-location]:hidden">
+                <MapPin className="w-4 h-4 shrink-0" />
                 <SelectValue placeholder={t('allBranches') || 'All Branches'} />
               </SelectTrigger>
               <SelectContent>
@@ -411,8 +411,8 @@ export function MachinesPageClient() {
 
             {/* Blueprint Filter */}
             <Select value={blueprintFilter} onValueChange={setBlueprintFilter}>
-              <SelectTrigger className="w-[calc(50%-0.25rem)] sm:w-[200px]">
-                <Cog className="w-4 h-4 mr-2 shrink-0" />
+              <SelectTrigger className="w-full sm:w-[200px]">
+                <Cog className="w-4 h-4 shrink-0" />
                 <SelectValue placeholder={t('filterByBlueprint') || 'All Models'} />
               </SelectTrigger>
               <SelectContent>
@@ -427,8 +427,8 @@ export function MachinesPageClient() {
 
             {/* Status Filter */}
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-[calc(50%-0.25rem)] sm:w-[180px]">
-                <Activity className="w-4 h-4 mr-2 shrink-0" />
+              <SelectTrigger className="w-full sm:w-[190px]">
+                <Activity className="w-4 h-4 shrink-0" />
                 <SelectValue placeholder={t('filterByStatus') || 'All Status'} />
               </SelectTrigger>
               <SelectContent>
@@ -440,6 +440,11 @@ export function MachinesPageClient() {
                 <SelectItem value="offline">{t('statusOffline') || 'Critical'}</SelectItem>
               </SelectContent>
             </Select>
+
+            {/* Results count */}
+            <div className="hidden sm:flex items-center text-sm text-muted-foreground ml-auto">
+              {filteredMachines.length} of {machines.length} machines
+            </div>
           </div>
         </div>
 

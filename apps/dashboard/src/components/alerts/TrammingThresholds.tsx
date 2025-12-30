@@ -44,7 +44,7 @@ export function TrammingThresholds({
         </div>
       </CollapsibleTrigger>
       <CollapsibleContent>
-        <div className="border border-t-0 rounded-b-lg p-6 bg-card space-y-6">
+        <div className="border border-t-0 rounded-b-lg p-3 bg-card space-y-4 sm:p-6 sm:space-y-6">
           <p className="text-sm text-muted-foreground mb-4">{t('description')}</p>
           <ThresholdRangeInput
             label={t('sum')}

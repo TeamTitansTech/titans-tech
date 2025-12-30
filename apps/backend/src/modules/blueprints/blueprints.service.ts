@@ -14,6 +14,7 @@ import { UpdateBlueprintDto } from '../../blueprints/dto/update-blueprint.dto';
 import {
   convertThresholdToDecimal,
   convertClutchThresholdToDecimal,
+  convertClutchCevolaniThresholdToDecimal,
   convertSlideThresholdToDecimal,
   convertGibsThresholdToDecimal,
   convertPistonsThresholdToDecimal,
@@ -70,6 +71,18 @@ export class BlueprintsService {
           data: {
             blueprintId: blueprint.id,
             ...convertClutchThresholdToDecimal(dto.clutchThresholds),
+          },
+        });
+      }
+
+      // 3b. Create Clutch Cevolani Thresholds if provided
+      if (dto.clutchCevolaniThresholds) {
+        await tx.thresholdClutchCevolani.create({
+          data: {
+            blueprintId: blueprint.id,
+            ...convertClutchCevolaniThresholdToDecimal(
+              dto.clutchCevolaniThresholds,
+            ),
           },
         });
       }
@@ -228,20 +241,61 @@ export class BlueprintsService {
     });
   }
 
-  async softDelete(id: string): Promise<Prisma.BlueprintGetPayload<object>> {
+  async softDelete(
+    id: string,
+    cascade: boolean = false,
+  ): Promise<Prisma.BlueprintGetPayload<object>> {
     const blueprint = await this.prisma.blueprint.findUnique({
       where: { id },
+      include: {
+        machines: {
+          where: { deletedAt: null },
+          select: { id: true, name: true },
+        },
+        _count: {
+          select: {
+            machines: {
+              where: { deletedAt: null },
+            },
+          },
+        },
+      },
     });
 
     if (!blueprint || blueprint.deletedAt) {
       throw new NotFoundException(`Blueprint with ID ${id} not found`);
     }
 
-    return this.prisma.blueprint.update({
-      where: { id },
-      data: {
-        deletedAt: new Date(),
-      },
+    if (blueprint._count.machines > 0 && !cascade) {
+      throw new BadRequestException({
+        message: `Cannot delete blueprint "${blueprint.name}" because it has ${blueprint._count.machines} machine(s) associated with it.`,
+        machines: blueprint.machines,
+        machineCount: blueprint._count.machines,
+      });
+    }
+
+    // Use transaction to soft delete blueprint and optionally its machines
+    return this.prisma.$transaction(async (tx) => {
+      // If cascade, soft delete all associated machines
+      if (cascade && blueprint._count.machines > 0) {
+        await tx.machine.updateMany({
+          where: {
+            blueprintId: id,
+            deletedAt: null,
+          },
+          data: {
+            deletedAt: new Date(),
+          },
+        });
+      }
+
+      // Soft delete the blueprint
+      return tx.blueprint.update({
+        where: { id },
+        data: {
+          deletedAt: new Date(),
+        },
+      });
     });
   }
 }

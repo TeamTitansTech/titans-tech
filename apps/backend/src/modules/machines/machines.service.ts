@@ -534,40 +534,6 @@ export class MachinesService {
   }
 
   /**
-   * Soft delete cascade for machine and all related entities
-   * Public method to handle the transaction logic (can be called from other services)
-   */
-  async softDeleteMachineCascade(
-    tx: Prisma.TransactionClient,
-    machineId: string,
-  ): Promise<void> {
-    // 1. Soft delete all MachineServices
-    await tx.machineService.deleteMany({
-      where: { machineId },
-    });
-
-    // 2. Soft delete all MachineFields
-    await tx.machineField.deleteMany({
-      where: { machineId },
-    });
-
-    // 3. Soft delete all ServiceRequests
-    await tx.serviceRequest.deleteMany({
-      where: { machineId },
-    });
-
-    // 4. Soft delete all MachineProductionLines (junction table)
-    await tx.machineProductionLine.deleteMany({
-      where: { machineId },
-    });
-
-    // 5. Finally, soft delete the Machine itself
-    await tx.machine.delete({
-      where: { id: machineId },
-    });
-  }
-
-  /**
    * Delete a machine for a regular user (validates branch access)
    * Implements soft delete cascade to all related tables
    */
@@ -584,7 +550,7 @@ export class MachinesService {
     await this.validateUserBranchAccess(userId, existingMachine.branchId);
 
     await this.prisma.$transaction(async (tx) => {
-      await this.softDeleteMachineCascade(tx, id);
+      await machinesService.softDeleteCascade(tx, id);
     });
   }
 
@@ -603,7 +569,7 @@ export class MachinesService {
     }
 
     await this.prisma.$transaction(async (tx) => {
-      await this.softDeleteMachineCascade(tx, id);
+      await machinesService.softDeleteCascade(tx, id);
     });
   }
 

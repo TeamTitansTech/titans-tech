@@ -10,6 +10,7 @@ import {
   TrammingCheck,
   PistonsCheck,
 } from '@/data/types/services.types';
+import type { LengthUnitFromEnum } from '@/contexts/UnitManagerContext';
 
 export type StepType = 'selection' | 'details' | 'sections' | 'summary';
 
@@ -53,6 +54,7 @@ export interface ServiceCompletionModalProps {
   initialPerformedBy?: string; // Initial performedBy from existing service
   companyId?: string; // Company ID for alert notifications
   onSuccess?: () => void; // Called when service is successfully completed
+  defaultMeasurementUnit: LengthUnitFromEnum; // Default measurement unit for the machine's branch
 }
 
 export interface SectionDataState {
@@ -98,6 +100,7 @@ export const RELATION_TO_SECTION_KEY: Record<string, string> = {
   gibs: 'GIBS',
   lubricationHydraulics: 'LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER',
   clutch: 'CLUTCH',
+  clutchCevolani: 'CLUTCH_CEVOLANI',
   counterbalanceCylinderAirbag: 'COUNTERBALANCE_CYLINDER_AIRBAG',
   tramming: 'TRAMMING',
   pistons: 'PISTONS',
@@ -114,6 +117,7 @@ export const SECTION_KEY_TO_RELATION: Record<string, string> = {
   GIBS: 'gibs',
   LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER: 'lubricationHydraulics',
   CLUTCH: 'clutch',
+  CLUTCH_CEVOLANI: 'clutchCevolani',
   COUNTERBALANCE_CYLINDER_AIRBAG: 'counterbalanceCylinderAirbag',
   TRAMMING: 'tramming',
   PISTONS: 'pistons',

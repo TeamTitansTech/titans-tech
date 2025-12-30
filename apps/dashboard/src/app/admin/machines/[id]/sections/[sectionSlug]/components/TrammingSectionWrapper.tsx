@@ -1,10 +1,11 @@
 import { getInspectionsByMachine } from '@/data/services/inspections.api';
 import { getMachineById } from '@/data/services/machines.api';
 import { TrammingSection } from './TrammingSection';
-import { UnitManagerProvider } from '@/contexts/UnitManagerContext';
+import { LengthUnitFromEnum, UnitManagerProvider } from '@/contexts/UnitManagerContext';
 
 interface TrammingSectionWrapperProps {
   machineId: string;
+  hideThresholdValues?: boolean;
 }
 
 interface TrammingData {
@@ -38,9 +39,14 @@ export interface TrammingInspectionData {
   }>;
 }
 
-export async function TrammingSectionWrapper({ machineId }: TrammingSectionWrapperProps) {
+export async function TrammingSectionWrapper({
+  machineId,
+  hideThresholdValues = false,
+}: TrammingSectionWrapperProps) {
   let inspections: TrammingInspectionData[] = [];
   let machineName = '';
+  let blueprintId = '';
+  let branchDefaultUnit: LengthUnitFromEnum;
 
   try {
     const [inspectionsResponse, machineResponse] = await Promise.all([
@@ -58,18 +64,30 @@ export async function TrammingSectionWrapper({ machineId }: TrammingSectionWrapp
     if (machineResponse.errors) {
       console.error('Errors fetching machine:', machineResponse.errors);
       machineName = '';
+      blueprintId = '';
+      branchDefaultUnit = 'INCHES';
     } else {
       machineName = machineResponse.data?.name || '';
+      blueprintId = machineResponse.data?.blueprintId || '';
+      branchDefaultUnit = machineResponse.data?.branch?.defaultMeasurementUnit || 'INCHES';
     }
   } catch (error) {
     console.error('Error fetching data:', error);
     inspections = [];
     machineName = '';
+    blueprintId = '';
+    branchDefaultUnit = 'INCHES';
   }
 
   return (
-    <UnitManagerProvider>
-      <TrammingSection machineId={machineId} inspections={inspections} machineName={machineName} />
+    <UnitManagerProvider defaultLengthUnit={branchDefaultUnit}>
+      <TrammingSection
+        machineId={machineId}
+        inspections={inspections}
+        machineName={machineName}
+        blueprintId={blueprintId}
+        hideThresholdValues={hideThresholdValues}
+      />
     </UnitManagerProvider>
   );
 }

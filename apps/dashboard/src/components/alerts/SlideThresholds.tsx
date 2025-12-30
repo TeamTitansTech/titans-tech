@@ -16,9 +16,16 @@ interface SlideThresholdsProps {
   onOpenChange: (open: boolean) => void;
   data: SlideThresholdsData;
   onChange: (data: SlideThresholdsData) => void;
+  title?: string;
 }
 
-export function SlideThresholds({ open, onOpenChange, data, onChange }: SlideThresholdsProps) {
+export function SlideThresholds({
+  open,
+  onOpenChange,
+  data,
+  onChange,
+  title,
+}: SlideThresholdsProps) {
   const t = useTranslations('alerts.slide');
 
   const updateField = (field: keyof SlideThresholdsData, value: number) => {
@@ -32,14 +39,14 @@ export function SlideThresholds({ open, onOpenChange, data, onChange }: SlideThr
     <Collapsible open={open} onOpenChange={onOpenChange}>
       <CollapsibleTrigger className="w-full">
         <div className="border rounded-lg p-4 bg-card hover:bg-muted transition-colors flex items-center justify-between">
-          <h3 className="text-base font-semibold">{t('title')}</h3>
+          <h3 className="text-base font-semibold">{title || t('title')}</h3>
           <ChevronDown
             className={`h-5 w-5 transition-transform ${open ? 'transform rotate-180' : ''}`}
           />
         </div>
       </CollapsibleTrigger>
       <CollapsibleContent>
-        <div className="border border-t-0 rounded-b-lg p-6 bg-card space-y-6">
+        <div className="border border-t-0 rounded-b-lg p-3 bg-card space-y-4 sm:p-6 sm:space-y-6">
           <ThresholdRangeInput
             label={t('maxDeviation')}
             greenMin={data.maxDeviation_greenMin}

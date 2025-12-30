@@ -11,7 +11,7 @@
     },
     "noPermission": {
       "title": "No Permission",
-      "description": "You don't have permission to access this page or resource.",
+      "description": "You don't have permission to access this page or resource!",
       "contactMessage": "If you believe you should have access, please contact your company administrator or manager.",
       "goToDashboard": "Go to Dashboard"
     },
@@ -201,6 +201,16 @@
       "users": "users",
       "clickToViewUsers": "Click to view users"
     },
+    "branchSettings": {
+      "title": "Branch Settings",
+      "description": "Configure the default preferences for this branch",
+      "defaultUnit": "Default Measurement Unit",
+      "defaultUnitDescription": "Default unit for displaying measurements",
+      "inches": "Inches (in)",
+      "mm": "Millimeters (mm)",
+      "saved": "Settings saved",
+      "saveError": "Failed to save settings"
+    },
     "userManagement": {
       "title": "User Accounts",
       "loading": "Loading users...",
@@ -281,6 +291,7 @@
       "success": "User added successfully",
       "successExistingUser": "{count, plural, =1 {User assigned to 1 new branch} other {User assigned to # new branches}}",
       "userAlreadyInAllBranches": "This user is already in all selected branches",
+      "userNeedsReactivation": "This user was previously deactivated in the following branches: {branches}. Please reactivate the user instead of adding them again.",
       "error": "Failed to add user"
     },
     "editUserDialog": {
@@ -822,6 +833,7 @@
     "gibs": "Gibs",
     "lubrication_hydraulics_pressure_switches_oil_filter": "Lubrication / Hydraulics / Pressure Switches / Oil & Filter",
     "clutch": "Clutch",
+    "clutch_cevolani": "Clutch (Cevolani)",
     "counterbalance_cylinder_airbag": "Counterbalance Cylinder / Airbag",
     "tramming": "Tramming",
     "pistons": "Pistons",
@@ -904,7 +916,18 @@
     "field": "field",
     "fields": "fields",
     "edit": "Edit",
-    "thresholds": "Configure Thresholds"
+    "thresholds": "Configure Thresholds",
+    "deleteConfirmTitle": "Delete Model",
+    "deleteConfirmDescription": "Are you sure you want to delete \"{name}\"? This action cannot be undone.",
+    "deleteError": "Error deleting model",
+    "deleteSuccess": "Model deleted",
+    "deleteSuccessDescription": "\"{name}\" has been deleted successfully",
+    "deleteWithMachinesTitle": "Delete Model with Machines",
+    "deleteWithMachinesWarning": "The model \"{name}\" has {count} machine(s) registered. Deleting this model will also delete all associated machines.",
+    "machinesList": "Machines that will be deleted",
+    "deleteWithMachinesConfirm": "Are you sure you want to proceed? This action cannot be undone.",
+    "deleteWithMachinesButton": "Delete Model and Machines",
+    "deleteSuccessWithMachines": "\"{name}\" and all associated machines have been deleted"
   },
   "machines": {
     "title": "Create Machine",
@@ -1014,6 +1037,7 @@
       "gibs": "Gibs",
       "lubricationHydraulics": "Lubrication / Hydraulics",
       "clutch": "Clutch and Brake Clearance - CP 2",
+      "clutchCevolani": "Clutch Cevolani",
       "counterbalance": "Counterbalance Cylinder / Airbag",
       "counterbalanceCylinder": "Counterbalance Cylinder / Airbag",
       "tramming": "Tramming",
@@ -1095,6 +1119,7 @@
       "createInspection": "Create Inspection",
       "sectionTitles": {
         "clutchMeasurements": "Clutch Measurements",
+        "clutchCevolaniMeasurements": "Clutch Cevolani Measurements",
         "slideMeasurements": "Slide Measurements",
         "gibsMeasurements": "Gibs Measurements",
         "lubricationStatus": "Lubrication & Hydraulics Status",
@@ -1108,6 +1133,7 @@
       },
       "chartTitles": {
         "hydraulicClutchClearance": "Hydraulic Clutch Clearance",
+        "pneumaticClutchClearance": "Pneumatic Clutch Clearance",
         "brakeSpringMeasurements": "Brake Spring Measurements (F-B, F-TB, R-TB)",
         "slideMaxDeviation": "Slide Max Deviation (Outer vs Inner)",
         "slidePositions": "Slide Positions (Position 1-5)",
@@ -1150,6 +1176,7 @@
         "filterChanged": "Filter Changed",
         "hydClutchTotal": "Hyd Clutch Total",
         "hydClutchRear": "Hyd Clutch Rear",
+        "pneumaticClutchTotal": "Pneumatic Clutch Total",
         "leakLocation": "Leak Location",
         "outerIssues": "Outer Issues",
         "innerIssues": "Inner Issues",
@@ -1161,6 +1188,9 @@
         "noLubricationData": "No lubrication data available",
         "noCounterbalanceData": "No counterbalance data available",
         "measurementTrends": "Measurement Trends",
+        "verticalSum": "Vertical Sum",
+        "horizontalSum": "Horizontal Sum",
+        "individualMeasurements": "Individual Measurements",
         "notes": "Notes",
         "mm": "mm",
         "pistons": "Pistons",
@@ -1291,6 +1321,9 @@
         "measurement": "Measurement",
         "differential": "Differential",
         "status": "Status"
+      },
+      "clutchCevolani": {
+        "pneumaticClutchClearanceTotal": "Pneumatic Clutch Clearance (Total)"
       }
     },
     "form": {
@@ -1663,11 +1696,11 @@
         "fields": {
           "clutchType": "Clutch Type",
           "clutchLocation": "Clutch Location",
-          "brakeSpringBrake": "Brake (inches)",
-          "brakeSpringClutch": "Clutch (inches)",
-          "brakeSpringFB": "F-B (inches)",
-          "brakeSpringFTB": "F-TB (inches)",
-          "brakeSpringRTB": "R-TB (inches)",
+          "brakeSpringBrake": "Brake",
+          "brakeSpringClutch": "Clutch",
+          "brakeSpringFB": "F-B",
+          "brakeSpringFTB": "F-TB",
+          "brakeSpringRTB": "R-TB",
           "brakeSpringStudBolt": "Brake Spring Stud/Bolt",
           "brakeStoppingTime": "Brake Stopping Time",
           "brakeLining": "Brake Lining",
@@ -1728,6 +1761,23 @@
           "required": "This field is required",
           "hydClutchClearanceTotalRequired": "Clutch: Hydraulic Clutch Clearance (Total) is required",
           "hydClutchClearanceRearRequired": "Clutch: Hydraulic Clutch Clearance (Rear) is required"
+        }
+      },
+      "clutchCevolani": {
+        "sections": {
+          "pneumaticSystem": "Pneumatic System"
+        },
+        "fields": {
+          "pneumaticClutchClearanceTotal": "Pneumatic Clutch Clearance (Total)"
+        },
+        "placeholders": {
+          "pneumaticClutchClearanceTotal": "Enter total clearance"
+        },
+        "tooltips": {
+          "pneumaticClutchClearanceTotal": "This field generates alerts based on configured thresholds"
+        },
+        "validation": {
+          "pneumaticClutchClearanceTotalRequired": "Clutch Cevolani: Pneumatic Clutch Clearance (Total) is required"
         }
       },
       "counterbalanceCylinder": {
@@ -2408,6 +2458,9 @@
       "wristPinToBushing": "Wrist Pin to Bushing",
       "slideAdjNutToScrewSleeve": "Slide Adj Nut to Screw/Sleeve"
     },
+    "bearingClearanceSingleHammer": {
+      "title": "BEARING CLEARANCE (Single Hammer) - Alert Configuration"
+    },
     "clutch": {
       "title": "CLUTCH - Alert Configuration",
       "hydClutchClearanceTotal": "Hydraulic Clutch Clearance Total",
@@ -2416,9 +2469,19 @@
       "fTB": "F-TB (Front Top-Bottom)",
       "rTB": "R-TB (Rear Top-Bottom)"
     },
+    "clutchCevolani": {
+      "title": "CLUTCH CEVOLANI - Alert Configuration",
+      "pneumaticClutchClearanceTotal": "Pneumatic Clutch Clearance (Total)"
+    },
     "slide": {
       "title": "SLIDE - Alert Configuration",
       "maxDeviation": "Max Deviation"
+    },
+    "slideSingleHammer": {
+      "title": "SLIDE (Single Hammer) - Alert Configuration"
+    },
+    "slideDoubleHammer": {
+      "title": "SLIDE (Double Hammer) - Alert Configuration"
     },
     "gibs": {
       "title": "GIBS - Alert Configuration",
@@ -2449,6 +2512,23 @@
         "success": "Thresholds updated. {count} alerts generated for {services} services.",
         "successNoRecalc": "Thresholds updated. New alerts will only be generated for future services.",
         "error": "Error updating thresholds"
+      },
+      "mode": {
+        "label": "Threshold Mode",
+        "linear": "Linear (Sequential)",
+        "central": "Central (U-Shaped)",
+        "linearDescription": "Values below yellow threshold are green, between yellow and red are yellow, above red threshold are red.",
+        "centralDescription": "The ideal value is in the center. Values too low OR too high are problematic (U-shaped)."
+      },
+      "central": {
+        "yellowMin": "Red/Yellow Boundary (Low)",
+        "greenMin": "Yellow/Green Boundary (Low)",
+        "greenMax": "Green/Yellow Boundary (High)",
+        "yellowMax": "Yellow/Red Boundary (High)",
+        "greenRange": "Green Range",
+        "yellowRange": "Yellow Range",
+        "redRange": "Red Range",
+        "or": "or"
       }
     },
     "history": {
@@ -2756,6 +2836,8 @@
     "description": "Select the parts that need to be replaced",
     "clutchBrakeParts": "Clutch & Brake Parts",
     "clutchBrakeDescription": "Select clutch and brake parts that need replacement",
+    "clutchCevolaniParts": "Clutch Cevolani Parts",
+    "clutchCevolaniDescription": "Select Cevolani clutch parts that need replacement",
     "bearingClearanceParts": "Bearing Clearance Parts",
     "bearingClearanceDescription": "Select bearing clearance parts that need replacement",
     "bearingClearanceSingleHammerParts": "Bearing Clearance Single Hammer Parts",
@@ -2833,6 +2915,7 @@
       "flywheelBrake": "Flywheel Brake",
       "motorDrive": "Motor Drive",
       "hydraulicUnit": "Hydraulic Unit",
+      "clutchCevolani": "Clutch Cevolani",
       "flywheelBearings": "Flywheel Bearings",
       "counterbalanceInner": "Counterbalance (Inner)",
       "counterbalanceOuterAirmount": "Counterbalance (Outer)",
@@ -2850,7 +2933,8 @@
     "ok": "OK",
     "warning": "Warning",
     "critical": "Critical",
-    "noData": "No Data"
+    "noData": "No Data",
+    "loading": "Loading..."
   },
   "sectionStatusCard": {
     "status": {
@@ -2872,5 +2956,10 @@
       }
     },
     "viewParts": "View Parts List"
+  },
+  "inspectionForm": {
+    "placeholders": {
+      "generatesAlert": "This field generates alerts"
+    }
   }
 }

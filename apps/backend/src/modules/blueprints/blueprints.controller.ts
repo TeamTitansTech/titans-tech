@@ -6,6 +6,7 @@ import {
   Param,
   Delete,
   Patch,
+  Query,
 } from '@nestjs/common';
 import { Prisma } from '@titans-tech/db';
 import { BlueprintsService } from './blueprints.service';
@@ -64,7 +65,8 @@ export class BlueprintsController {
   @Delete(':id')
   softDelete(
     @Param('id') id: string,
+    @Query('cascade') cascade?: string,
   ): Promise<Prisma.BlueprintGetPayload<object>> {
-    return this.blueprintsService.softDelete(id);
+    return this.blueprintsService.softDelete(id, cascade === 'true');
   }
 }

@@ -12,11 +12,11 @@ import { useTranslations } from 'next-intl';
 import { UrgentServiceModal } from './UrgentServiceModal';
 import { LatestReportModal } from '@/app/admin/machines/[id]/components/LatestReportModal';
 import { Typography } from '@/components/ui/typography';
-import type { Machine } from '@titans-tech/shared/types';
 import type { LatestReport } from '@/data/types/services.types';
 import { SectionCard } from '@/components/shared/SectionCard';
 import { getLatestReport } from '@/data/services/services.api';
 import { QRCodeGenerator } from '@/components/shared/QRCodeGenerator';
+import { Machine } from '@/data/services/machines.api';
 
 export interface MachineDetailsClientProps {
   machine: Machine;
@@ -174,6 +174,7 @@ export function MachineDetailsClient({
           report={latestReport}
           open={isReportModalOpen}
           onOpenChange={setIsReportModalOpen}
+          defaultMeasurementUnit={machine.branch?.defaultMeasurementUnit || 'INCHES'}
         />
       )}
     </>

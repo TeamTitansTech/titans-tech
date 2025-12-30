@@ -36,62 +36,75 @@ export function ThresholdRangeInput({
     <div className="space-y-3">
       <Label className="text-sm font-medium">{label}</Label>
 
-      <div className="h-10 w-full rounded-md overflow-hidden border border-border">
+      {/* Color indicator bar - responsive text */}
+      <div className="h-8 w-full rounded-md overflow-hidden border border-border sm:h-10">
         <div className="flex h-full">
-          <div className="bg-green-500 flex items-center justify-center text-white text-xs font-medium w-1/3">
-            &lt; {displayYellowMin.toFixed(4)} {unitLabel}
+          <div className="bg-green-500 flex items-center justify-center text-white text-[10px] font-medium w-1/3 px-1 sm:text-xs">
+            <span className="hidden sm:inline">
+              &lt; {displayYellowMin.toFixed(4)} {unitLabel}
+            </span>
+            <span className="sm:hidden">&lt; {displayYellowMin.toFixed(2)}</span>
           </div>
 
-          <div className="bg-yellow-500 flex items-center justify-center text-white text-xs font-medium w-1/3">
-            {displayYellowMin.toFixed(4)} - &lt; {displayRedMin.toFixed(4)} {unitLabel}
+          <div className="bg-yellow-500 flex items-center justify-center text-white text-[10px] font-medium w-1/3 px-1 sm:text-xs">
+            <span className="hidden sm:inline">
+              {displayYellowMin.toFixed(4)} - &lt; {displayRedMin.toFixed(4)} {unitLabel}
+            </span>
+            <span className="sm:hidden">
+              {displayYellowMin.toFixed(2)} - {displayRedMin.toFixed(2)}
+            </span>
           </div>
 
-          <div className="bg-red-500 flex items-center justify-center text-white text-xs font-medium w-1/3">
-            ≥ {displayRedMin.toFixed(4)} {unitLabel}
+          <div className="bg-red-500 flex items-center justify-center text-white text-[10px] font-medium w-1/3 px-1 sm:text-xs">
+            <span className="hidden sm:inline">
+              ≥ {displayRedMin.toFixed(4)} {unitLabel}
+            </span>
+            <span className="sm:hidden">≥ {displayRedMin.toFixed(2)}</span>
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-4">
+      {/* Input fields - stack on mobile */}
+      <div className="grid grid-cols-3 gap-2 sm:gap-4">
         <div className="space-y-1">
-          <Label className="text-xs text-muted-foreground flex items-center gap-1">
-            <span className="w-3 h-3 bg-green-500 rounded-full" />
-            {t('greenStartMin')}
+          <Label className="text-[10px] text-muted-foreground flex items-center gap-1 sm:text-xs">
+            <span className="w-2.5 h-2.5 bg-green-500 rounded-full shrink-0 sm:w-3 sm:h-3" />
+            <span className="truncate">{t('greenStartMin')}</span>
           </Label>
           <LengthInput
             id="green-min"
             value={greenMin}
             onChange={(val) => val !== undefined && onGreenMinChange(val)}
             showLabel={false}
-            inputClassName="text-sm"
+            inputClassName="text-xs sm:text-sm"
           />
         </div>
 
         <div className="space-y-1">
-          <Label className="text-xs text-muted-foreground flex items-center gap-1">
-            <span className="w-3 h-3 bg-yellow-500 rounded-full" />
-            {t('yellowStartMin')}
+          <Label className="text-[10px] text-muted-foreground flex items-center gap-1 sm:text-xs">
+            <span className="w-2.5 h-2.5 bg-yellow-500 rounded-full shrink-0 sm:w-3 sm:h-3" />
+            <span className="truncate">{t('yellowStartMin')}</span>
           </Label>
           <LengthInput
             id="yellow-min"
             value={yellowMin}
             onChange={(val) => val !== undefined && onYellowMinChange(val)}
             showLabel={false}
-            inputClassName="text-sm"
+            inputClassName="text-xs sm:text-sm"
           />
         </div>
 
         <div className="space-y-1">
-          <Label className="text-xs text-muted-foreground flex items-center gap-1">
-            <span className="w-3 h-3 bg-red-500 rounded-full" />
-            {t('redStartMin')}
+          <Label className="text-[10px] text-muted-foreground flex items-center gap-1 sm:text-xs">
+            <span className="w-2.5 h-2.5 bg-red-500 rounded-full shrink-0 sm:w-3 sm:h-3" />
+            <span className="truncate">{t('redStartMin')}</span>
           </Label>
           <LengthInput
             id="red-min"
             value={redMin}
             onChange={(val) => val !== undefined && onRedMinChange(val)}
             showLabel={false}
-            inputClassName="text-sm"
+            inputClassName="text-xs sm:text-sm"
           />
         </div>
       </div>

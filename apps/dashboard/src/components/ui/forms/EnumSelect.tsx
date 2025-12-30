@@ -20,6 +20,7 @@ export interface EnumSelectProps {
   label?: string;
   value: string | undefined;
   onChange: (value: string) => void;
+  onClear?: () => void;
   options: EnumOption[];
   error?: string;
   required?: boolean;
@@ -29,6 +30,7 @@ export interface EnumSelectProps {
   triggerClassName?: string;
   labelClassName?: string;
   showLabel?: boolean;
+  clearable?: boolean;
 }
 
 export function EnumSelect({
@@ -36,6 +38,7 @@ export function EnumSelect({
   label,
   value,
   onChange,
+  onClear,
   options,
   error,
   required = false,
@@ -45,6 +48,7 @@ export function EnumSelect({
   triggerClassName,
   labelClassName,
   showLabel = true,
+  clearable = false,
 }: EnumSelectProps) {
   return (
     <div className={cn('space-y-1', className)}>
@@ -69,6 +73,9 @@ export function EnumSelect({
             },
             triggerClassName,
           )}
+          clearable={clearable}
+          hasValue={!!value}
+          onClear={onClear}
         >
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>

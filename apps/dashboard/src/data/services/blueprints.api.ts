@@ -3,6 +3,7 @@ import { responseHandler } from '@/data/helpers/responseHandler';
 import type { Field, Blueprint as BlueprintBase } from '@/app/admin/blueprints/components/types';
 import { BearingClearanceThresholdsData } from '@/components/alerts/BearingClearanceThresholds';
 import { ClutchThresholdsData } from '@/components/alerts/ClutchThresholds';
+import { ClutchCevolaniThresholdsData } from '@/components/alerts/ClutchCevolaniThresholds';
 import { SlideThresholdsData } from '@/components/alerts/SlideThresholds';
 import { GibsThresholdsData } from '@/components/alerts/GibsThresholds';
 import { PistonsThresholdsData } from '@/components/alerts/PistonsThresholds';
@@ -16,6 +17,7 @@ export interface CreateBlueprintPayload {
   thresholds?: BearingClearanceThresholdsData;
   bearingClearanceSingleHammerThresholds?: BearingClearanceThresholdsData;
   clutchThresholds?: ClutchThresholdsData;
+  clutchCevolaniThresholds?: ClutchCevolaniThresholdsData;
   slideSingleHammerThresholds?: SlideThresholdsData;
   slideDoubleHammerThresholds?: SlideThresholdsData;
   gibsThresholds?: GibsThresholdsData;
@@ -31,6 +33,7 @@ export interface UpdateBlueprintPayload {
   thresholds?: BearingClearanceThresholdsData;
   bearingClearanceSingleHammerThresholds?: BearingClearanceThresholdsData;
   clutchThresholds?: ClutchThresholdsData;
+  clutchCevolaniThresholds?: ClutchCevolaniThresholdsData;
   slideSingleHammerThresholds?: SlideThresholdsData;
   slideDoubleHammerThresholds?: SlideThresholdsData;
   gibsThresholds?: GibsThresholdsData;
@@ -65,5 +68,18 @@ export const updateBlueprint = async (id: string, payload: UpdateBlueprintPayloa
   return await responseHandler<Blueprint>(`/blueprints/${id}`, {
     method: 'PATCH',
     body: payload,
+  });
+};
+
+export interface DeleteBlueprintErrorData {
+  message: string;
+  machines: { id: string; name: string }[];
+  machineCount: number;
+}
+
+export const deleteBlueprint = async (id: string, cascade: boolean = false) => {
+  const url = cascade ? `/blueprints/${id}?cascade=true` : `/blueprints/${id}`;
+  return await responseHandler<Blueprint>(url, {
+    method: 'DELETE',
   });
 };

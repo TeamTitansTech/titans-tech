@@ -33,6 +33,10 @@ export const SERVICE_SECTION_CONFIG = {
     slug: 'clutch',
     displayName: 'Clutch',
   },
+  [ServiceSection.CLUTCH_CEVOLANI]: {
+    slug: 'clutch_cevolani',
+    displayName: 'Clutch (Cevolani)',
+  },
   [ServiceSection.COUNTERBALANCE_CYLINDER_AIRBAG]: {
     slug: 'counterbalance_cylinder_airbag',
     displayName: 'Counterbalance Cylinder / Airbag',

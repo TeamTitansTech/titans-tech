@@ -61,7 +61,7 @@ export function BearingClearanceThresholds({
         </div>
       </CollapsibleTrigger>
       <CollapsibleContent>
-        <div className="border border-t-0 rounded-b-lg p-6 bg-card space-y-6">
+        <div className="border border-t-0 rounded-b-lg p-3 bg-card space-y-4 sm:p-6 sm:space-y-6">
           <ThresholdRangeInput
             label={t('totalClearance')}
             greenMin={data.totalClearance_greenMin}

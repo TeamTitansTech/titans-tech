@@ -455,7 +455,7 @@ export function SubsectionPartsModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="flex flex-col overflow-hidden sm:h-[90vh] sm:max-h-[90vh] sm:w-[95vw] sm:max-w-[95vw]">
+      <DialogContent className="flex h-[95vh] max-h-[95vh] w-[98vw] max-w-[98vw] flex-col overflow-hidden sm:h-[90vh] sm:max-h-[90vh] sm:w-[95vw] sm:max-w-[95vw]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Package className="h-5 w-5" />
@@ -469,9 +469,9 @@ export function SubsectionPartsModal({
             onValueChange={setActiveTab}
             className="flex min-h-0 w-full flex-1 flex-col"
           >
-            {/* Tabs List - Centered and Scrollable for many subsections */}
-            <div className="flex shrink-0 justify-center overflow-x-auto pb-2">
-              <div className="inline-flex gap-2 rounded-lg bg-muted p-1">
+            {/* Tabs List - Left-aligned on mobile/tablet, centered on large screens */}
+            <div className="flex shrink-0 justify-start overflow-x-auto pb-2 lg:justify-center">
+              <div className="inline-flex gap-1 rounded-lg bg-muted p-1 sm:gap-2">
                 {subsections.map((subsection) => {
                   const selectedCount = getSelectedCountForSubsection(subsection.id);
                   const fullName = getSubsectionName(subsection.id);
@@ -481,7 +481,7 @@ export function SubsectionPartsModal({
                       key={subsection.id}
                       onClick={() => setActiveTab(subsection.id)}
                       className={cn(
-                        'flex items-center gap-2 whitespace-nowrap rounded-md px-4 py-2 text-sm font-medium transition-all',
+                        'flex items-center gap-1 whitespace-nowrap rounded-md px-2 py-1.5 text-xs font-medium transition-all sm:gap-2 sm:px-4 sm:py-2 sm:text-sm',
                         isActive
                           ? 'bg-primary text-primary-foreground shadow-md'
                           : 'bg-transparent text-muted-foreground hover:bg-background hover:text-foreground',
@@ -492,7 +492,7 @@ export function SubsectionPartsModal({
                         <Badge
                           variant="secondary"
                           className={cn(
-                            'px-1.5 text-xs',
+                            'px-1 text-[10px] sm:px-1.5 sm:text-xs',
                             isActive
                               ? 'bg-primary-foreground/20 text-primary-foreground'
                               : 'bg-primary/10 text-primary',
@@ -514,9 +514,9 @@ export function SubsectionPartsModal({
                 value={subsection.id}
                 className="mt-4 min-h-0 flex-1"
               >
-                <div className="grid h-full grid-cols-1 gap-6 overflow-hidden lg:grid-cols-2">
-                  {/* Diagram Image */}
-                  <div className="flex h-full min-h-0 flex-col overflow-hidden">
+                <div className="grid h-full grid-cols-1 gap-4 overflow-hidden md:grid-cols-2 md:gap-6">
+                  {/* Diagram Image - Hidden on small mobile, shown on tablets and desktop */}
+                  <div className="hidden h-full min-h-0 flex-col overflow-hidden md:flex">
                     <div className="flex shrink-0 items-center justify-between">
                       <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">
                         {subsection.figureReference || 'Technical Diagram'}
@@ -657,15 +657,19 @@ export function SubsectionPartsModal({
                         </div>
 
                         {/* Export This Tab Buttons */}
-                        <div className="flex shrink-0 gap-2">
+                        <div className="flex shrink-0 flex-wrap gap-2">
                           <Button
                             onClick={() => exportToPDF('current')}
                             disabled={getSelectedCountForSubsection(activeTab) === 0 || isExporting}
                             variant="outline"
                             size="sm"
+                            className="text-xs sm:text-sm"
                           >
-                            <FileDown className="mr-2 h-4 w-4" />
-                            {t('exportThisTab') || 'Export This Tab'}
+                            <FileDown className="mr-1 h-3 w-3 sm:mr-2 sm:h-4 sm:w-4" />
+                            <span className="hidden sm:inline">
+                              {t('exportThisTab') || 'Export This Tab'}
+                            </span>
+                            <span className="sm:hidden">Export</span>
                             {getSelectedCountForSubsection(activeTab) > 0 &&
                               ` (${getSelectedCountForSubsection(activeTab)})`}
                           </Button>
@@ -676,15 +680,24 @@ export function SubsectionPartsModal({
                             }
                             variant="outline"
                             size="sm"
+                            className="text-xs sm:text-sm"
                           >
-                            <Mail className="mr-2 h-4 w-4" />
-                            {t('sendThisTab') || 'Send This Tab'}
+                            <Mail className="mr-1 h-3 w-3 sm:mr-2 sm:h-4 sm:w-4" />
+                            <span className="hidden sm:inline">
+                              {t('sendThisTab') || 'Send This Tab'}
+                            </span>
+                            <span className="sm:hidden">Email</span>
                           </Button>
                         </div>
 
                         {/* Select/Clear buttons */}
                         <div className="flex shrink-0 items-center gap-2">
-                          <Button variant="outline" size="sm" onClick={handleSelectAll}>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={handleSelectAll}
+                            className="text-xs sm:text-sm"
+                          >
                             {t('selectAll')}
                           </Button>
                           <Button
@@ -692,6 +705,7 @@ export function SubsectionPartsModal({
                             size="sm"
                             onClick={handleClearAll}
                             disabled={getSelectedCountForSubsection(activeTab) === 0}
+                            className="text-xs sm:text-sm"
                           >
                             {t('clearAll')}
                           </Button>
@@ -702,17 +716,17 @@ export function SubsectionPartsModal({
                           <Table>
                             <TableHeader>
                               <TableRow className="bg-muted/50">
-                                <TableHead className="w-12"></TableHead>
-                                <TableHead className="font-semibold">
+                                <TableHead className="w-10 sm:w-12"></TableHead>
+                                <TableHead className="font-semibold text-xs sm:text-sm">
                                   {t('tableHeaders.partNumber')}
                                 </TableHead>
-                                <TableHead className="font-semibold">
+                                <TableHead className="hidden font-semibold sm:table-cell">
                                   {t('tableHeaders.description')}
                                 </TableHead>
-                                <TableHead className="text-right font-semibold">
+                                <TableHead className="text-right font-semibold text-xs sm:text-sm">
                                   {t('tableHeaders.quantity')}
                                 </TableHead>
-                                <TableHead className="text-center font-semibold">
+                                <TableHead className="hidden text-center font-semibold sm:table-cell">
                                   {t('tableHeaders.unit')}
                                 </TableHead>
                               </TableRow>
@@ -736,7 +750,7 @@ export function SubsectionPartsModal({
                                       className="cursor-pointer transition-colors hover:bg-muted/50"
                                       onClick={() => handleTogglePart(part.partNumber)}
                                     >
-                                      <TableCell>
+                                      <TableCell className="p-2 sm:p-4">
                                         <div
                                           onClick={(e) => {
                                             e.stopPropagation();
@@ -754,10 +768,18 @@ export function SubsectionPartsModal({
                                           )}
                                         </div>
                                       </TableCell>
-                                      <TableCell className="font-mono text-sm">
-                                        {part.partNumber}
+                                      <TableCell className="p-2 sm:p-4">
+                                        <div className="flex flex-col">
+                                          <span className="font-mono text-xs sm:text-sm">
+                                            {part.partNumber}
+                                          </span>
+                                          {/* Show description on mobile below part number */}
+                                          <span className="text-xs text-muted-foreground sm:hidden">
+                                            {part.description}
+                                          </span>
+                                        </div>
                                       </TableCell>
-                                      <TableCell>
+                                      <TableCell className="hidden sm:table-cell">
                                         <div className="flex items-center gap-2">
                                           <span>{part.description}</span>
                                           {isSelected && (
@@ -765,8 +787,12 @@ export function SubsectionPartsModal({
                                           )}
                                         </div>
                                       </TableCell>
-                                      <TableCell className="text-right">{part.quantity}</TableCell>
-                                      <TableCell className="text-center">{part.unit}</TableCell>
+                                      <TableCell className="p-2 text-right text-xs sm:p-4 sm:text-sm">
+                                        {part.quantity}
+                                      </TableCell>
+                                      <TableCell className="hidden text-center sm:table-cell">
+                                        {part.unit}
+                                      </TableCell>
                                     </TableRow>
                                   );
                                 })
@@ -785,28 +811,33 @@ export function SubsectionPartsModal({
 
         {/* Footer with Export All Tabs button */}
         <DialogFooter className="mt-4 shrink-0 border-t pt-4">
-          <div className="flex w-full items-center justify-between">
-            <Typography variant="muted">
+          <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <Typography variant="muted" className="text-center text-xs sm:text-left sm:text-sm">
               {selectedKeys.size > 0
                 ? `${selectedKeys.size} ${t('partsSelectedAcrossTabs')}`
                 : t('selectPartsToExport')}
             </Typography>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-end">
               <Button
                 onClick={() => openEmailModal('all')}
                 disabled={selectedKeys.size === 0 || isSendingEmail}
                 variant="outline"
+                size="sm"
+                className="text-xs sm:text-sm"
               >
-                <Mail className="mr-2 h-4 w-4" />
-                {t('sendAsEmail') || 'Send as Email'}
+                <Mail className="mr-1 h-3 w-3 sm:mr-2 sm:h-4 sm:w-4" />
+                <span className="hidden sm:inline">{t('sendAsEmail') || 'Send as Email'}</span>
+                <span className="sm:hidden">Email All</span>
               </Button>
               <Button
                 onClick={() => exportToPDF('all')}
                 disabled={selectedKeys.size === 0 || isExporting}
-                className="bg-primary hover:bg-primary/90"
+                className="bg-primary text-xs hover:bg-primary/90 sm:text-sm"
+                size="sm"
               >
-                <FileDown className="mr-2 h-4 w-4" />
-                {t('exportAllTabs') || 'Export All Tabs'}
+                <FileDown className="mr-1 h-3 w-3 sm:mr-2 sm:h-4 sm:w-4" />
+                <span className="hidden sm:inline">{t('exportAllTabs') || 'Export All Tabs'}</span>
+                <span className="sm:hidden">Export All</span>
                 {selectedKeys.size > 0 && ` (${selectedKeys.size})`}
               </Button>
             </div>

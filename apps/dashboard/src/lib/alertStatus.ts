@@ -21,7 +21,7 @@ export const calculateStatusFromLatestReport = (latestReport: LatestReport | nul
 
   const allSeverities: AlertSeverity[] = [];
 
-  // Collect severities from BEARING_CLEARANCE section (outer and inner)
+  // Collect severities from BEARING_CLEARANCE section (outer and inner - double hammer)
   if (latestReport.sections.BEARING_CLEARANCE?.alert) {
     const alert = latestReport.sections.BEARING_CLEARANCE.alert;
     // Outer severities
@@ -44,6 +44,19 @@ export const calculateStatusFromLatestReport = (latestReport: LatestReport | nul
     );
   }
 
+  // Collect severities from BEARING_CLEARANCE_SINGLE_HAMMER section
+  if (latestReport.sections.BEARING_CLEARANCE_SINGLE_HAMMER?.alert) {
+    const alert = latestReport.sections.BEARING_CLEARANCE_SINGLE_HAMMER.alert;
+    allSeverities.push(
+      alert.totalClearance_severity,
+      alert.mainBearings_severity,
+      alert.upperConnectionBearings_severity,
+      alert.wristPinToMatingPart_severity,
+      alert.wristPinToBushing_severity,
+      alert.slideAdjNutToScrewSleeve_severity,
+    );
+  }
+
   // Collect severities from CLUTCH section
   if (latestReport.sections.CLUTCH?.alert) {
     const alert = latestReport.sections.CLUTCH.alert;
@@ -54,6 +67,12 @@ export const calculateStatusFromLatestReport = (latestReport: LatestReport | nul
       alert.fTB_severity,
       alert.rTB_severity,
     );
+  }
+
+  // Collect severities from CLUTCH_CEVOLANI section
+  if (latestReport.sections.CLUTCH_CEVOLANI?.alert) {
+    const alert = latestReport.sections.CLUTCH_CEVOLANI.alert;
+    allSeverities.push(alert.pneumaticClutchClearanceTotal_severity);
   }
 
   // Collect severities from SLIDE_SINGLE_HAMMER section
@@ -149,7 +168,7 @@ export const getAlertStatus = (machine: MachineWithStatus): AlertStatus => {
   const latestService = machine.services[0];
   const allSeverities: AlertSeverity[] = [];
 
-  // Check alertBearingClearance
+  // Check alertBearingClearance (double hammer - outer/inner)
   const bearingAlerts = latestService?.alertBearingClearance;
   const bearingAlert = Array.isArray(bearingAlerts) ? bearingAlerts[0] : bearingAlerts;
   if (bearingAlert) {
@@ -169,6 +188,23 @@ export const getAlertStatus = (machine: MachineWithStatus): AlertStatus => {
     );
   }
 
+  // Check alertBearingClearanceSingleHammer
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const bearingSingleAlerts = (latestService as any)?.alertBearingClearanceSingleHammer;
+  const bearingSingleAlert = Array.isArray(bearingSingleAlerts)
+    ? bearingSingleAlerts[0]
+    : bearingSingleAlerts;
+  if (bearingSingleAlert) {
+    allSeverities.push(
+      bearingSingleAlert.totalClearance_severity,
+      bearingSingleAlert.mainBearings_severity,
+      bearingSingleAlert.upperConnectionBearings_severity,
+      bearingSingleAlert.wristPinToMatingPart_severity,
+      bearingSingleAlert.wristPinToBushing_severity,
+      bearingSingleAlert.slideAdjNutToScrewSleeve_severity,
+    );
+  }
+
   // Check alertClutch
   const clutchAlerts = latestService?.alertClutch;
   const clutchAlert = Array.isArray(clutchAlerts) ? clutchAlerts[0] : clutchAlerts;
@@ -179,6 +215,22 @@ export const getAlertStatus = (machine: MachineWithStatus): AlertStatus => {
       clutchAlert.fb_severity,
       clutchAlert.fTB_severity,
       clutchAlert.rTB_severity,
+    );
+  }
+
+  // Check alertClutchCevolani
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const clutchCevolaniAlerts = (latestService as any)?.alertClutchCevolani;
+  const clutchCevolaniAlert = Array.isArray(clutchCevolaniAlerts)
+    ? clutchCevolaniAlerts[0]
+    : clutchCevolaniAlerts;
+  if (clutchCevolaniAlert) {
+    allSeverities.push(
+      clutchCevolaniAlert.hydClutchClearanceTotal_severity,
+      clutchCevolaniAlert.hydClutchClearanceRear_severity,
+      clutchCevolaniAlert.fb_severity,
+      clutchCevolaniAlert.fTB_severity,
+      clutchCevolaniAlert.rTB_severity,
     );
   }
 
@@ -314,6 +366,33 @@ export const getSectionStatusFromReport = (
       return 'ok';
     }
 
+    case 'BEARING_CLEARANCE_SINGLE_HAMMER': {
+      const bearingData = latestReport.sections.BEARING_CLEARANCE_SINGLE_HAMMER;
+      if (!bearingData?.alert) {
+        return 'ok';
+      }
+
+      const alert = bearingData.alert;
+
+      // Check all bearing fields for worst severity
+      const severities = [
+        alert.totalClearance_severity,
+        alert.mainBearings_severity,
+        alert.upperConnectionBearings_severity,
+        alert.wristPinToMatingPart_severity,
+        alert.wristPinToBushing_severity,
+        alert.slideAdjNutToScrewSleeve_severity,
+      ];
+
+      if (severities.includes('RED')) {
+        return 'alert';
+      } else if (severities.includes('YELLOW')) {
+        return 'warning';
+      }
+
+      return 'ok';
+    }
+
     case 'CLUTCH': {
       const clutchData = latestReport.sections.CLUTCH;
       if (!clutchData?.alert) {
@@ -330,6 +409,26 @@ export const getSectionStatusFromReport = (
         alert.fTB_severity,
         alert.rTB_severity,
       ];
+
+      if (severities.includes('RED')) {
+        return 'alert';
+      } else if (severities.includes('YELLOW')) {
+        return 'warning';
+      }
+
+      return 'ok';
+    }
+
+    case 'CLUTCH_CEVOLANI': {
+      const clutchCevolaniData = latestReport.sections.CLUTCH_CEVOLANI;
+      if (!clutchCevolaniData?.alert) {
+        return 'ok';
+      }
+
+      const alert = clutchCevolaniData.alert;
+
+      // Check pneumatic clutch cevolani field for severity
+      const severities = [alert.pneumaticClutchClearanceTotal_severity];
 
       if (severities.includes('RED')) {
         return 'alert';
@@ -553,9 +652,63 @@ export const getSectionStatus = (
       return 'ok';
     }
 
+    case 'BEARING_CLEARANCE_SINGLE_HAMMER': {
+      // alertBearingClearanceSingleHammer is an array - get the first (most recent) one
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const alerts = (latestService as any)?.alertBearingClearanceSingleHammer;
+      const alert = Array.isArray(alerts) ? alerts[0] : alerts;
+      if (!alert) {
+        return 'ok';
+      }
+
+      // Check all bearing fields for worst severity (single hammer - no outer/inner)
+      const severities = [
+        alert.totalClearance_severity,
+        alert.mainBearings_severity,
+        alert.upperConnectionBearings_severity,
+        alert.wristPinToMatingPart_severity,
+        alert.wristPinToBushing_severity,
+        alert.slideAdjNutToScrewSleeve_severity,
+      ];
+
+      if (severities.includes('RED')) {
+        return 'alert';
+      } else if (severities.includes('YELLOW')) {
+        return 'warning';
+      }
+
+      return 'ok';
+    }
+
     case 'CLUTCH': {
       // alertClutch is an array - get the first (most recent) one
       const alerts = latestService?.alertClutch;
+      const alert = Array.isArray(alerts) ? alerts[0] : alerts;
+      if (!alert) {
+        return 'ok';
+      }
+
+      const severities = [
+        alert.hydClutchClearanceTotal_severity,
+        alert.hydClutchClearanceRear_severity,
+        alert.fb_severity,
+        alert.fTB_severity,
+        alert.rTB_severity,
+      ];
+
+      if (severities.includes('RED')) {
+        return 'alert';
+      } else if (severities.includes('YELLOW')) {
+        return 'warning';
+      }
+
+      return 'ok';
+    }
+
+    case 'CLUTCH_CEVOLANI': {
+      // alertClutchCevolani is an array - get the first (most recent) one
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const alerts = (latestService as any)?.alertClutchCevolani;
       const alert = Array.isArray(alerts) ? alerts[0] : alerts;
       if (!alert) {
         return 'ok';

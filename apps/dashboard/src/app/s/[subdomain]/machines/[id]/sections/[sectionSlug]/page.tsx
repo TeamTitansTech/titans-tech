@@ -1,11 +1,15 @@
 import { getTranslations } from 'next-intl/server';
 import { BearingClearanceSectionWrapper } from '@/app/admin/machines/[id]/sections/[sectionSlug]/components/BearingClearanceSectionWrapper';
+import { BearingClearanceSingleHammerSectionWrapper } from '@/app/admin/machines/[id]/sections/[sectionSlug]/components/BearingClearanceSingleHammerSectionWrapper';
 import { ClutchSectionWrapper } from '@/app/admin/machines/[id]/sections/[sectionSlug]/components/ClutchSectionWrapper';
+import { ClutchCevolaniSectionWrapper } from '@/app/admin/machines/[id]/sections/[sectionSlug]/components/ClutchCevolaniSectionWrapper';
 import { SlideSingleHammerSectionWrapper } from '@/app/admin/machines/[id]/sections/[sectionSlug]/components/SlideSingleHammerSectionWrapper';
 import { SlideDoubleHammerSectionWrapper } from '@/app/admin/machines/[id]/sections/[sectionSlug]/components/SlideDoubleHammerSectionWrapper';
 import { GibsSectionWrapper } from '@/app/admin/machines/[id]/sections/[sectionSlug]/components/GibsSectionWrapper';
 import { LubricationSectionWrapper } from '@/app/admin/machines/[id]/sections/[sectionSlug]/components/LubricationSectionWrapper';
 import { CounterbalanceSectionWrapper } from '@/app/admin/machines/[id]/sections/[sectionSlug]/components/CounterbalanceSectionWrapper';
+import { PistonsSectionWrapper } from '@/app/admin/machines/[id]/sections/[sectionSlug]/components/PistonsSectionWrapper';
+import { TrammingSectionWrapper } from '@/app/admin/machines/[id]/sections/[sectionSlug]/components/TrammingSectionWrapper';
 import { Typography } from '@/components/ui/typography';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
@@ -39,7 +43,11 @@ export default async function SectionDetailPage({ params }: SectionDetailPagePro
       </div>
 
       {sectionSlug === 'bearing_clearance' && <BearingClearanceSectionWrapper machineId={id} />}
+      {sectionSlug === 'bearing_clearance_single_hammer' && (
+        <BearingClearanceSingleHammerSectionWrapper machineId={id} />
+      )}
       {sectionSlug === 'clutch' && <ClutchSectionWrapper machineId={id} />}
+      {sectionSlug === 'clutch_cevolani' && <ClutchCevolaniSectionWrapper machineId={id} />}
       {sectionSlug === 'slide_single_hammer' && <SlideSingleHammerSectionWrapper machineId={id} />}
       {sectionSlug === 'slide_double_hammer' && <SlideDoubleHammerSectionWrapper machineId={id} />}
       {sectionSlug === 'gibs' && <GibsSectionWrapper machineId={id} />}
@@ -49,14 +57,20 @@ export default async function SectionDetailPage({ params }: SectionDetailPagePro
       {sectionSlug === 'counterbalance_cylinder_airbag' && (
         <CounterbalanceSectionWrapper machineId={id} />
       )}
+      {sectionSlug === 'pistons' && <PistonsSectionWrapper machineId={id} />}
+      {sectionSlug === 'tramming' && <TrammingSectionWrapper machineId={id} />}
 
       {sectionSlug !== 'bearing_clearance' &&
+        sectionSlug !== 'bearing_clearance_single_hammer' &&
         sectionSlug !== 'clutch' &&
+        sectionSlug !== 'clutch_cevolani' &&
         sectionSlug !== 'slide_single_hammer' &&
         sectionSlug !== 'slide_double_hammer' &&
         sectionSlug !== 'gibs' &&
         sectionSlug !== 'lubrication_hydraulics_pressure_switches_oil_filter' &&
-        sectionSlug !== 'counterbalance_cylinder_airbag' && (
+        sectionSlug !== 'counterbalance_cylinder_airbag' &&
+        sectionSlug !== 'pistons' &&
+        sectionSlug !== 'tramming' && (
           <div className="text-center py-12">
             <Typography variant="muted">{t('comingSoon', { section: sectionSlug })}</Typography>
           </div>

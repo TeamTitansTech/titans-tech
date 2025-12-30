@@ -25,11 +25,13 @@ interface MachineCardInLineProps {
 
 const SECTION_I18N_KEYS: Record<string, string> = {
   BEARING_CLEARANCE: 'bearingClearance',
+  BEARING_CLEARANCE_SINGLE_HAMMER: 'bearingClearanceSingleHammer',
   SLIDE_SINGLE_HAMMER: 'slideSingleHammer',
   SLIDE_DOUBLE_HAMMER: 'slideDoubleHammer',
   GIBS: 'gibs',
   LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER: 'lubricationHydraulics',
   CLUTCH: 'clutch',
+  CLUTCH_CEVOLANI: 'clutchCevolani',
   COUNTERBALANCE_CYLINDER_AIRBAG: 'counterbalance',
   TRAMMING: 'tramming',
   PISTONS: 'pistons',

@@ -33,13 +33,18 @@ import { SECTION_REGISTRY } from './sections/registry';
 import { exportToExcel } from './utils/serviceExportUtils';
 import { SectionSummary } from './summary';
 import type { AnySectionData } from './types/service-completion.types';
-import { UnitManagerProvider, useUnitManager } from '@/contexts/UnitManagerContext';
+import {
+  UnitManagerProvider,
+  useUnitManager,
+  type LengthUnitFromEnum,
+} from '@/contexts/UnitManagerContext';
 
 interface ServiceSummaryModalProps {
   service: Service;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   hideExcelExport?: boolean;
+  defaultMeasurementUnit: LengthUnitFromEnum;
 }
 
 export function ServiceSummaryModal({
@@ -47,11 +52,12 @@ export function ServiceSummaryModal({
   open,
   onOpenChange,
   hideExcelExport,
+  defaultMeasurementUnit,
 }: ServiceSummaryModalProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="flex max-w-[1200px] flex-col overflow-hidden">
-        <UnitManagerProvider>
+      <DialogContent className="flex h-[95vh] max-h-[95vh] w-[98vw] max-w-[98vw] flex-col overflow-hidden sm:h-[90vh] sm:max-h-[90vh] sm:w-[95vw] sm:max-w-[1200px]">
+        <UnitManagerProvider defaultLengthUnit={defaultMeasurementUnit}>
           <ServiceSummaryModalContent
             service={service}
             onOpenChange={onOpenChange}
@@ -67,7 +73,7 @@ function ServiceSummaryModalContent({
   service,
   onOpenChange,
   hideExcelExport,
-}: Omit<ServiceSummaryModalProps, 'open'>) {
+}: Omit<ServiceSummaryModalProps, 'open' | 'defaultMeasurementUnit'>) {
   const t = useTranslations('machines');
   const tServices = useTranslations('services');
   const tServicesSummary = useTranslations('services.modal.summary');
@@ -108,6 +114,7 @@ function ServiceSummaryModalContent({
     gibs: 'GIBS',
     lubricationHydraulics: 'LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER',
     clutch: 'CLUTCH',
+    clutchCevolani: 'CLUTCH_CEVOLANI',
     counterbalanceCylinder: 'COUNTERBALANCE_CYLINDER_AIRBAG',
     counterbalanceCylinderAirbag: 'COUNTERBALANCE_CYLINDER_AIRBAG',
     tramming: 'TRAMMING',
@@ -283,7 +290,7 @@ function ServiceSummaryModalContent({
           <Typography variant="h4" className="mb-3 font-semibold">
             {tServicesSummary('serviceDetails')}
           </Typography>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
             <div>
               <Label className="text-xs text-muted-foreground">
                 {tServices('modal.realizationDate')}
@@ -348,7 +355,7 @@ function ServiceSummaryModalContent({
           </div>
 
           {/* Inspection Observation Fields */}
-          <div className="mt-4 grid grid-cols-2 gap-4 border-t pt-4">
+          <div className="mt-4 grid grid-cols-1 gap-3 border-t pt-4 sm:grid-cols-2 sm:gap-4">
             {/* Add all inspection observation fields here */}
             <div>
               <Label className="text-xs text-muted-foreground">
@@ -541,22 +548,25 @@ function ServiceSummaryModalContent({
         </div>
       </div>
 
-      <div className="flex items-center justify-between gap-3 border-t px-4 pt-4">
+      <div className="flex flex-col gap-3 border-t px-4 pt-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex gap-2">
           {!hideExcelExport && (
             <Button
               type="button"
               variant="outline"
+              size="sm"
               onClick={handleExportToExcel}
               className="flex items-center gap-2"
             >
               <FileSpreadsheet className="h-4 w-4" />
-              {tServicesSummary('exportExcel')}
+              <span className="hidden sm:inline">{tServicesSummary('exportExcel')}</span>
+              <span className="sm:hidden">Excel</span>
             </Button>
           )}
           <Button
             type="button"
             variant="outline"
+            size="sm"
             onClick={handleExportToPDF}
             disabled={isExportingPDF}
             className="flex items-center gap-2"
@@ -566,10 +576,16 @@ function ServiceSummaryModalContent({
             ) : (
               <FileText className="h-4 w-4" />
             )}
-            {tServicesSummary('exportPDF')}
+            <span className="hidden sm:inline">{tServicesSummary('exportPDF')}</span>
+            <span className="sm:hidden">PDF</span>
           </Button>
         </div>
-        <Button type="button" onClick={() => onOpenChange(false)}>
+        <Button
+          type="button"
+          size="sm"
+          onClick={() => onOpenChange(false)}
+          className="w-full sm:w-auto"
+        >
           {tActions('close')}
         </Button>
       </div>

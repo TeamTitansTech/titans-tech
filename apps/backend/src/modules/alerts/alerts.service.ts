@@ -19,6 +19,11 @@ import {
   ThresholdClutchResponseDto,
   AlertClutchResponseDto,
   CreateThresholdClutchSchema,
+  CreateThresholdClutchCevolaniDto,
+  UpdateThresholdClutchCevolaniDto,
+  ThresholdClutchCevolaniResponseDto,
+  AlertClutchCevolaniResponseDto,
+  CreateThresholdClutchCevolaniSchema,
   CreateAlertCounterbalanceCylinderAirbagDto,
   UpdateAlertCounterbalanceCylinderAirbagDto,
   AlertCounterbalanceCylinderAirbagResponseDto,
@@ -48,6 +53,8 @@ import {
   convertPartialThresholdToDecimal,
   convertClutchThresholdToDecimal,
   convertPartialClutchThresholdToDecimal,
+  convertClutchCevolaniThresholdToDecimal,
+  convertPartialClutchCevolaniThresholdToDecimal,
   convertSlideThresholdToDecimal,
   convertPartialSlideThresholdToDecimal,
   convertGibsThresholdToDecimal,
@@ -469,6 +476,19 @@ export class AlertsService {
     }
 
     // Calculate alerts for the single hammer data
+    console.log(
+      '🔧 [ALERTS] Generating BEARING_CLEARANCE_SINGLE_HAMMER alerts...',
+    );
+    console.log('🔧 [ALERTS] totalClearance data:', {
+      RH: data.totalClearance_RH?.toString(),
+      LH: data.totalClearance_LH?.toString(),
+    });
+    console.log('🔧 [ALERTS] totalClearance threshold:', {
+      greenMin: threshold.totalClearance_greenMin?.toString(),
+      yellowMin: threshold.totalClearance_yellowMin?.toString(),
+      redMin: threshold.totalClearance_redMin?.toString(),
+    });
+
     const alerts = {
       totalClearance: this.calculateFieldAlert(
         data.totalClearance_RH,
@@ -513,6 +533,19 @@ export class AlertsService {
         threshold.slideAdjNutToScrewSleeve_redMin,
       ),
     };
+
+    console.log('🔧 [ALERTS] Calculated severities:', {
+      totalClearance: alerts.totalClearance.severity,
+      mainBearings: alerts.mainBearings.severity,
+      upperConnectionBearings: alerts.upperConnectionBearings.severity,
+      wristPinToMatingPart: alerts.wristPinToMatingPart.severity,
+      wristPinToBushing: alerts.wristPinToBushing.severity,
+      slideAdjNutToScrewSleeve: alerts.slideAdjNutToScrewSleeve.severity,
+    });
+    console.log(
+      '🔧 [ALERTS] totalClearance differential:',
+      alerts.totalClearance.differential?.toString(),
+    );
 
     const thresholdSnapshot = {
       blueprintId: threshold.blueprintId,
@@ -577,6 +610,14 @@ export class AlertsService {
         thresholdSnapshot,
       },
     });
+
+    console.log(
+      '✅ [ALERTS] BEARING_CLEARANCE_SINGLE_HAMMER alert created successfully:',
+      {
+        id: alert.id,
+        totalClearance_severity: alert.totalClearance_severity,
+      },
+    );
 
     return new AlertBearingClearanceSingleHammerResponseDto({
       ...alert,
@@ -923,12 +964,22 @@ export class AlertsService {
   }
 
   private calculateFieldAlert(
-    RH: Decimal,
-    LH: Decimal,
+    RH: Decimal | null | undefined,
+    LH: Decimal | null | undefined,
     greenMin: Decimal,
     yellowMin: Decimal,
     redMin: Decimal,
   ) {
+    // Handle null/undefined values - return NONE severity if either value is missing
+    if (RH == null || LH == null) {
+      return {
+        RH: RH ?? new Decimal(0),
+        LH: LH ?? new Decimal(0),
+        differential: new Decimal(0),
+        severity: AlertSeverity.NONE,
+      };
+    }
+
     // Calculate differential: |RH - LH| using Decimal arithmetic for precision
     const differential = RH.minus(LH).abs();
 
@@ -1359,6 +1410,249 @@ export class AlertsService {
     }
 
     return new AlertClutchResponseDto({
+      ...alert,
+      clutchData,
+    } as any);
+  }
+
+  // ============================================================================
+  // CLUTCH CEVOLANI ALERTS
+  // ============================================================================
+
+  async getClutchCevolaniThresholdByBlueprint(blueprintId: string) {
+    const threshold = await this.prisma.thresholdClutchCevolani.findUnique({
+      where: { blueprintId },
+    });
+
+    if (!threshold) {
+      throw new NotFoundException(
+        `Clutch Cevolani threshold not found for blueprint ${blueprintId}`,
+      );
+    }
+
+    return new ThresholdClutchCevolaniResponseDto(threshold as any);
+  }
+
+  async createClutchCevolaniThreshold(dto: CreateThresholdClutchCevolaniDto) {
+    const threshold = await this.prisma.thresholdClutchCevolani.create({
+      data: {
+        blueprintId: dto.blueprintId,
+        ...convertClutchCevolaniThresholdToDecimal(dto),
+      },
+    });
+
+    return new ThresholdClutchCevolaniResponseDto(threshold as any);
+  }
+
+  async updateClutchCevolaniThreshold(
+    blueprintId: string,
+    dto: UpdateThresholdClutchCevolaniDto,
+  ) {
+    const currentThreshold =
+      await this.prisma.thresholdClutchCevolani.findUnique({
+        where: { blueprintId },
+      });
+
+    if (!currentThreshold) {
+      throw new NotFoundException(
+        `Clutch Cevolani threshold not found for blueprint ${blueprintId}`,
+      );
+    }
+
+    const mergedData = {
+      blueprintId,
+      // Pneumatic Clutch Clearance Total
+      pneumaticClutchClearanceTotal_greenMin:
+        dto.pneumaticClutchClearanceTotal_greenMin ??
+        currentThreshold.pneumaticClutchClearanceTotal_greenMin.toNumber(),
+      pneumaticClutchClearanceTotal_yellowMin:
+        dto.pneumaticClutchClearanceTotal_yellowMin ??
+        currentThreshold.pneumaticClutchClearanceTotal_yellowMin.toNumber(),
+      pneumaticClutchClearanceTotal_redMin:
+        dto.pneumaticClutchClearanceTotal_redMin ??
+        currentThreshold.pneumaticClutchClearanceTotal_redMin.toNumber(),
+    };
+
+    // Validate merged data (ensures greenMin < yellowMin < redMin for all fields)
+    try {
+      CreateThresholdClutchCevolaniSchema.parse(mergedData);
+    } catch (error) {
+      throw new BadRequestException(
+        'Invalid clutch cevolani threshold values: ' + error.message,
+      );
+    }
+
+    // Convert to Decimal and update
+    const data = convertPartialClutchCevolaniThresholdToDecimal(dto);
+
+    const threshold = await this.prisma.thresholdClutchCevolani.update({
+      where: { blueprintId },
+      data,
+    });
+
+    return new ThresholdClutchCevolaniResponseDto(threshold as any);
+  }
+
+  async deleteClutchCevolaniThreshold(blueprintId: string) {
+    await this.prisma.thresholdClutchCevolani.delete({
+      where: { blueprintId },
+    });
+  }
+
+  /**
+   * Recalculates clutch cevolani alerts for all services using a specific blueprint
+   */
+  async recalculateClutchCevolaniAlertsForBlueprint(blueprintId: string) {
+    const services = await this.prisma.machineService.findMany({
+      where: {
+        machine: {
+          blueprintId,
+        },
+        clutchCevolani: {
+          some: {},
+        },
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    let alertsGenerated = 0;
+
+    for (const service of services) {
+      try {
+        await this.generateClutchCevolaniAlertsForService(service.id);
+        alertsGenerated++;
+      } catch (error) {
+        console.warn(
+          `Failed to generate clutch cevolani alert for service ${service.id}:`,
+          error.message,
+        );
+      }
+    }
+
+    return {
+      alertsGenerated,
+      servicesAffected: services.length,
+    };
+  }
+
+  async generateClutchCevolaniAlertsForService(machineServiceId: string) {
+    const service = await this.prisma.machineService.findUnique({
+      where: { id: machineServiceId },
+      include: {
+        machine: {
+          include: {
+            blueprint: {
+              include: {
+                thresholdClutchCevolani: true,
+              },
+            },
+          },
+        },
+        clutchCevolani: {
+          include: {
+            data: true,
+          },
+        },
+      },
+    });
+
+    if (!service) {
+      throw new NotFoundException('Service not found');
+    }
+
+    const threshold = service.machine.blueprint.thresholdClutchCevolani;
+
+    if (!threshold) {
+      console.log(
+        '⚠️ [CLUTCH CEVOLANI ALERTS] No threshold configured for this blueprint - skipping alert generation',
+      );
+      return null;
+    }
+
+    if (!service.clutchCevolani || service.clutchCevolani.length === 0) {
+      console.log(
+        '⚠️ [CLUTCH CEVOLANI ALERTS] No clutch cevolani data - skipping alert generation',
+      );
+      return null;
+    }
+
+    const clutchData = service.clutchCevolani[0].data;
+
+    if (!clutchData) {
+      console.log(
+        '⚠️ [CLUTCH CEVOLANI ALERTS] No clutch cevolani measurement data found - skipping alert generation',
+      );
+      return null;
+    }
+
+    // Calculate alert for pneumatic clutch clearance total
+    const pneumaticClutchClearanceTotal = this.evaluateSingleValueAlert(
+      clutchData.pneumaticClutchClearanceTotal,
+      threshold.pneumaticClutchClearanceTotal_greenMin,
+      threshold.pneumaticClutchClearanceTotal_yellowMin,
+      threshold.pneumaticClutchClearanceTotal_redMin,
+    );
+
+    const thresholdSnapshot = {
+      blueprintId: threshold.blueprintId,
+      pneumaticClutchClearanceTotal: {
+        greenMin: threshold.pneumaticClutchClearanceTotal_greenMin.toNumber(),
+        yellowMin: threshold.pneumaticClutchClearanceTotal_yellowMin.toNumber(),
+        redMin: threshold.pneumaticClutchClearanceTotal_redMin.toNumber(),
+      },
+    };
+
+    const alert = await this.prisma.alertClutchCevolani.create({
+      data: {
+        machineServiceId,
+        pneumaticClutchClearanceTotal_value:
+          pneumaticClutchClearanceTotal.value,
+        pneumaticClutchClearanceTotal_severity:
+          pneumaticClutchClearanceTotal.severity,
+        thresholdSnapshot,
+      },
+    });
+
+    return new AlertClutchCevolaniResponseDto({
+      ...alert,
+      clutchData,
+    } as any);
+  }
+
+  async getClutchCevolaniAlertByService(machineServiceId: string) {
+    const alert = await this.prisma.alertClutchCevolani.findFirst({
+      where: { machineServiceId },
+      orderBy: { createdAt: 'desc' },
+      include: {
+        machineService: {
+          include: {
+            clutchCevolani: {
+              include: {
+                data: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!alert) {
+      throw new NotFoundException(
+        `Clutch Cevolani alert not found for service ${machineServiceId}`,
+      );
+    }
+
+    const clutchData = alert.machineService.clutchCevolani[0]?.data;
+
+    if (!clutchData) {
+      throw new NotFoundException(
+        `Clutch Cevolani data not found for service ${machineServiceId}`,
+      );
+    }
+
+    return new AlertClutchCevolaniResponseDto({
       ...alert,
       clutchData,
     } as any);
@@ -2834,21 +3128,32 @@ export class AlertsService {
     const rhLeft = toDecimal(data.rhLeft);
     const rhRight = toDecimal(data.rhRight);
 
-    // Calculate sums (lhRight + lhLeft, rhRight + rhLeft, lhTop + lhBottom, rhTop + rhBottom)
+    // Calculate alerts based on max (worst) measurement in each pair
     return {
-      lhLeftRight: this.calculateSumAlert(lhRight, lhLeft, threshold),
-      rhLeftRight: this.calculateSumAlert(rhRight, rhLeft, threshold),
-      lhTopBottom: this.calculateSumAlert(lhTop, lhBottom, threshold),
-      rhTopBottom: this.calculateSumAlert(rhTop, rhBottom, threshold),
+      lhLeftRight: this.calculateMaxAlert(lhRight, lhLeft, threshold),
+      rhLeftRight: this.calculateMaxAlert(rhRight, rhLeft, threshold),
+      lhTopBottom: this.calculateMaxAlert(lhTop, lhBottom, threshold),
+      rhTopBottom: this.calculateMaxAlert(rhTop, rhBottom, threshold),
     };
   }
 
   /**
-   * Calculate sum alert (value and severity based on sum of values)
-   * Example: if left = 0.5 and right = 0.6, sum = 1.1
-   * If threshold is 1.0, this would trigger an alert
+   * Calculate alert based on the maximum (worst) value of two measurements.
+   * For pistons, if either measurement in a pair is in warning/critical range,
+   * the pair should reflect that severity.
+   *
+   * Supports two threshold modes:
+   *
+   * LINEAR mode (traditional):
+   * - maxValue < yellowMin → GREEN (within spec)
+   * - yellowMin <= maxValue < redMin → YELLOW (warning)
+   * - maxValue >= redMin → RED (critical)
+   *
+   * CENTRAL mode (U-shaped):
+   * - Ideal value is in the middle range
+   * - Too low OR too high is problematic
    */
-  private calculateSumAlert(
+  private calculateMaxAlert(
     val1: Decimal | null,
     val2: Decimal | null,
     threshold: any,
@@ -2857,20 +3162,52 @@ export class AlertsService {
       return { value: null, severity: AlertSeverity.NONE };
     }
 
-    // Calculate sum (val1 + val2)
-    const sum = val1.plus(val2);
+    // Use the maximum (worst) value of the two measurements
+    const maxValue = Decimal.max(val1, val2);
 
-    // Evaluate severity based on sum
     let severity: AlertSeverity;
-    if (sum.lessThanOrEqualTo(threshold.difference_greenMin)) {
-      severity = AlertSeverity.GREEN;
-    } else if (sum.lessThan(threshold.difference_redMin)) {
-      severity = AlertSeverity.YELLOW;
+
+    // Check threshold mode
+    if (threshold.thresholdMode === 'CENTRAL') {
+      // CENTRAL mode: U-shaped thresholds with explicit boundaries
+      // Red low:     0 to yellowMin
+      // Yellow low:  yellowMin to greenMin
+      // Green:       greenMin to greenMax
+      // Yellow high: greenMax to yellowMax
+      // Red high:    above yellowMax
+      const yellowMin = new Decimal(threshold.central_yellowMin);
+      const greenMin = new Decimal(threshold.central_greenMin);
+      const greenMax = new Decimal(threshold.central_greenMax);
+      const yellowMax = new Decimal(threshold.central_yellowMax);
+
+      if (maxValue.lessThan(yellowMin)) {
+        // Below yellowMin = Red (too low)
+        severity = AlertSeverity.RED;
+      } else if (maxValue.lessThan(greenMin)) {
+        // Between yellowMin and greenMin = Yellow (low warning)
+        severity = AlertSeverity.YELLOW;
+      } else if (maxValue.lessThanOrEqualTo(greenMax)) {
+        // Between greenMin and greenMax = Green (ideal)
+        severity = AlertSeverity.GREEN;
+      } else if (maxValue.lessThanOrEqualTo(yellowMax)) {
+        // Between greenMax and yellowMax = Yellow (high warning)
+        severity = AlertSeverity.YELLOW;
+      } else {
+        // Above yellowMax = Red (too high)
+        severity = AlertSeverity.RED;
+      }
     } else {
-      severity = AlertSeverity.RED;
+      // LINEAR mode (default): traditional sequential thresholds
+      if (maxValue.lessThan(threshold.difference_yellowMin)) {
+        severity = AlertSeverity.GREEN;
+      } else if (maxValue.lessThan(threshold.difference_redMin)) {
+        severity = AlertSeverity.YELLOW;
+      } else {
+        severity = AlertSeverity.RED;
+      }
     }
 
-    return { value: sum, severity };
+    return { value: maxValue, severity };
   }
 
   async getPistonsAlertByService(machineServiceId: string) {

@@ -23,6 +23,7 @@ import {
   GIBS_OUTER_PARTS,
   GIBS_INNER_PARTS,
 } from './dac-parts';
+import { CLUTCH_CEVOLANI_PARTS } from './clutch-cevolani-parts';
 
 /**
  * Subsection definition with parts and optional diagram
@@ -179,6 +180,20 @@ export const CLUTCH_BRAKE_SUBSECTIONS: Subsection[] = [
 ];
 
 // =============================================================================
+// CLUTCH CEVOLANI SUBSECTIONS
+// =============================================================================
+
+export const CLUTCH_CEVOLANI_SUBSECTIONS: Subsection[] = [
+  {
+    id: 'clutch-cevolani',
+    nameKey: 'subsections.clutchCevolani',
+    description: 'Cevolani clutch assembly parts',
+    parts: CLUTCH_CEVOLANI_PARTS,
+    diagramImage: '/assets/parts-diagrams/clutch_cevolani.png',
+  },
+];
+
+// =============================================================================
 // COUNTERBALANCE SUBSECTIONS
 // =============================================================================
 
@@ -273,6 +288,7 @@ export const SECTION_SUBSECTIONS_MAP: Record<string, Subsection[]> = {
   BEARING_CLEARANCE: BEARING_CLEARANCE_SUBSECTIONS,
   BEARING_CLEARANCE_SINGLE_HAMMER: BEARING_CLEARANCE_SINGLE_HAMMER_SUBSECTIONS,
   CLUTCH: CLUTCH_BRAKE_SUBSECTIONS,
+  CLUTCH_CEVOLANI: CLUTCH_CEVOLANI_SUBSECTIONS,
   COUNTERBALANCE_CYLINDER_AIRBAG: COUNTERBALANCE_SUBSECTIONS,
   LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER: LUBRICATION_SUBSECTIONS,
   SLIDE_SINGLE_HAMMER: SLIDE_SUBSECTIONS,

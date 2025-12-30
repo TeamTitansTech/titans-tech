@@ -44,6 +44,7 @@ import {
   SectionAlertDto,
   AlertDetailDto,
   AlertSeverityDto,
+  AlertBearingClearanceSingleHammerResponseDto,
 } from '@titans-tech/shared/backend-dtos';
 import { AlertsService } from '../alerts/alerts.service';
 import {
@@ -507,6 +508,11 @@ export class ServicesService {
             data: true,
           },
         },
+        clutchCevolani: {
+          include: {
+            data: true,
+          },
+        },
         counterbalanceCylinderAirbag: {
           include: {
             outerData: true,
@@ -621,6 +627,11 @@ export class ServicesService {
             data: true,
           },
         },
+        clutchCevolani: {
+          include: {
+            data: true,
+          },
+        },
         counterbalanceCylinderAirbag: {
           include: {
             outerData: true,
@@ -723,6 +734,11 @@ export class ServicesService {
           },
         },
         clutch: {
+          include: {
+            data: true,
+          },
+        },
+        clutchCevolani: {
           include: {
             data: true,
           },
@@ -830,6 +846,11 @@ export class ServicesService {
           },
         },
         clutch: {
+          include: {
+            data: true,
+          },
+        },
+        clutchCevolani: {
           include: {
             data: true,
           },
@@ -952,6 +973,11 @@ export class ServicesService {
             data: true,
           },
         },
+        clutchCevolani: {
+          include: {
+            data: true,
+          },
+        },
         counterbalanceCylinderAirbag: {
           include: {
             outerData: true,
@@ -992,6 +1018,10 @@ export class ServicesService {
           take: 1,
         },
         alertClutch: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+        },
+        alertClutchCevolani: {
           orderBy: { createdAt: 'desc' },
           take: 1,
         },
@@ -1113,6 +1143,11 @@ export class ServicesService {
             data: true,
           },
         },
+        clutchCevolani: {
+          include: {
+            data: true,
+          },
+        },
         counterbalanceCylinderAirbag: {
           include: {
             outerData: true,
@@ -1143,6 +1178,32 @@ export class ServicesService {
         electricalControl: true,
         perpendicularity: true,
         angularity: true,
+        // Include alert entities for status display
+        alertBearingClearanceSingleHammer: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+        },
+        alertSlideSingleHammer: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+        },
+        alertSlideDoubleHammer: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+        },
+        alertGibs: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+        },
+        alertPistons: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+        },
+        alertCounterbalanceCylinderAirbag: true,
+        alertTramming: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+        },
       },
       orderBy: { date: 'desc' },
     });
@@ -1214,6 +1275,42 @@ export class ServicesService {
             latestServiceDate: latestClutchService.date,
             serviceType: latestClutchService.type,
             data: clutchMeasurements,
+            alert: alert || undefined,
+          });
+        }
+      }
+    }
+
+    // 4.5. Process Clutch Cevolani section
+    let clutchCevolaniData: LatestClutchDto | null = null;
+
+    if (machine.blueprint.sections.includes(ServiceSection.CLUTCH_CEVOLANI)) {
+      // Find the most recent service with Clutch Cevolani data
+      const latestClutchCevolaniService = services.find(
+        (service) =>
+          service.clutchCevolani && service.clutchCevolani.length > 0,
+      );
+
+      if (latestClutchCevolaniService) {
+        const clutchCevolaniMeasurements =
+          latestClutchCevolaniService.clutchCevolani[0].data;
+
+        if (clutchCevolaniMeasurements) {
+          // Try to fetch alert for this service
+          let alert = undefined;
+          try {
+            alert = await this.alertsService.getClutchCevolaniAlertByService(
+              latestClutchCevolaniService.id,
+            );
+          } catch {
+            // Alert might not exist, that's fine
+          }
+
+          clutchCevolaniData = new LatestClutchDto({
+            latestServiceId: latestClutchCevolaniService.id,
+            latestServiceDate: latestClutchCevolaniService.date,
+            serviceType: latestClutchCevolaniService.type,
+            data: clutchCevolaniMeasurements,
             alert: alert || undefined,
           });
         }
@@ -1563,6 +1660,27 @@ export class ServicesService {
       if (latestService) {
         const record = latestService.bearingClearanceSingleHammer[0];
         if (record) {
+          // Get the alert if it exists and wrap in DTO to convert Decimal values
+          const rawAlert = latestService.alertBearingClearanceSingleHammer?.[0];
+
+          console.log('📊 [LATEST_REPORT] BEARING_CLEARANCE_SINGLE_HAMMER:', {
+            serviceId: latestService.id,
+            hasAlert: !!rawAlert,
+            alertSeverity: rawAlert?.totalClearance_severity,
+          });
+
+          const alert = rawAlert
+            ? new AlertBearingClearanceSingleHammerResponseDto({
+                ...rawAlert,
+                data: record.data, // Include data for RH/LH values
+              })
+            : undefined;
+
+          console.log('📊 [LATEST_REPORT] Alert DTO:', {
+            hasAlert: !!alert,
+            severity: alert?.totalClearance_severity,
+          });
+
           bearingClearanceSingleHammerData =
             new LatestBearingClearanceSingleHammerDto({
               latestServiceId: latestService.id,
@@ -1572,6 +1690,7 @@ export class ServicesService {
                 beforeData: record.beforeData || undefined,
                 data: record.data || undefined,
               },
+              alert: alert,
             });
         }
       }
@@ -1773,6 +1892,7 @@ export class ServicesService {
         PISTONS: pistonsData,
         LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER: lubricationData,
         CLUTCH: clutchData,
+        CLUTCH_CEVOLANI: clutchCevolaniData,
         COUNTERBALANCE_CYLINDER_AIRBAG: counterbalanceData,
         TRAMMING: trammingData,
         SHIM_THICKNESS: shimThicknessData,
@@ -2685,6 +2805,93 @@ export class ServicesService {
           completedSections: updatedCompletedSections,
           lastSectionSavedAt: new Date(),
           clutch: {
+            create: {
+              data: { create: clutchData as any },
+              ...(attachments && { attachments }),
+            },
+          },
+        },
+      });
+    }
+
+    // Note: Alerts are generated only when service is completed via completeService()
+    return this.findOne(serviceId);
+  }
+
+  async updateClutchCevolani(
+    serviceId: string,
+    updateDto: ClutchData,
+    userId: string | null,
+  ): Promise<any> {
+    // Validate permission before updating
+    await this.validateServicePermissionByServiceId(
+      userId,
+      serviceId,
+      'updateServices',
+    );
+
+    const service = await this.prisma.machineService.findUnique({
+      where: { id: serviceId },
+      include: { clutchCevolani: true },
+    });
+
+    if (!service) {
+      throw new NotFoundException(`Service with ID ${serviceId} not found`);
+    }
+
+    const completedSections = Array.isArray(service.completedSections)
+      ? service.completedSections
+      : [];
+
+    const updatedCompletedSections = completedSections.includes(
+      'CLUTCH_CEVOLANI',
+    )
+      ? completedSections
+      : [...completedSections, 'CLUTCH_CEVOLANI'];
+
+    const existingRecord = service.clutchCevolani?.[0];
+    const { attachments, ...clutchData } = updateDto;
+
+    if (existingRecord) {
+      await this.prisma.$transaction(async (tx) => {
+        if (existingRecord.dataId) {
+          await tx.clutchData.update({
+            where: { id: existingRecord.dataId },
+            data: clutchData as any,
+          });
+
+          // Update attachments in junction table
+          if (attachments !== undefined) {
+            await tx.machineServiceClutchCevolani.update({
+              where: { id: existingRecord.id },
+              data: { attachments },
+            });
+          }
+        } else {
+          await tx.machineServiceClutchCevolani.update({
+            where: { id: existingRecord.id },
+            data: {
+              data: { create: clutchData as any },
+              ...(attachments !== undefined && { attachments }),
+            },
+          });
+        }
+
+        await tx.machineService.update({
+          where: { id: serviceId },
+          data: {
+            completedSections: updatedCompletedSections,
+            lastSectionSavedAt: new Date(),
+          },
+        });
+      });
+    } else {
+      await this.prisma.machineService.update({
+        where: { id: serviceId },
+        data: {
+          completedSections: updatedCompletedSections,
+          lastSectionSavedAt: new Date(),
+          clutchCevolani: {
             create: {
               data: { create: clutchData as any },
               ...(attachments && { attachments }),
@@ -3698,6 +3905,7 @@ export class ServicesService {
           include: { data: { include: { gauges: true } } },
         },
         clutch: { include: { data: true } },
+        clutchCevolani: { include: { data: true } },
         counterbalanceCylinderAirbag: {
           include: { outerData: true, innerData: true },
         },
@@ -3747,6 +3955,14 @@ export class ServicesService {
         .generateClutchAlertsForService(serviceId)
         .catch((error) => {
           console.error('Error generating clutch alerts:', error);
+        });
+    }
+
+    if (completedSectionsList.includes('CLUTCH_CEVOLANI')) {
+      this.alertsService
+        .generateClutchCevolaniAlertsForService(serviceId)
+        .catch((error) => {
+          console.error('Error generating clutch cevolani alerts:', error);
         });
     }
 
@@ -3824,6 +4040,10 @@ export class ServicesService {
           take: 1,
         },
         alertClutch: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+        },
+        alertClutchCevolani: {
           orderBy: { createdAt: 'desc' },
           take: 1,
         },
@@ -4131,6 +4351,48 @@ export class ServicesService {
         sections.push({
           sectionKey: 'CLUTCH',
           sectionName: 'Clutch',
+          severity: sectionSeverity,
+          alerts,
+        });
+        updateHighestSeverity(sectionSeverity);
+      }
+    }
+
+    // Process Clutch Cevolani alerts
+    if (service.alertClutchCevolani && service.alertClutchCevolani.length > 0) {
+      const alert = service.alertClutchCevolani[0];
+      const alerts: AlertDetailDto[] = [];
+      let sectionSeverity: AlertSeverityDto = 'NONE';
+
+      const clutchCevolaniFields = [
+        {
+          field: 'pneumaticClutchClearanceTotal',
+          label: 'Pneumatic Clutch Clearance Total',
+          severity:
+            alert.pneumaticClutchClearanceTotal_severity as AlertSeverityDto,
+          value: alert.pneumaticClutchClearanceTotal_value?.toString() || '0',
+        },
+      ];
+
+      for (const f of clutchCevolaniFields) {
+        if (f.severity === 'YELLOW' || f.severity === 'RED') {
+          alerts.push({
+            field: f.field,
+            fieldLabel: f.label,
+            value: f.value,
+            severity: f.severity,
+          });
+          alertCount++;
+          if (f.severity === 'RED') sectionSeverity = 'RED';
+          else if (f.severity === 'YELLOW' && sectionSeverity !== 'RED')
+            sectionSeverity = 'YELLOW';
+        }
+      }
+
+      if (alerts.length > 0) {
+        sections.push({
+          sectionKey: 'CLUTCH_CEVOLANI',
+          sectionName: 'Clutch Cevolani',
           severity: sectionSeverity,
           alerts,
         });

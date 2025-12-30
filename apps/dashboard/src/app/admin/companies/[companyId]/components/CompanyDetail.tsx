@@ -46,28 +46,10 @@ export function CompanyDetail({ company, branches }: CompanyDetailProps) {
           <h1 className="text-3xl font-bold tracking-tight">{company.name}</h1>
           <p className="text-muted-foreground mt-1">{t('branchesSubtitle')}</p>
         </div>
-        <Tooltip>
-          <TooltipTrigger>
-            <Button
-              onClick={() => setIsCreateDialogOpen(true)}
-              disabled={!canCreateBranch}
-              className={!canCreateBranch ? 'opacity-50 cursor-not-allowed' : ''}
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              {t('newBranch')}
-            </Button>
-          </TooltipTrigger>
-          {!canCreateBranch && (
-            <TooltipContent side="bottom" className="max-w-[250px] text-center">
-              <p className="text-sm">
-                {tLimits('branches', {
-                  current: getLimitCheck('branches').current,
-                  max: getLimitCheck('branches').max,
-                })}
-              </p>
-            </TooltipContent>
-          )}
-        </Tooltip>
+        <Button onClick={() => setIsCreateDialogOpen(true)} data-testid="create-branch-button">
+          <Plus className="w-4 h-4 mr-2" />
+          {t('newBranch')}
+        </Button>
       </div>
 
       <CompanyUsageStats company={company} />
@@ -77,7 +59,10 @@ export function CompanyDetail({ company, branches }: CompanyDetailProps) {
           <p className="text-muted-foreground">{t('noBranches')}</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          data-testid="branches-grid"
+        >
           {optimisticBranches.map((branch) => (
             <BranchCard key={branch.id} branch={branch} companyId={company.id} />
           ))}

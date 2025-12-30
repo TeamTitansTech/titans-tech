@@ -13,6 +13,7 @@ interface BearingTabContentProps {
   // "Foi Ajustado" field
   hasBeenAdjusted: YesNoNaDncType | undefined;
   onHasBeenAdjustedChange: (value: YesNoNaDncType) => void;
+  onHasBeenAdjustedClear?: () => void;
   hasBeenAdjustedId: string;
 
   // Metadata fields (Combined With + Mating Part)
@@ -20,6 +21,7 @@ interface BearingTabContentProps {
   onCombinedWithChange: (value: string) => void;
   matingPart: MatingPartType | undefined;
   onMatingPartChange: (value: MatingPartType) => void;
+  onMatingPartClear?: () => void;
   metadataPrefix: string; // e.g., 'outer', 'inner'
 
   // BearingClearanceForm props
@@ -35,11 +37,13 @@ interface BearingTabContentProps {
 export function BearingTabContent({
   hasBeenAdjusted,
   onHasBeenAdjustedChange,
+  onHasBeenAdjustedClear,
   hasBeenAdjustedId,
   combinedWith,
   onCombinedWithChange,
   matingPart,
   onMatingPartChange,
+  onMatingPartClear,
   metadataPrefix,
   bearingData,
   updateFn,
@@ -52,6 +56,7 @@ export function BearingTabContent({
         <HasBeenAdjustedSelect
           value={hasBeenAdjusted}
           onValueChange={onHasBeenAdjustedChange}
+          onClear={onHasBeenAdjustedClear}
           id={hasBeenAdjustedId}
         />
 
@@ -60,6 +65,7 @@ export function BearingTabContent({
           onCombinedWithChange={onCombinedWithChange}
           matingPartValue={matingPart}
           onMatingPartChange={onMatingPartChange}
+          onMatingPartClear={onMatingPartClear}
           prefix={metadataPrefix}
         />
       </div>

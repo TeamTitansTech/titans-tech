@@ -169,6 +169,7 @@ export function AddUserDialog({
 
       // Check if user with this email already exists in the company
       const existingUsersResponse = await getAllUsers({ companyId });
+
       const existingUser = existingUsersResponse.data?.find(
         (u) => u.email.toLowerCase() === data.email.toLowerCase(),
       );
@@ -177,10 +178,31 @@ export function AddUserDialog({
         // User already exists - assign them to selected branches
         const userId = existingUser.id;
 
-        // Filter out branches where user is already assigned
-        const userExistingBranchIds = new Set(existingUser.branches?.map((b) => b.branchId) || []);
+        // Separate active and deleted user-branch assignments
+        const activeUserBranchIds = new Set(
+          existingUser.branches?.filter((b) => !b.deletedAt).map((b) => b.branchId) || [],
+        );
+        const deletedUserBranchIds = new Set(
+          existingUser.branches?.filter((b) => b.deletedAt).map((b) => b.branchId) || [],
+        );
+
+        // Check if any selected branch has a deleted assignment
+        const selectedDeletedBranches = Array.from(selectedBranchIds).filter((branchId) =>
+          deletedUserBranchIds.has(branchId),
+        );
+        if (selectedDeletedBranches.length > 0) {
+          const affectedBranchNames = selectedDeletedBranches.map((branchId) => {
+            const branch = branches.find((b) => b.id === branchId);
+            return branch ? branch.name : branchId;
+          });
+          toast.error(t('userNeedsReactivation', { branches: affectedBranchNames.join(', ') }));
+          setIsSubmitting(false);
+          return;
+        }
+
+        // Filter out branches where user is already actively assigned
         const newBranches = selectedBranchesArray.filter(
-          (branchId) => !userExistingBranchIds.has(branchId),
+          (branchId) => !activeUserBranchIds.has(branchId),
         );
 
         if (newBranches.length === 0) {

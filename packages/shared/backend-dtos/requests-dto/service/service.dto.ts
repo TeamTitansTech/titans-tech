@@ -438,6 +438,9 @@ export const ClutchDataSchema = z.object({
   hydraulicPressureValue: z.number().optional(),
   accumulatorValue: z.string().optional(),
 
+  // Pneumatic system (for CLUTCH_CEVOLANI section)
+  pneumaticClutchClearanceTotal: z.number().optional(),
+
   // Separate Brake Seals
   separateBrakeSeals: z.enum(PrismaSeparateBrakeSealsType).optional(),
 
@@ -485,31 +488,32 @@ export type CounterbalanceCylinderCheck = z.infer<typeof CounterbalanceCylinderC
 /**
  * Tramming Data Schema (matches Prisma TrammingData model)
  * Note: The outer/inner distinction is handled by TrammingCheckSchema's outerData/innerData fields
+ * Numeric fields are optional to allow empty form inputs
  */
 export const TrammingDataSchema = z.object({
   // Top Position (4 measurements around trim pin)
-  topTop: z.number(),
-  topBottom: z.number(),
-  topLeft: z.number(),
-  topRight: z.number(),
+  topTop: z.number().optional(),
+  topBottom: z.number().optional(),
+  topLeft: z.number().optional(),
+  topRight: z.number().optional(),
 
   // Bottom Position (4 measurements around trim pin)
-  bottomTop: z.number(),
-  bottomBottom: z.number(),
-  bottomLeft: z.number(),
-  bottomRight: z.number(),
+  bottomTop: z.number().optional(),
+  bottomBottom: z.number().optional(),
+  bottomLeft: z.number().optional(),
+  bottomRight: z.number().optional(),
 
   // Left Position (4 measurements around trim pin)
-  leftTop: z.number(),
-  leftBottom: z.number(),
-  leftLeft: z.number(),
-  leftRight: z.number(),
+  leftTop: z.number().optional(),
+  leftBottom: z.number().optional(),
+  leftLeft: z.number().optional(),
+  leftRight: z.number().optional(),
 
   // Right Position (4 measurements around trim pin)
-  rightTop: z.number(),
-  rightBottom: z.number(),
-  rightLeft: z.number(),
-  rightRight: z.number(),
+  rightTop: z.number().optional(),
+  rightBottom: z.number().optional(),
+  rightLeft: z.number().optional(),
+  rightRight: z.number().optional(),
 });
 
 export type TrammingData = z.infer<typeof TrammingDataSchema>;
@@ -531,19 +535,20 @@ export type TrammingCheck = z.infer<typeof TrammingCheckSchema>;
 /**
  * Pistons Data Schema (matches Prisma PistonsData model)
  * Note: The outer/inner distinction is handled by PistonsCheckSchema's outerData/innerData fields
+ * Numeric fields are optional to allow empty form inputs
  */
 export const PistonsDataSchema = z.object({
   // LH Piston (4 measurements)
-  lhTop: z.number(),
-  lhBottom: z.number(),
-  lhLeft: z.number(),
-  lhRight: z.number(),
+  lhTop: z.number().optional(),
+  lhBottom: z.number().optional(),
+  lhLeft: z.number().optional(),
+  lhRight: z.number().optional(),
 
   // RH Piston (4 measurements)
-  rhTop: z.number(),
-  rhBottom: z.number(),
-  rhLeft: z.number(),
-  rhRight: z.number(),
+  rhTop: z.number().optional(),
+  rhBottom: z.number().optional(),
+  rhLeft: z.number().optional(),
+  rhRight: z.number().optional(),
 });
 
 export type PistonsData = z.infer<typeof PistonsDataSchema>;

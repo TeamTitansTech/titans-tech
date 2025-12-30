@@ -45,6 +45,10 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
     updateFn(field, value);
   };
 
+  const handleSelectClear = (field: keyof ClutchData) => {
+    updateFn(field, undefined);
+  };
+
   const handleNumberChange = (field: keyof ClutchData, value: string) => {
     const numValue = value === '' ? undefined : Number(value);
     updateFn(field, numValue);
@@ -93,7 +97,12 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
             value={data.clutchType || ''}
             onValueChange={(value) => handleSelectChange('clutchType', value)}
           >
-            <SelectTrigger id="clutchType">
+            <SelectTrigger
+              id="clutchType"
+              clearable
+              hasValue={!!data.clutchType}
+              onClear={() => handleSelectClear('clutchType')}
+            >
               <SelectValue placeholder={tPlaceholders('selectType')} />
             </SelectTrigger>
             <SelectContent>
@@ -112,7 +121,12 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
             value={data.clutchLocation || ''}
             onValueChange={(value) => handleSelectChange('clutchLocation', value)}
           >
-            <SelectTrigger id="clutchLocation">
+            <SelectTrigger
+              id="clutchLocation"
+              clearable
+              hasValue={!!data.clutchLocation}
+              onClear={() => handleSelectClear('clutchLocation')}
+            >
               <SelectValue placeholder={tPlaceholders('selectLocation')} />
             </SelectTrigger>
             <SelectContent>
@@ -225,7 +239,12 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
               value={data.brakeSpringStudBolt || ''}
               onValueChange={(value) => handleSelectChange('brakeSpringStudBolt', value)}
             >
-              <SelectTrigger id="brakeSpringStudBolt">
+              <SelectTrigger
+                id="brakeSpringStudBolt"
+                clearable
+                hasValue={!!data.brakeSpringStudBolt}
+                onClear={() => handleSelectClear('brakeSpringStudBolt')}
+              >
                 <SelectValue placeholder={tPlaceholders('select')} />
               </SelectTrigger>
               <SelectContent>
@@ -261,7 +280,12 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
               value={data.brakeLining || ''}
               onValueChange={(value) => handleSelectChange('brakeLining', value)}
             >
-              <SelectTrigger id="brakeLining">
+              <SelectTrigger
+                id="brakeLining"
+                clearable
+                hasValue={!!data.brakeLining}
+                onClear={() => handleSelectClear('brakeLining')}
+              >
                 <SelectValue placeholder={tPlaceholders('select')} />
               </SelectTrigger>
               <SelectContent>
@@ -321,7 +345,12 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
               value={data.flywheelBearings || ''}
               onValueChange={(value) => handleSelectChange('flywheelBearings', value)}
             >
-              <SelectTrigger id="flywheelBearings">
+              <SelectTrigger
+                id="flywheelBearings"
+                clearable
+                hasValue={!!data.flywheelBearings}
+                onClear={() => handleSelectClear('flywheelBearings')}
+              >
                 <SelectValue placeholder={tPlaceholders('select')} />
               </SelectTrigger>
               <SelectContent>
@@ -340,7 +369,12 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
               value={data.flywheelBrake || ''}
               onValueChange={(value) => handleSelectChange('flywheelBrake', value)}
             >
-              <SelectTrigger id="flywheelBrake">
+              <SelectTrigger
+                id="flywheelBrake"
+                clearable
+                hasValue={!!data.flywheelBrake}
+                onClear={() => handleSelectClear('flywheelBrake')}
+              >
                 <SelectValue placeholder={tPlaceholders('select')} />
               </SelectTrigger>
               <SelectContent>
@@ -364,7 +398,12 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
               value={data.rotaryUnion || ''}
               onValueChange={(value) => handleSelectChange('rotaryUnion', value)}
             >
-              <SelectTrigger id="rotaryUnion">
+              <SelectTrigger
+                id="rotaryUnion"
+                clearable
+                hasValue={!!data.rotaryUnion}
+                onClear={() => handleSelectClear('rotaryUnion')}
+              >
                 <SelectValue placeholder={tPlaceholders('select')} />
               </SelectTrigger>
               <SelectContent>
@@ -383,7 +422,12 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
               value={data.clutchLining || ''}
               onValueChange={(value) => handleSelectChange('clutchLining', value)}
             >
-              <SelectTrigger id="clutchLining">
+              <SelectTrigger
+                id="clutchLining"
+                clearable
+                hasValue={!!data.clutchLining}
+                onClear={() => handleSelectClear('clutchLining')}
+              >
                 <SelectValue placeholder={tPlaceholders('select')} />
               </SelectTrigger>
               <SelectContent>
@@ -402,7 +446,12 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
               value={data.clutchSeals || ''}
               onValueChange={(value) => handleSelectChange('clutchSeals', value)}
             >
-              <SelectTrigger id="clutchSeals">
+              <SelectTrigger
+                id="clutchSeals"
+                clearable
+                hasValue={!!data.clutchSeals}
+                onClear={() => handleSelectClear('clutchSeals')}
+              >
                 <SelectValue placeholder={tPlaceholders('select')} />
               </SelectTrigger>
               <SelectContent>
@@ -493,7 +542,12 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
               value={data.airLineOilerSetting || ''}
               onValueChange={(value) => handleSelectChange('airLineOilerSetting', value)}
             >
-              <SelectTrigger id="airLineOilerSetting">
+              <SelectTrigger
+                id="airLineOilerSetting"
+                clearable
+                hasValue={!!data.airLineOilerSetting}
+                onClear={() => handleSelectClear('airLineOilerSetting')}
+              >
                 <SelectValue placeholder={tPlaceholders('select')} />
               </SelectTrigger>
               <SelectContent>
@@ -512,7 +566,12 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
               value={data.splinesDriveRingDisc || ''}
               onValueChange={(value) => handleSelectChange('splinesDriveRingDisc', value)}
             >
-              <SelectTrigger id="splinesDriveRingDisc">
+              <SelectTrigger
+                id="splinesDriveRingDisc"
+                clearable
+                hasValue={!!data.splinesDriveRingDisc}
+                onClear={() => handleSelectClear('splinesDriveRingDisc')}
+              >
                 <SelectValue placeholder={tPlaceholders('select')} />
               </SelectTrigger>
               <SelectContent>
@@ -531,7 +590,12 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
               value={data.adjustingNutLockSecure || ''}
               onValueChange={(value) => handleSelectChange('adjustingNutLockSecure', value)}
             >
-              <SelectTrigger id="adjustingNutLockSecure">
+              <SelectTrigger
+                id="adjustingNutLockSecure"
+                clearable
+                hasValue={!!data.adjustingNutLockSecure}
+                onClear={() => handleSelectClear('adjustingNutLockSecure')}
+              >
                 <SelectValue placeholder={tPlaceholders('select')} />
               </SelectTrigger>
               <SelectContent>
@@ -550,7 +614,12 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
               value={data.separateBrakeSeals || ''}
               onValueChange={(value) => handleSelectChange('separateBrakeSeals', value)}
             >
-              <SelectTrigger id="separateBrakeSeals">
+              <SelectTrigger
+                id="separateBrakeSeals"
+                clearable
+                hasValue={!!data.separateBrakeSeals}
+                onClear={() => handleSelectClear('separateBrakeSeals')}
+              >
                 <SelectValue placeholder={tPlaceholders('select')} />
               </SelectTrigger>
               <SelectContent>
@@ -613,7 +682,12 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
               value={data.flexDisc || ''}
               onValueChange={(value) => handleSelectChange('flexDisc', value)}
             >
-              <SelectTrigger id="flexDisc">
+              <SelectTrigger
+                id="flexDisc"
+                clearable
+                hasValue={!!data.flexDisc}
+                onClear={() => handleSelectClear('flexDisc')}
+              >
                 <SelectValue placeholder={tPlaceholders('select')} />
               </SelectTrigger>
               <SelectContent>

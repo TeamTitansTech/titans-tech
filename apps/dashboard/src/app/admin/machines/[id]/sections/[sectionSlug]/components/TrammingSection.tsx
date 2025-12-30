@@ -8,7 +8,7 @@ import { Typography } from '@/components/ui/typography';
 import { Label } from '@/components/ui/label';
 import { useTranslations } from 'next-intl';
 import { Calendar as CalendarIcon } from 'lucide-react';
-import { useState, useMemo, useRef, useCallback } from 'react';
+import { useState, useMemo, useRef, useCallback, useEffect } from 'react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import type { DateRange } from 'react-day-picker';
@@ -16,14 +16,23 @@ import type { TrammingInspectionData } from './TrammingSectionWrapper';
 import { useUnitManager } from '@/contexts/UnitManagerContext';
 import { SectionExportButton } from '@/components/shared/SectionExportButton';
 import { MultiLineThresholdChart } from '@/components/charts/MultiLineThresholdChart';
+import { getTrammingThresholdByBlueprint } from '@/actions/alerts';
+import type { ThresholdConfig } from '@/components/charts/types';
 
 interface TrammingSectionProps {
   machineId: string;
   inspections: TrammingInspectionData[];
   machineName: string;
+  blueprintId: string;
+  hideThresholdValues?: boolean;
 }
 
-export function TrammingSection({ inspections, machineName }: TrammingSectionProps) {
+export function TrammingSection({
+  inspections,
+  machineName,
+  blueprintId,
+  hideThresholdValues = false,
+}: TrammingSectionProps) {
   const t = useTranslations('machines.sectionDetails');
   const contentRef = useRef<HTMLDivElement>(null);
   const { lengthUnit, setLengthUnit, convertLengthFromDefault, getLengthUnitLabel } =
@@ -38,6 +47,44 @@ export function TrammingSection({ inspections, machineName }: TrammingSectionPro
     }
     return undefined;
   });
+
+  // Threshold state
+  const [threshold, setThreshold] = useState<ThresholdConfig | null>(null);
+
+  // Fetch threshold data
+  useEffect(() => {
+    async function fetchThreshold() {
+      if (!blueprintId) return;
+
+      try {
+        const response = await getTrammingThresholdByBlueprint(blueprintId);
+        if (response.data) {
+          // Extract threshold config from response
+          const data = response.data as { greenMin: number; yellowMin: number; redMin: number };
+          setThreshold({
+            greenMin: data.greenMin,
+            yellowMin: data.yellowMin,
+            redMin: data.redMin,
+            label: 'tramming',
+          });
+        }
+      } catch (error) {
+        console.error('Failed to fetch tramming threshold:', error);
+      }
+    }
+    fetchThreshold();
+  }, [blueprintId]);
+
+  // Convert threshold based on display unit
+  const convertedThreshold = useMemo((): ThresholdConfig | null => {
+    if (!threshold) return null;
+    return {
+      greenMin: convertLengthFromDefault(threshold.greenMin),
+      yellowMin: convertLengthFromDefault(threshold.yellowMin),
+      redMin: convertLengthFromDefault(threshold.redMin),
+      label: threshold.label,
+    };
+  }, [threshold, convertLengthFromDefault]);
 
   // Convert value based on display unit (data stored in mm)
   const convertValue = useCallback(
@@ -198,6 +245,69 @@ export function TrammingSection({ inspections, machineName }: TrammingSectionPro
           rightBottom: Number(convertValue(Number(data.rightBottom))) || 0,
           rightLeft: Number(convertValue(Number(data.rightLeft))) || 0,
           rightRight: Number(convertValue(Number(data.rightRight))) || 0,
+        };
+      })
+      .reverse();
+  }, [filteredInspections, convertValue]);
+
+  // Transform data for sum-based charts - Outer (Vertical Sum = top+bottom, Horizontal Sum = left+right)
+  const outerSumChartData = useMemo(() => {
+    return filteredInspections
+      .filter((inspection) => inspection.tramming?.[0]?.outerData)
+      .map((inspection) => {
+        const data = inspection.tramming[0]!.outerData!;
+        // Calculate vertical sums (top + bottom) and horizontal sums (left + right) for each position
+        return {
+          date: format(new Date(inspection.date), 'dd/MM/yyyy'),
+          // Top position sums
+          topVerticalSum: Number(convertValue(Number(data.topTop) + Number(data.topBottom))) || 0,
+          topHorizontalSum: Number(convertValue(Number(data.topLeft) + Number(data.topRight))) || 0,
+          // Bottom position sums
+          bottomVerticalSum:
+            Number(convertValue(Number(data.bottomTop) + Number(data.bottomBottom))) || 0,
+          bottomHorizontalSum:
+            Number(convertValue(Number(data.bottomLeft) + Number(data.bottomRight))) || 0,
+          // Left position sums
+          leftVerticalSum:
+            Number(convertValue(Number(data.leftTop) + Number(data.leftBottom))) || 0,
+          leftHorizontalSum:
+            Number(convertValue(Number(data.leftLeft) + Number(data.leftRight))) || 0,
+          // Right position sums
+          rightVerticalSum:
+            Number(convertValue(Number(data.rightTop) + Number(data.rightBottom))) || 0,
+          rightHorizontalSum:
+            Number(convertValue(Number(data.rightLeft) + Number(data.rightRight))) || 0,
+        };
+      })
+      .reverse();
+  }, [filteredInspections, convertValue]);
+
+  // Transform data for sum-based charts - Inner
+  const innerSumChartData = useMemo(() => {
+    return filteredInspections
+      .filter((inspection) => inspection.tramming?.[0]?.innerData)
+      .map((inspection) => {
+        const data = inspection.tramming[0]!.innerData!;
+        return {
+          date: format(new Date(inspection.date), 'dd/MM/yyyy'),
+          // Top position sums
+          topVerticalSum: Number(convertValue(Number(data.topTop) + Number(data.topBottom))) || 0,
+          topHorizontalSum: Number(convertValue(Number(data.topLeft) + Number(data.topRight))) || 0,
+          // Bottom position sums
+          bottomVerticalSum:
+            Number(convertValue(Number(data.bottomTop) + Number(data.bottomBottom))) || 0,
+          bottomHorizontalSum:
+            Number(convertValue(Number(data.bottomLeft) + Number(data.bottomRight))) || 0,
+          // Left position sums
+          leftVerticalSum:
+            Number(convertValue(Number(data.leftTop) + Number(data.leftBottom))) || 0,
+          leftHorizontalSum:
+            Number(convertValue(Number(data.leftLeft) + Number(data.leftRight))) || 0,
+          // Right position sums
+          rightVerticalSum:
+            Number(convertValue(Number(data.rightTop) + Number(data.rightBottom))) || 0,
+          rightHorizontalSum:
+            Number(convertValue(Number(data.rightLeft) + Number(data.rightRight))) || 0,
         };
       })
       .reverse();
@@ -438,6 +548,94 @@ export function TrammingSection({ inspections, machineName }: TrammingSectionPro
               {t('labels.measurementTrends')}
             </Typography>
 
+            {/* Sum-based charts with thresholds */}
+            {convertedThreshold && (
+              <>
+                <Typography variant="large" className="text-muted-foreground mb-2 font-semibold">
+                  {t('labels.outer')} - Sums
+                </Typography>
+
+                {/* Outer Vertical Sums Chart */}
+                <MultiLineThresholdChart
+                  title={`${t('labels.outer')} - ${t('labels.verticalSum')}`}
+                  data={outerSumChartData}
+                  lines={[
+                    { dataKey: 'topVerticalSum', label: t('labels.top'), color: '#8884d8' },
+                    { dataKey: 'bottomVerticalSum', label: t('labels.bottom'), color: '#06b6d4' },
+                    { dataKey: 'leftVerticalSum', label: t('labels.left'), color: '#3b82f6' },
+                    { dataKey: 'rightVerticalSum', label: t('labels.right'), color: '#ec4899' },
+                  ]}
+                  sharedThreshold={convertedThreshold}
+                  valueUnit={getLengthUnitLabel()}
+                  allowToggle={true}
+                  hideThresholdValues={hideThresholdValues}
+                  height={300}
+                />
+
+                {/* Outer Horizontal Sums Chart */}
+                <MultiLineThresholdChart
+                  title={`${t('labels.outer')} - ${t('labels.horizontalSum')}`}
+                  data={outerSumChartData}
+                  lines={[
+                    { dataKey: 'topHorizontalSum', label: t('labels.top'), color: '#10b981' },
+                    { dataKey: 'bottomHorizontalSum', label: t('labels.bottom'), color: '#f59e0b' },
+                    { dataKey: 'leftHorizontalSum', label: t('labels.left'), color: '#ef4444' },
+                    { dataKey: 'rightHorizontalSum', label: t('labels.right'), color: '#8b5cf6' },
+                  ]}
+                  sharedThreshold={convertedThreshold}
+                  valueUnit={getLengthUnitLabel()}
+                  allowToggle={true}
+                  hideThresholdValues={hideThresholdValues}
+                  height={300}
+                />
+
+                <Typography
+                  variant="large"
+                  className="text-muted-foreground mb-2 mt-6 font-semibold"
+                >
+                  {t('labels.inner')} - Sums
+                </Typography>
+
+                {/* Inner Vertical Sums Chart */}
+                <MultiLineThresholdChart
+                  title={`${t('labels.inner')} - ${t('labels.verticalSum')}`}
+                  data={innerSumChartData}
+                  lines={[
+                    { dataKey: 'topVerticalSum', label: t('labels.top'), color: '#8884d8' },
+                    { dataKey: 'bottomVerticalSum', label: t('labels.bottom'), color: '#06b6d4' },
+                    { dataKey: 'leftVerticalSum', label: t('labels.left'), color: '#3b82f6' },
+                    { dataKey: 'rightVerticalSum', label: t('labels.right'), color: '#ec4899' },
+                  ]}
+                  sharedThreshold={convertedThreshold}
+                  valueUnit={getLengthUnitLabel()}
+                  allowToggle={true}
+                  hideThresholdValues={hideThresholdValues}
+                  height={300}
+                />
+
+                {/* Inner Horizontal Sums Chart */}
+                <MultiLineThresholdChart
+                  title={`${t('labels.inner')} - ${t('labels.horizontalSum')}`}
+                  data={innerSumChartData}
+                  lines={[
+                    { dataKey: 'topHorizontalSum', label: t('labels.top'), color: '#10b981' },
+                    { dataKey: 'bottomHorizontalSum', label: t('labels.bottom'), color: '#f59e0b' },
+                    { dataKey: 'leftHorizontalSum', label: t('labels.left'), color: '#ef4444' },
+                    { dataKey: 'rightHorizontalSum', label: t('labels.right'), color: '#8b5cf6' },
+                  ]}
+                  sharedThreshold={convertedThreshold}
+                  valueUnit={getLengthUnitLabel()}
+                  allowToggle={true}
+                  hideThresholdValues={hideThresholdValues}
+                  height={300}
+                />
+              </>
+            )}
+
+            <Typography variant="large" className="text-muted-foreground mb-2 mt-6 font-semibold">
+              {t('labels.outer')} - {t('labels.individualMeasurements')}
+            </Typography>
+
             {/* Outer Top Row Measurements Chart */}
             <MultiLineThresholdChart
               title={t('chartTitles.outerTopRowMeasurements')}
@@ -497,6 +695,10 @@ export function TrammingSection({ inspections, machineName }: TrammingSectionPro
               allowToggle={true}
               height={300}
             />
+
+            <Typography variant="large" className="text-muted-foreground mb-2 mt-6 font-semibold">
+              {t('labels.inner')} - {t('labels.individualMeasurements')}
+            </Typography>
 
             {/* Inner Top Row Measurements Chart */}
             <MultiLineThresholdChart

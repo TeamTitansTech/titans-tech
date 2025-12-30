@@ -3,7 +3,7 @@
 import * as React from 'react';
 import * as SelectPrimitive from '@radix-ui/react-select';
 import { cn } from '@/lib/utils';
-import { CheckIcon, ChevronDownIcon, ChevronUpIcon } from '@radix-ui/react-icons';
+import { CheckIcon, ChevronDownIcon, ChevronUpIcon, Cross2Icon } from '@radix-ui/react-icons';
 
 // Custom event to close other selects when one opens
 const CLOSE_SELECTS_EVENT = 'close-other-selects';
@@ -12,12 +12,15 @@ interface SelectProps extends React.ComponentPropsWithoutRef<typeof SelectPrimit
   children: React.ReactNode;
 }
 
-function Select({ children, open, onOpenChange, ...props }: SelectProps) {
+function Select({ children, open, onOpenChange, value, ...props }: SelectProps) {
   const selectId = React.useId();
   const [internalOpen, setInternalOpen] = React.useState(false);
 
   const isControlled = open !== undefined;
   const isOpen = isControlled ? open : internalOpen;
+
+  // Convert undefined to empty string for Radix compatibility when clearing
+  const normalizedValue = value === undefined ? '' : value;
 
   const handleOpenChange = React.useCallback(
     (newOpen: boolean) => {
@@ -54,7 +57,12 @@ function Select({ children, open, onOpenChange, ...props }: SelectProps) {
   }, [selectId, isOpen, isControlled, onOpenChange]);
 
   return (
-    <SelectPrimitive.Root open={isOpen} onOpenChange={handleOpenChange} {...props}>
+    <SelectPrimitive.Root
+      open={isOpen}
+      onOpenChange={handleOpenChange}
+      value={normalizedValue}
+      {...props}
+    >
       {children}
     </SelectPrimitive.Root>
   );
@@ -64,24 +72,60 @@ const SelectGroup = SelectPrimitive.Group;
 
 const SelectValue = SelectPrimitive.Value;
 
+interface SelectTriggerProps
+  extends React.ComponentPropsWithoutRef<typeof SelectPrimitive.Trigger> {
+  clearable?: boolean;
+  onClear?: () => void;
+  hasValue?: boolean;
+}
+
 const SelectTrigger = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Trigger>,
-  React.ComponentPropsWithoutRef<typeof SelectPrimitive.Trigger>
->(({ className, children, ...props }, ref) => (
-  <SelectPrimitive.Trigger
-    ref={ref}
-    className={cn(
-      'flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-background cursor-pointer data-[placeholder]:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1',
-      className,
-    )}
-    {...props}
-  >
-    {children}
-    <SelectPrimitive.Icon asChild>
-      <ChevronDownIcon className="h-4 w-4 opacity-50" />
-    </SelectPrimitive.Icon>
-  </SelectPrimitive.Trigger>
-));
+  SelectTriggerProps
+>(({ className, children, clearable, onClear, hasValue, ...props }, ref) => {
+  const handleClearPointerDown = (e: React.PointerEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onClear?.();
+  };
+
+  const handleClearClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const showClearButton = clearable && hasValue && onClear && !props.disabled;
+
+  return (
+    <SelectPrimitive.Trigger
+      ref={ref}
+      className={cn(
+        'flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-background cursor-pointer data-[placeholder]:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50',
+        className,
+      )}
+      {...props}
+    >
+      <span className="flex flex-1 items-center gap-2 truncate text-left">{children}</span>
+      <div className="flex items-center gap-1 shrink-0 ml-2">
+        {showClearButton && (
+          <button
+            type="button"
+            onPointerDown={handleClearPointerDown}
+            onClick={handleClearClick}
+            className="h-4 w-4 rounded-full hover:bg-muted flex items-center justify-center"
+            tabIndex={-1}
+          >
+            <Cross2Icon className="h-3 w-3 text-muted-foreground hover:text-foreground" />
+            <span className="sr-only">Clear selection</span>
+          </button>
+        )}
+        <SelectPrimitive.Icon asChild>
+          <ChevronDownIcon className="h-4 w-4 opacity-50" />
+        </SelectPrimitive.Icon>
+      </div>
+    </SelectPrimitive.Trigger>
+  );
+});
 SelectTrigger.displayName = SelectPrimitive.Trigger.displayName;
 
 const SelectScrollUpButton = React.forwardRef<

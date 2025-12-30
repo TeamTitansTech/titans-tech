@@ -201,6 +201,16 @@
       "users": "usuarios",
       "clickToViewUsers": "Haga clic para ver usuarios"
     },
+    "branchSettings": {
+      "title": "Configuración de Sucursal",
+      "description": "Configure las preferencias predeterminadas para esta sucursal",
+      "defaultUnit": "Unidad de Medida Predeterminada",
+      "defaultUnitDescription": "Unidad predeterminada para mostrar medidas",
+      "inches": "Pulgadas (in)",
+      "mm": "Milímetros (mm)",
+      "saved": "Configuración guardada",
+      "saveError": "Error al guardar configuración"
+    },
     "userManagement": {
       "title": "Cuentas de Usuario",
       "loading": "Cargando usuarios...",
@@ -281,6 +291,7 @@
       "success": "Usuario agregado exitosamente",
       "successExistingUser": "{count, plural, =1 {Usuario asignado a 1 nueva sucursal} other {Usuario asignado a # nuevas sucursales}}",
       "userAlreadyInAllBranches": "Este usuario ya está en todas las sucursales seleccionadas",
+      "userNeedsReactivation": "Este usuario fue previamente desactivado en las siguientes sucursales: {branches}. Por favor, reactive al usuario en lugar de agregarlo nuevamente.",
       "error": "Error al agregar usuario"
     },
     "editUserDialog": {
@@ -827,6 +838,7 @@
     "gibs": "Guías",
     "lubrication_hydraulics_pressure_switches_oil_filter": "Lubricación / Hidráulica / Interruptores de Presión / Aceite y Filtro",
     "clutch": "Embrague",
+    "clutch_cevolani": "Embrague (Cevolani)",
     "counterbalance_cylinder_airbag": "Cilindro de Contrapeso / Bolsa de Aire",
     "tramming": "Tramming",
     "pistons": "Pistones",
@@ -909,7 +921,18 @@
     "field": "campo",
     "fields": "campos",
     "edit": "Editar",
-    "thresholds": "Configurar Thresholds"
+    "thresholds": "Configurar Thresholds",
+    "deleteConfirmTitle": "Eliminar Modelo",
+    "deleteConfirmDescription": "¿Estás seguro de que deseas eliminar \"{name}\"? Esta acción no se puede deshacer.",
+    "deleteError": "Error al eliminar modelo",
+    "deleteSuccess": "Modelo eliminado",
+    "deleteSuccessDescription": "\"{name}\" ha sido eliminado exitosamente",
+    "deleteWithMachinesTitle": "Eliminar Modelo con Máquinas",
+    "deleteWithMachinesWarning": "El modelo \"{name}\" tiene {count} máquina(s) registrada(s). Eliminar este modelo también eliminará todas las máquinas asociadas.",
+    "machinesList": "Máquinas que serán eliminadas",
+    "deleteWithMachinesConfirm": "¿Estás seguro de que deseas continuar? Esta acción no se puede deshacer.",
+    "deleteWithMachinesButton": "Eliminar Modelo y Máquinas",
+    "deleteSuccessWithMachines": "\"{name}\" y todas las máquinas asociadas han sido eliminados"
   },
   "machines": {
     "title": "Crear Máquina",
@@ -1019,6 +1042,7 @@
       "gibs": "Guías",
       "lubricationHydraulics": "Lubricación / Hidráulica",
       "clutch": "Holgura de Embrague y Freno - CP 2",
+      "clutchCevolani": "Embrague Cevolani",
       "counterbalance": "Cilindro de Contrapeso / Bolsa de Aire",
       "counterbalanceCylinder": "Cilindro de Contrapeso / Bolsa de Aire",
       "tramming": "Tramming",
@@ -1100,6 +1124,7 @@
       "createInspection": "Crear Inspección",
       "sectionTitles": {
         "clutchMeasurements": "Mediciones del Embrague",
+        "clutchCevolaniMeasurements": "Mediciones del Embrague Cevolani",
         "slideMeasurements": "Mediciones del Carro",
         "gibsMeasurements": "Mediciones de las Guías",
         "lubricationStatus": "Estado de Lubricación e Hidráulica",
@@ -1113,6 +1138,7 @@
       },
       "chartTitles": {
         "hydraulicClutchClearance": "Holgura del Embrague Hidráulico",
+        "pneumaticClutchClearance": "Holgura del Embrague Neumático",
         "brakeSpringMeasurements": "Mediciones del Resorte del Freno (F-B, F-TB, R-TB)",
         "slideMaxDeviation": "Desviación Máxima del Carro (Externo vs Interno)",
         "slidePositions": "Posiciones del Carro (Posición 1-5)",
@@ -1155,6 +1181,7 @@
         "filterChanged": "Filtro Cambiado",
         "hydClutchTotal": "Embrague Hid. Total",
         "hydClutchRear": "Embrague Hid. Trasero",
+        "pneumaticClutchTotal": "Embrague Neumático Total",
         "leakLocation": "Ubicación de Fuga",
         "outerIssues": "Problemas Externos",
         "innerIssues": "Problemas Internos",
@@ -1166,6 +1193,9 @@
         "noLubricationData": "No hay datos de lubricación disponibles",
         "noCounterbalanceData": "No hay datos de contrapeso disponibles",
         "measurementTrends": "Tendencias de Mediciones",
+        "verticalSum": "Suma Vertical",
+        "horizontalSum": "Suma Horizontal",
+        "individualMeasurements": "Mediciones Individuales",
         "notes": "Notas",
         "mm": "mm",
         "pistons": "Pistones",
@@ -1296,6 +1326,9 @@
         "measurement": "Medición",
         "differential": "Diferencial",
         "status": "Estado"
+      },
+      "clutchCevolani": {
+        "pneumaticClutchClearanceTotal": "Holgura de Embrague Neumático (Total)"
       }
     },
     "form": {
@@ -1668,11 +1701,11 @@
         "fields": {
           "clutchType": "Tipo de Embrague",
           "clutchLocation": "Ubicación del Embrague",
-          "brakeSpringBrake": "Freno (pulgadas)",
-          "brakeSpringClutch": "Embrague (pulgadas)",
-          "brakeSpringFB": "F-B (pulgadas)",
-          "brakeSpringFTB": "F-TB (pulgadas)",
-          "brakeSpringRTB": "R-TB (pulgadas)",
+          "brakeSpringBrake": "Freno",
+          "brakeSpringClutch": "Embrague",
+          "brakeSpringFB": "F-B",
+          "brakeSpringFTB": "F-TB",
+          "brakeSpringRTB": "R-TB",
           "brakeSpringStudBolt": "Perno/Tornillo del Resorte del Freno",
           "brakeStoppingTime": "Tiempo de Frenado",
           "brakeLining": "Revestimiento del Freno",
@@ -1733,6 +1766,23 @@
           "required": "Este campo es obligatorio",
           "hydClutchClearanceTotalRequired": "Embrague: Holgura del Embrague Hidráulico (Total) es obligatoria",
           "hydClutchClearanceRearRequired": "Embrague: Holgura del Embrague Hidráulico (Trasera) es obligatoria"
+        }
+      },
+      "clutchCevolani": {
+        "sections": {
+          "pneumaticSystem": "Sistema Neumático"
+        },
+        "fields": {
+          "pneumaticClutchClearanceTotal": "Holgura de Embrague Neumático (Total)"
+        },
+        "placeholders": {
+          "pneumaticClutchClearanceTotal": "Ingrese la holgura total"
+        },
+        "tooltips": {
+          "pneumaticClutchClearanceTotal": "Este campo genera alertas basadas en los umbrales configurados"
+        },
+        "validation": {
+          "pneumaticClutchClearanceTotalRequired": "Embrague Cevolani: Holgura de Embrague Neumático (Total) es obligatoria"
         }
       },
       "counterbalanceCylinder": {
@@ -2414,6 +2464,9 @@
       "wristPinToBushing": "Pasador de Muñeca a Casquillo",
       "slideAdjNutToScrewSleeve": "Tuerca de Ajuste de Corredera a Tornillo/Manguito"
     },
+    "bearingClearanceSingleHammer": {
+      "title": "HOLGURA DE COJINETE (Martillo Único) - Configuración de Alerta"
+    },
     "clutch": {
       "title": "EMBRAGUE - Configuración de Alerta",
       "hydClutchClearanceTotal": "Holgura del Embrague Hidráulico Total",
@@ -2422,9 +2475,19 @@
       "fTB": "F-TB (Frente Superior-Inferior)",
       "rTB": "R-TB (Trasera Superior-Inferior)"
     },
+    "clutchCevolani": {
+      "title": "EMBRAGUE CEVOLANI - Configuración de Alerta",
+      "pneumaticClutchClearanceTotal": "Holgura de Embrague Neumático (Total)"
+    },
     "slide": {
       "title": "SLIDE - Configuración de Alerta",
       "maxDeviation": "Desviación Máxima"
+    },
+    "slideSingleHammer": {
+      "title": "SLIDE (Martillo Único) - Configuración de Alerta"
+    },
+    "slideDoubleHammer": {
+      "title": "SLIDE (Martillo Doble) - Configuración de Alerta"
     },
     "gibs": {
       "title": "GIBS - Configuración de Alerta",
@@ -2450,6 +2513,23 @@
         "success": "Thresholds actualizados. {count} alertas generadas para {services} servicios.",
         "successNoRecalc": "Thresholds actualizados. Las nuevas alertas solo se generarán para servicios futuros.",
         "error": "Error al actualizar thresholds"
+      },
+      "mode": {
+        "label": "Modo de Threshold",
+        "linear": "Lineal (Secuencial)",
+        "central": "Central (Forma U)",
+        "linearDescription": "Valores por debajo del límite amarillo son verdes, entre amarillo y rojo son amarillos, por encima del límite rojo son rojos.",
+        "centralDescription": "El valor ideal está en el centro. Valores muy bajos O muy altos son problemáticos (forma U)."
+      },
+      "central": {
+        "yellowMin": "Límite Rojo/Amarillo (Bajo)",
+        "greenMin": "Límite Amarillo/Verde (Bajo)",
+        "greenMax": "Límite Verde/Amarillo (Alto)",
+        "yellowMax": "Límite Amarillo/Rojo (Alto)",
+        "greenRange": "Rango Verde",
+        "yellowRange": "Rango Amarillo",
+        "redRange": "Rango Rojo",
+        "or": "o"
       }
     },
     "history": {
@@ -2757,6 +2837,8 @@
     "description": "Seleccione las piezas que necesitan ser reemplazadas",
     "clutchBrakeParts": "Piezas de Embrague y Freno",
     "clutchBrakeDescription": "Seleccione las piezas del embrague y freno que necesitan ser reemplazadas",
+    "clutchCevolaniParts": "Piezas de Embrague Cevolani",
+    "clutchCevolaniDescription": "Seleccione las piezas del embrague Cevolani que necesitan ser reemplazadas",
     "bearingClearanceParts": "Piezas de Holgura del Rodamiento",
     "bearingClearanceDescription": "Seleccione las piezas de holgura del rodamiento que necesitan ser reemplazadas",
     "bearingClearanceSingleHammerParts": "Piezas de Holgura del Rodamiento Single Hammer",
@@ -2834,6 +2916,7 @@
       "flywheelBrake": "Freno del Volante",
       "motorDrive": "Accionamiento del Motor",
       "hydraulicUnit": "Unidad Hidráulica",
+      "clutchCevolani": "Embrague Cevolani",
       "flywheelBearings": "Cojinetes del Volante",
       "counterbalanceInner": "Contrapeso (Interior)",
       "counterbalanceOuterAirmount": "Contrapeso (Exterior)",
@@ -2851,7 +2934,8 @@
     "ok": "OK",
     "warning": "Atención",
     "critical": "Crítico",
-    "noData": "Sin datos"
+    "noData": "Sin datos",
+    "loading": "Cargando..."
   },
   "sectionStatusCard": {
     "status": {
@@ -2873,5 +2957,10 @@
       }
     },
     "viewParts": "Ver Lista de Piezas"
+  },
+  "inspectionForm": {
+    "placeholders": {
+      "generatesAlert": "Este campo genera alertas"
+    }
   }
 }

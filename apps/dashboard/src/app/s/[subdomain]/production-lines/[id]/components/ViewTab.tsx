@@ -2,7 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import { Card, CardContent } from '@/components/ui/card';
-import { Factory, Star } from 'lucide-react';
+import { Factory } from 'lucide-react';
 import { MachineCardInLine } from './MachineCardInLine';
 import type { ProductionLine, ProductionLineMachine } from '@/data/types/production-lines.types';
 
@@ -104,17 +104,10 @@ export function ViewTab({ productionLine, canViewMachineDetails = true }: ViewTa
               <div className="flex items-center ml-4">
                 {/* Horizontal connector to main machine */}
                 <div className="h-1 w-8 bg-green-500" />
-                <div className="relative">
-                  {/* Principal badge */}
-                  <div className="absolute -top-6 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1 bg-yellow-500 text-yellow-950 px-2 py-0.5 rounded-full text-xs font-medium whitespace-nowrap">
-                    <Star className="w-3 h-3 fill-current" />
-                    <span>Principal</span>
-                  </div>
-                  <MachineCardInLine
-                    machine={mainMachine.machine!}
-                    canViewDetails={canViewMachineDetails}
-                  />
-                </div>
+                <MachineCardInLine
+                  machine={mainMachine.machine!}
+                  canViewDetails={canViewMachineDetails}
+                />
               </div>
             )}
           </div>
@@ -127,21 +120,14 @@ export function ViewTab({ productionLine, canViewMachineDetails = true }: ViewTa
           <div className="absolute left-8 top-0 bottom-0 w-1 bg-green-500" />
 
           <div className="flex flex-col gap-8 pl-8">
-            {orderedMachines.map((productionLineMachine, index) => (
+            {orderedMachines.map((productionLineMachine) => (
               <div key={productionLineMachine.machineId} className="relative flex items-center">
                 <div className="absolute left-0 w-3 h-3 rounded-full bg-green-500 border-2 border-green-600 -translate-x-1/2" />
                 <div className="h-1 w-12 bg-green-500" />
-                <div className="flex-shrink-0 relative">
-                  {index === 0 && (
-                    <div className="absolute -top-5 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1 bg-yellow-500 text-yellow-950 px-2 py-0.5 rounded-full text-xs font-medium">
-                      <Star className="w-3 h-3 fill-current" />
-                    </div>
-                  )}
-                  <MachineCardInLine
-                    machine={productionLineMachine.machine!}
-                    canViewDetails={canViewMachineDetails}
-                  />
-                </div>
+                <MachineCardInLine
+                  machine={productionLineMachine.machine!}
+                  canViewDetails={canViewMachineDetails}
+                />
               </div>
             ))}
           </div>

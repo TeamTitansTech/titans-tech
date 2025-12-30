@@ -1,6 +1,8 @@
 import { getTranslations } from 'next-intl/server';
 import { BearingClearanceSectionWrapper } from './components/BearingClearanceSectionWrapper';
+import { BearingClearanceSingleHammerSectionWrapper } from '@/app/admin/machines/[id]/sections/[sectionSlug]/components/BearingClearanceSingleHammerSectionWrapper';
 import { ClutchSectionWrapper } from './components/ClutchSectionWrapper';
+import { ClutchCevolaniSectionWrapper } from './components/ClutchCevolaniSectionWrapper';
 import { SlideSingleHammerSectionWrapper } from '@/app/admin/machines/[id]/sections/[sectionSlug]/components/SlideSingleHammerSectionWrapper';
 import { SlideDoubleHammerSectionWrapper } from '@/app/admin/machines/[id]/sections/[sectionSlug]/components/SlideDoubleHammerSectionWrapper';
 import { GibsSectionWrapper } from '@/app/admin/machines/[id]/sections/[sectionSlug]/components/GibsSectionWrapper';
@@ -21,7 +23,9 @@ interface SectionDetailPageProps {
 
 const sectionComponents: Record<string, React.ComponentType<{ machineId: string }>> = {
   bearing_clearance: BearingClearanceSectionWrapper,
+  bearing_clearance_single_hammer: BearingClearanceSingleHammerSectionWrapper,
   clutch: ClutchSectionWrapper,
+  clutch_cevolani: ClutchCevolaniSectionWrapper,
   slide_single_hammer: SlideSingleHammerSectionWrapper,
   slide_double_hammer: SlideDoubleHammerSectionWrapper,
   gibs: GibsSectionWrapper,

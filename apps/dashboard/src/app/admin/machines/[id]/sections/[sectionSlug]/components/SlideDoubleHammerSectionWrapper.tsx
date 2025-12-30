@@ -1,7 +1,7 @@
 import { getInspectionsByMachine } from '@/data/services/inspections.api';
 import { getMachineById } from '@/data/services/machines.api';
 import { SlideDoubleHammerSection } from './SlideDoubleHammerSection';
-import { UnitManagerProvider } from '@/contexts/UnitManagerContext';
+import { LengthUnitFromEnum, UnitManagerProvider } from '@/contexts/UnitManagerContext';
 
 interface SlideDoubleHammerSectionWrapperProps {
   machineId: string;
@@ -41,6 +41,7 @@ export async function SlideDoubleHammerSectionWrapper({
   let inspections: SlideInspectionData[] = [];
   let machineName = '';
   let blueprintId = '';
+  let branchDefaultUnit: LengthUnitFromEnum;
 
   try {
     const [inspectionsResponse, machineResponse] = await Promise.all([
@@ -59,19 +60,22 @@ export async function SlideDoubleHammerSectionWrapper({
       console.error('Errors fetching machine:', machineResponse.errors);
       machineName = '';
       blueprintId = '';
+      branchDefaultUnit = 'INCHES';
     } else {
       machineName = machineResponse.data?.name || '';
       blueprintId = machineResponse.data?.blueprintId || '';
+      branchDefaultUnit = machineResponse.data?.branch?.defaultMeasurementUnit || 'INCHES';
     }
   } catch (error) {
     console.error('Error fetching data:', error);
     inspections = [];
     machineName = '';
     blueprintId = '';
+    branchDefaultUnit = 'INCHES';
   }
 
   return (
-    <UnitManagerProvider>
+    <UnitManagerProvider defaultLengthUnit={branchDefaultUnit}>
       <SlideDoubleHammerSection
         machineId={machineId}
         inspections={inspections}

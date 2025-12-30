@@ -275,7 +275,13 @@ function SlideDataFields({
               value={data.parallelism}
               onValueChange={(value: ParallelismType) => handleFieldUpdate('parallelism', value)}
             >
-              <SelectTrigger id={`${type}-parallelism`} className="mt-1">
+              <SelectTrigger
+                id={`${type}-parallelism`}
+                className="mt-1"
+                clearable
+                hasValue={!!data.parallelism}
+                onClear={() => handleFieldUpdate('parallelism', undefined)}
+              >
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -296,7 +302,13 @@ function SlideDataFields({
                 handleFieldUpdate('hasParallelismBeenAdjusted', value)
               }
             >
-              <SelectTrigger id={`${type}-hasParallelismBeenAdjusted`} className="mt-1">
+              <SelectTrigger
+                id={`${type}-hasParallelismBeenAdjusted`}
+                className="mt-1"
+                clearable
+                hasValue={!!data.hasParallelismBeenAdjusted}
+                onClear={() => handleFieldUpdate('hasParallelismBeenAdjusted', undefined)}
+              >
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -356,7 +368,13 @@ function SlideDataFields({
                 handleFieldUpdate('shutheightIndicatorsChecked', value)
               }
             >
-              <SelectTrigger id={`${type}-shutheightIndicatorsChecked`} className="mt-1">
+              <SelectTrigger
+                id={`${type}-shutheightIndicatorsChecked`}
+                className="mt-1"
+                clearable
+                hasValue={!!data.shutheightIndicatorsChecked}
+                onClear={() => handleFieldUpdate('shutheightIndicatorsChecked', undefined)}
+              >
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>

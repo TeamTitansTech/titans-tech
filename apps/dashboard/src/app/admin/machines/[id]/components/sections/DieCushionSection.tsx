@@ -74,9 +74,9 @@ export const DieCushionSection = forwardRef<DieCushionSectionRef, DieCushionSect
         prevInitialDataRef.current = initialData;
         // eslint-disable-next-line react-hooks/set-state-in-effect -- Necessary to sync props to state when initialData changes
         setData(initialData.data || defaultDieCushionData);
-        // eslint-disable-next-line react-hooks/set-state-in-effect -- Necessary to sync props to state when initialData changes
+
         setInitialDieCushionData(initialData.data || defaultDieCushionData);
-        // eslint-disable-next-line react-hooks/set-state-in-effect -- Necessary to sync props to state when initialData changes
+
         setAttachments(initialData.attachments ?? []);
       }
     }, [initialData]);
@@ -205,7 +205,12 @@ export const DieCushionSection = forwardRef<DieCushionSectionRef, DieCushionSect
                 value={data.airLeaks || ''}
                 onValueChange={(value) => handleAirLeaksChange(value as DieCushionAirLeaksType)}
               >
-                <SelectTrigger id="airLeaks">
+                <SelectTrigger
+                  id="airLeaks"
+                  clearable
+                  hasValue={!!data.airLeaks}
+                  onClear={() => handleAirLeaksChange(undefined)}
+                >
                   <SelectValue placeholder={t('selectOption')} />
                 </SelectTrigger>
                 <SelectContent>
@@ -240,7 +245,12 @@ export const DieCushionSection = forwardRef<DieCushionSectionRef, DieCushionSect
                   updateField('pneumaticsPlumbing', value as DieCushionPneumaticsPlumbingType)
                 }
               >
-                <SelectTrigger id="pneumaticsPlumbing">
+                <SelectTrigger
+                  id="pneumaticsPlumbing"
+                  clearable
+                  hasValue={!!data.pneumaticsPlumbing}
+                  onClear={() => updateField('pneumaticsPlumbing', undefined)}
+                >
                   <SelectValue placeholder={t('selectOption')} />
                 </SelectTrigger>
                 <SelectContent>
@@ -262,7 +272,12 @@ export const DieCushionSection = forwardRef<DieCushionSectionRef, DieCushionSect
                   updateField('lubrication', value as DieCushionLubricationType)
                 }
               >
-                <SelectTrigger id="lubrication">
+                <SelectTrigger
+                  id="lubrication"
+                  clearable
+                  hasValue={!!data.lubrication}
+                  onClear={() => updateField('lubrication', undefined)}
+                >
                   <SelectValue placeholder={t('selectOption')} />
                 </SelectTrigger>
                 <SelectContent>

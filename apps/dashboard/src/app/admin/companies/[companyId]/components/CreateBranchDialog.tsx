@@ -108,7 +108,7 @@ export function CreateBranchDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleDialogClose}>
-      <DialogContent>
+      <DialogContent data-testid="create-branch-dialog">
         <DialogHeader>
           <DialogTitle>{t('title')}</DialogTitle>
           <DialogDescription>{t('description')}</DialogDescription>
@@ -122,6 +122,7 @@ export function CreateBranchDialog({
               {...register('name')}
               placeholder={t('form.name.placeholder')}
               disabled={isSubmitting}
+              data-testid="branch-name-input"
             />
             {errors.name && <p className="text-sm text-destructive">{errors.name.message}</p>}
           </div>
@@ -133,6 +134,7 @@ export function CreateBranchDialog({
               {...register('location')}
               placeholder={t('form.location.placeholder')}
               disabled={isSubmitting}
+              data-testid="branch-location-input"
             />
             {errors.location && (
               <p className="text-sm text-destructive">{errors.location.message}</p>
@@ -145,6 +147,7 @@ export function CreateBranchDialog({
               checked={isMainBranch}
               onCheckedChange={(checked) => setValue('isMainBranch', checked as boolean)}
               disabled={isSubmitting}
+              data-testid="branch-main-checkbox"
             />
             <Label
               htmlFor="isMainBranch"
@@ -155,10 +158,15 @@ export function CreateBranchDialog({
           </div>
 
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+              data-testid="branch-creation-cancel"
+            >
               {t('cancel')}
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
+            <Button type="submit" disabled={isSubmitting} data-testid="branch-creation-submit">
               {isSubmitting ? t('submitting') : t('submit')}
             </Button>
           </DialogFooter>

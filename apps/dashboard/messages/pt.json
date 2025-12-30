@@ -201,6 +201,16 @@
       "users": "usuários",
       "clickToViewUsers": "Clique para ver usuários"
     },
+    "branchSettings": {
+      "title": "Configurações da Filial",
+      "description": "Configure as preferências padrão para esta filial",
+      "defaultUnit": "Unidade de Medida Padrão",
+      "defaultUnitDescription": "Unidade padrão para exibição de medidas",
+      "inches": "Polegadas (in)",
+      "mm": "Milímetros (mm)",
+      "saved": "Configurações salvas",
+      "saveError": "Erro ao salvar configurações"
+    },
     "userManagement": {
       "title": "Contas de Usuário",
       "loading": "Carregando usuários...",
@@ -281,6 +291,7 @@
       "success": "Usuário adicionado com sucesso",
       "successExistingUser": "{count, plural, =1 {Usuário atribuído a 1 nova filial} other {Usuário atribuído a # novas filiais}}",
       "userAlreadyInAllBranches": "Este usuário já está em todas as filiais selecionadas",
+      "userNeedsReactivation": "Este usuário foi previamente desativado nas seguintes filiais: {branches}. Por favor, reative o usuário em vez de adicioná-lo novamente.",
       "error": "Falha ao adicionar usuário"
     },
     "editUserDialog": {
@@ -822,6 +833,7 @@
     "gibs": "GUIAS",
     "lubrication_hydraulics_pressure_switches_oil_filter": "LUBRIFICAÇÃO / HIDRÁULICA / INTERRUPTORES DE PRESSÃO / ÓLEO E FILTRO",
     "clutch": "EMBREAGEM",
+    "clutch_cevolani": "EMBREAGEM CEVOLANI",
     "counterbalance_cylinder_airbag": "CILINDRO DE CONTRAPESO / AIRBAG",
     "tramming": "TRAMMING",
     "pistons": "PISTÕES",
@@ -904,7 +916,18 @@
     "machines": "máquinas",
     "field": "campo",
     "fields": "campos",
-    "edit": "Editar"
+    "edit": "Editar",
+    "deleteConfirmTitle": "Excluir Modelo",
+    "deleteConfirmDescription": "Tem certeza que deseja excluir \"{name}\"? Esta ação não pode ser desfeita.",
+    "deleteError": "Erro ao excluir modelo",
+    "deleteSuccess": "Modelo excluído",
+    "deleteSuccessDescription": "\"{name}\" foi excluído com sucesso",
+    "deleteWithMachinesTitle": "Excluir Modelo com Máquinas",
+    "deleteWithMachinesWarning": "O modelo \"{name}\" possui {count} máquina(s) registrada(s). Excluir este modelo também excluirá todas as máquinas associadas.",
+    "machinesList": "Máquinas que serão excluídas",
+    "deleteWithMachinesConfirm": "Tem certeza que deseja continuar? Esta ação não pode ser desfeita.",
+    "deleteWithMachinesButton": "Excluir Modelo e Máquinas",
+    "deleteSuccessWithMachines": "\"{name}\" e todas as máquinas associadas foram excluídos"
   },
   "machines": {
     "title": "Criar Máquina",
@@ -1014,6 +1037,7 @@
       "gibs": "Guias",
       "lubricationHydraulics": "Lubrificação / Hidráulica",
       "clutch": "Folga de Embreagem e Freio",
+      "clutchCevolani": "Embreagem Cevolani",
       "counterbalance": "Cilindro de Contrapeso / Airbag",
       "counterbalanceCylinder": "Cilindro de Contrapeso / Airbag",
       "tramming": "Tramming",
@@ -1095,6 +1119,7 @@
       "createInspection": "Criar Vistoria",
       "sectionTitles": {
         "clutchMeasurements": "Medições da Embreagem",
+        "clutchCevolaniMeasurements": "Medições da Embreagem Cevolani",
         "slideMeasurements": "Medições do Martelo",
         "gibsMeasurements": "Medições das Guias",
         "lubricationStatus": "Status de Lubrificação e Hidráulica",
@@ -1108,6 +1133,7 @@
       },
       "chartTitles": {
         "hydraulicClutchClearance": "Folga da Embreagem Hidráulica",
+        "pneumaticClutchClearance": "Folga da Embreagem Pneumática",
         "brakeSpringMeasurements": "Medições da Mola do Freio (F-B, F-TB, R-TB)",
         "slideMaxDeviation": "Desvio Máximo do Martelo (Externo vs Interno)",
         "slidePositions": "Posições do Martelo (Posição 1-5)",
@@ -1150,6 +1176,7 @@
         "filterChanged": "Filtro Trocado",
         "hydClutchTotal": "Embreagem Hid. Total",
         "hydClutchRear": "Embreagem Hid. Traseira",
+        "pneumaticClutchTotal": "Embreagem Pneumática Total",
         "leakLocation": "Local do Vazamento",
         "outerIssues": "Problemas Externos",
         "innerIssues": "Problemas Internos",
@@ -1161,6 +1188,9 @@
         "noLubricationData": "Nenhum dado de lubrificação disponível",
         "noCounterbalanceData": "Nenhum dado de contrapeso disponível",
         "measurementTrends": "Tendências de Medições",
+        "verticalSum": "Soma Vertical",
+        "horizontalSum": "Soma Horizontal",
+        "individualMeasurements": "Medições Individuais",
         "notes": "Observações",
         "mm": "mm",
         "pistons": "Pistões",
@@ -1291,6 +1321,9 @@
         "measurement": "Measurement",
         "differential": "Differential",
         "status": "Status"
+      },
+      "clutchCevolani": {
+        "pneumaticClutchClearanceTotal": "Folga de Embreagem Pneumática (Total)"
       }
     },
     "form": {
@@ -1663,11 +1696,11 @@
         "fields": {
           "clutchType": "Tipo de Embreagem",
           "clutchLocation": "Localização da Embreagem",
-          "brakeSpringBrake": "Freio (polegadas)",
-          "brakeSpringClutch": "Embreagem (polegadas)",
-          "brakeSpringFB": "F-B (polegadas)",
-          "brakeSpringFTB": "F-TB (polegadas)",
-          "brakeSpringRTB": "R-TB (polegadas)",
+          "brakeSpringBrake": "Freio",
+          "brakeSpringClutch": "Embreagem",
+          "brakeSpringFB": "F-B",
+          "brakeSpringFTB": "F-TB",
+          "brakeSpringRTB": "R-TB",
           "brakeSpringStudBolt": "Perno/Parafuso da Mola do Freio",
           "brakeStoppingTime": "Tempo de Frenagem",
           "brakeLining": "Revestimento do Freio",
@@ -1728,6 +1761,23 @@
           "required": "Este campo é obrigatório",
           "hydClutchClearanceTotalRequired": "Embreagem: Folga da Embreagem Hidráulica (Total) é obrigatória",
           "hydClutchClearanceRearRequired": "Embreagem: Folga da Embreagem Hidráulica (Traseira) é obrigatória"
+        }
+      },
+      "clutchCevolani": {
+        "sections": {
+          "pneumaticSystem": "Sistema Pneumático"
+        },
+        "fields": {
+          "pneumaticClutchClearanceTotal": "Folga de Embreagem Pneumática (Total)"
+        },
+        "placeholders": {
+          "pneumaticClutchClearanceTotal": "Digite a folga total"
+        },
+        "tooltips": {
+          "pneumaticClutchClearanceTotal": "Este campo gera alertas baseados nos thresholds configurados"
+        },
+        "validation": {
+          "pneumaticClutchClearanceTotalRequired": "Embreagem Cevolani: Folga de Embreagem Pneumática (Total) é obrigatória"
         }
       },
       "counterbalanceCylinder": {
@@ -2409,6 +2459,9 @@
       "wristPinToBushing": "Pino de Pulso à Bucha",
       "slideAdjNutToScrewSleeve": "Porca de Ajuste do Slide ao Parafuso/Manguito"
     },
+    "bearingClearanceSingleHammer": {
+      "title": "FOLGA DE ROLAMENTO (Martelo Único) - Configuração de Alerta"
+    },
     "clutch": {
       "title": "EMBREAGEM - Configuração de Alerta",
       "hydClutchClearanceTotal": "Folga da Embreagem Hidráulica Total",
@@ -2417,9 +2470,19 @@
       "fTB": "F-TB (Frente Topo-Base)",
       "rTB": "R-TB (Traseira Topo-Base)"
     },
+    "clutchCevolani": {
+      "title": "EMBREAGEM CEVOLANI - Configuração de Alerta",
+      "pneumaticClutchClearanceTotal": "Folga de Embreagem Pneumática (Total)"
+    },
     "slide": {
       "title": "SLIDE - Configuração de Alerta",
       "maxDeviation": "Desvio Máximo"
+    },
+    "slideSingleHammer": {
+      "title": "SLIDE (Martelo Único) - Configuração de Alerta"
+    },
+    "slideDoubleHammer": {
+      "title": "SLIDE (Martelo Duplo) - Configuração de Alerta"
     },
     "gibs": {
       "title": "GIBS - Configuração de Alerta",
@@ -2445,6 +2508,23 @@
         "success": "Thresholds atualizados. {count} alertas gerados para {services} serviços.",
         "successNoRecalc": "Thresholds atualizados. Novos alertas serão gerados apenas para serviços futuros.",
         "error": "Erro ao atualizar thresholds"
+      },
+      "mode": {
+        "label": "Modo de Threshold",
+        "linear": "Linear (Sequencial)",
+        "central": "Central (Formato U)",
+        "linearDescription": "Valores abaixo do limite amarelo são verdes, entre amarelo e vermelho são amarelos, acima do limite vermelho são vermelhos.",
+        "centralDescription": "O valor ideal está no centro. Valores muito baixos OU muito altos são problemáticos (formato U)."
+      },
+      "central": {
+        "yellowMin": "Limite Vermelho/Amarelo (Baixo)",
+        "greenMin": "Limite Amarelo/Verde (Baixo)",
+        "greenMax": "Limite Verde/Amarelo (Alto)",
+        "yellowMax": "Limite Amarelo/Vermelho (Alto)",
+        "greenRange": "Faixa Verde",
+        "yellowRange": "Faixa Amarela",
+        "redRange": "Faixa Vermelha",
+        "or": "ou"
       }
     },
     "history": {
@@ -2756,6 +2836,8 @@
     "description": "Selecione as peças que precisam ser substituídas",
     "clutchBrakeParts": "Peças de Embreagem e Freio",
     "clutchBrakeDescription": "Selecione as peças da embreagem e freio que precisam ser substituídas",
+    "clutchCevolaniParts": "Peças de Embreagem Cevolani",
+    "clutchCevolaniDescription": "Selecione as peças da embreagem Cevolani que precisam ser substituídas",
     "bearingClearanceParts": "Peças de Folga do Rolamento",
     "bearingClearanceDescription": "Selecione as peças de folga do rolamento que precisam ser substituídas",
     "bearingClearanceSingleHammerParts": "Peças de Folga do Rolamento Single Hammer",
@@ -2833,6 +2915,7 @@
       "flywheelBrake": "Freio do Volante",
       "motorDrive": "Acionamento do Motor",
       "hydraulicUnit": "Unidade Hidráulica",
+      "clutchCevolani": "Embreagem Cevolani",
       "flywheelBearings": "Rolamentos do Volante",
       "counterbalanceInner": "Contrapeso (Interno)",
       "counterbalanceOuterAirmount": "Contrapeso (Externo)",
@@ -2850,7 +2933,8 @@
     "ok": "OK",
     "warning": "Atenção",
     "critical": "Crítico",
-    "noData": "Sem dados"
+    "noData": "Sem dados",
+    "loading": "Carregando..."
   },
   "sectionStatusCard": {
     "status": {
@@ -2872,5 +2956,10 @@
       }
     },
     "viewParts": "Ver Lista de Peças"
+  },
+  "inspectionForm": {
+    "placeholders": {
+      "generatesAlert": "Este campo gera alertas"
+    }
   }
 }

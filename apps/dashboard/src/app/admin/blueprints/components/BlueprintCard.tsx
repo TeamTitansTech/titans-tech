@@ -19,6 +19,7 @@ interface BlueprintCardProps {
   fieldCount: number;
   sections: string[];
   onEdit?: () => void;
+  onDelete?: () => void;
 }
 
 export function BlueprintCard({
@@ -30,6 +31,7 @@ export function BlueprintCard({
   fieldCount,
   sections,
   onEdit,
+  onDelete,
 }: BlueprintCardProps) {
   const t = useTranslations('models');
   const [isThresholdModalOpen, setIsThresholdModalOpen] = useState(false);
@@ -38,12 +40,14 @@ export function BlueprintCard({
   const hasAlertSections = sections.some((section) =>
     [
       'BEARING_CLEARANCE',
+      'BEARING_CLEARANCE_SINGLE_HAMMER',
       'CLUTCH',
       'SLIDE_SINGLE_HAMMER',
       'SLIDE_DOUBLE_HAMMER',
       'GIBS',
       'TRAMMING',
       'PISTONS',
+      'CLUTCH_CEVOLANI',
     ].includes(section),
   );
 
@@ -98,7 +102,7 @@ export function BlueprintCard({
                 <Edit className="w-4 h-4 mr-2" />
                 {t('edit')}
               </Button>
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" onClick={onDelete}>
                 <Trash2 className="w-4 h-4" />
               </Button>
             </div>

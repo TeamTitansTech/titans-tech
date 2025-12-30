@@ -6,11 +6,14 @@ import {
   UserResponseDto,
 } from '@titans-tech/shared/backend-dtos';
 
+export type MeasurementUnit = 'INCHES' | 'MM';
+
 export interface CompanyBranch {
   id: string;
   name: string;
   isMainBranch: boolean;
   location?: string | null;
+  defaultMeasurementUnit: MeasurementUnit;
   companyId: string;
   createdAt: Date;
   updatedAt: Date;

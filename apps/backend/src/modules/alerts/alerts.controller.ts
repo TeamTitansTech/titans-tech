@@ -23,6 +23,10 @@ import {
   CreateThresholdClutchDto,
   UpdateThresholdClutchSchema,
   UpdateThresholdClutchDto,
+  CreateThresholdClutchCevolaniSchema,
+  CreateThresholdClutchCevolaniDto,
+  UpdateThresholdClutchCevolaniSchema,
+  UpdateThresholdClutchCevolaniDto,
   CreateAlertCounterbalanceCylinderAirbagSchema,
   CreateAlertCounterbalanceCylinderAirbagDto,
   UpdateAlertCounterbalanceCylinderAirbagSchema,
@@ -323,6 +327,82 @@ export class ClutchAlertsController {
   @Post('service/:serviceId/generate')
   async generateClutchAlerts(@Param('serviceId') serviceId: string) {
     return this.alertsService.generateClutchAlertsForService(serviceId);
+  }
+}
+
+@Controller('alerts/clutch-cevolani')
+@UseInterceptors(ClassSerializerInterceptor)
+export class ClutchCevolaniAlertsController {
+  constructor(private readonly alertsService: AlertsService) {}
+
+  @Authenticated()
+  @Get('thresholds/blueprint/:blueprintId')
+  async getClutchCevolaniThresholdByBlueprint(
+    @Param('blueprintId') blueprintId: string,
+  ) {
+    return this.alertsService.getClutchCevolaniThresholdByBlueprint(
+      blueprintId,
+    );
+  }
+
+  @Admin()
+  @Post('thresholds')
+  async createClutchCevolaniThreshold(
+    @Body(new ZodValidationPipe(CreateThresholdClutchCevolaniSchema))
+    dto: CreateThresholdClutchCevolaniDto,
+  ) {
+    return this.alertsService.createClutchCevolaniThreshold(dto);
+  }
+
+  @Admin()
+  @Put('thresholds/blueprint/:blueprintId')
+  async updateClutchCevolaniThreshold(
+    @Param('blueprintId') blueprintId: string,
+    @Body(new ZodValidationPipe(UpdateThresholdClutchCevolaniSchema))
+    dto: UpdateThresholdClutchCevolaniDto,
+  ) {
+    const { recalculateAlerts, ...thresholdData } = dto;
+
+    // Update the threshold
+    const threshold = await this.alertsService.updateClutchCevolaniThreshold(
+      blueprintId,
+      thresholdData,
+    );
+
+    // If recalculateAlerts is true, regenerate alerts for all services
+    if (recalculateAlerts) {
+      const recalculationResult =
+        await this.alertsService.recalculateClutchCevolaniAlertsForBlueprint(
+          blueprintId,
+        );
+      return {
+        threshold,
+        recalculationResult,
+      };
+    }
+
+    return { threshold };
+  }
+
+  @Admin()
+  @Delete('thresholds/blueprint/:blueprintId')
+  async deleteClutchCevolaniThreshold(
+    @Param('blueprintId') blueprintId: string,
+  ) {
+    await this.alertsService.deleteClutchCevolaniThreshold(blueprintId);
+    return { message: 'Clutch Cevolani threshold deleted successfully' };
+  }
+
+  @ResourcePermission('service', 'readServices', { paramName: 'serviceId' })
+  @Get('service/:serviceId')
+  async getClutchCevolaniAlertByService(@Param('serviceId') serviceId: string) {
+    return this.alertsService.getClutchCevolaniAlertByService(serviceId);
+  }
+
+  @Admin()
+  @Post('service/:serviceId/generate')
+  async generateClutchCevolaniAlerts(@Param('serviceId') serviceId: string) {
+    return this.alertsService.generateClutchCevolaniAlertsForService(serviceId);
   }
 }
 
