@@ -7,6 +7,7 @@ test.describe('deleteUsers Permission Flow', () => {
     page,
     pageHelpers,
     context,
+    t,
   }) => {
     // First, login as the user without permissions to verify they cannot delete users
     await pageHelpers.companyUserLogin(
@@ -84,5 +85,48 @@ test.describe('deleteUsers Permission Flow', () => {
 
     // Verify that the delete dialog opens
     await expect(page.getByTestId('delete-user-dialog')).toBeVisible();
+
+    // Verify user info is shown in the dialog
+    await expect(page.getByTestId('delete-dialog-user-email')).toContainText(
+      TEST_SEED_DATA.USERS.EMPLOYEE_ALL_PERMISSIONS.email,
+    );
+
+    // Select delete scope (branch level deactivation)
+    await page.getByTestId('delete-scope-select').click();
+    await page.getByTestId('delete-scope-branch').click();
+
+    // Confirm the deletion
+    await page.getByTestId('confirm-delete-button').click();
+
+    // Wait for success toast message
+    await pageHelpers.expectToastMessage(t.settings.deleteUserDialog('success'));
+
+    // Wait for success and dialog to close
+    await expect(page.getByTestId('delete-user-dialog')).not.toBeVisible();
+
+    // Verify the user is no longer in the active users table
+    await expect(
+      page.getByTestId(`client-user-row-${TEST_SEED_DATA.USERS.EMPLOYEE_ALL_PERMISSIONS.id}`),
+    ).not.toBeVisible();
+
+    // Verify the user appears in the deactivated users section
+    await expect(page.getByTestId('client-deactivated-users-section')).toBeVisible();
+    await expect(
+      page.getByTestId(
+        `client-deactivated-user-row-${TEST_SEED_DATA.USERS.EMPLOYEE_ALL_PERMISSIONS.id}`,
+      ),
+    ).toBeVisible();
+
+    // Verify the deactivated user has the correct information
+    await expect(
+      page.getByTestId(
+        `client-deactivated-user-name-${TEST_SEED_DATA.USERS.EMPLOYEE_ALL_PERMISSIONS.id}`,
+      ),
+    ).toContainText(TEST_SEED_DATA.USERS.EMPLOYEE_ALL_PERMISSIONS.name);
+    await expect(
+      page.getByTestId(
+        `client-deactivated-user-email-${TEST_SEED_DATA.USERS.EMPLOYEE_ALL_PERMISSIONS.id}`,
+      ),
+    ).toContainText(TEST_SEED_DATA.USERS.EMPLOYEE_ALL_PERMISSIONS.email);
   });
 });

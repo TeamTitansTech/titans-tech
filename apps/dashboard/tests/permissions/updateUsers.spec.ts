@@ -84,5 +84,31 @@ test.describe('updateUsers Permission Flow', () => {
 
     // Verify that the edit dialog opens
     await expect(page.getByTestId('edit-user-dialog')).toBeVisible();
+
+    // Update the user's name to verify the update functionality works
+    const nameInput = page.getByTestId('edit-user-name-input');
+    await expect(nameInput).toBeVisible();
+    await nameInput.clear();
+    await nameInput.fill('Updated Test User Name');
+
+    // Update the user's email
+    const emailInput = page.getByTestId('edit-user-email-input');
+    await expect(emailInput).toBeVisible();
+    await emailInput.clear();
+    await emailInput.fill('updated.email@test.com');
+
+    // Submit the changes
+    await page.getByTestId('edit-user-submit-button').click();
+
+    // Wait for success message and dialog to close
+    await expect(page.getByTestId('edit-user-dialog')).not.toBeVisible();
+
+    // Verify the user's name and email were updated in the table
+    await expect(
+      page.getByTestId(`client-user-name-${TEST_SEED_DATA.USERS.EMPLOYEE_ALL_PERMISSIONS.id}`),
+    ).toContainText('Updated Test User Name');
+    await expect(
+      page.getByTestId(`client-user-email-${TEST_SEED_DATA.USERS.EMPLOYEE_ALL_PERMISSIONS.id}`),
+    ).toContainText('updated.email@test.com');
   });
 });

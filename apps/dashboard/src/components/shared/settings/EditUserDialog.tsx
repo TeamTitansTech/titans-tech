@@ -307,6 +307,7 @@ export function EditUserDialog({
                       {...register('name')}
                       placeholder={t('form.name.placeholder')}
                       disabled={isSubmitting}
+                      data-testid="edit-user-name-input"
                     />
                     {errors.name && <p className="text-sm text-red-600">{errors.name.message}</p>}
                   </div>
@@ -319,6 +320,7 @@ export function EditUserDialog({
                       {...register('email')}
                       placeholder={t('form.email.placeholder')}
                       disabled={isSubmitting}
+                      data-testid="edit-user-email-input"
                     />
                     {errors.email && <p className="text-sm text-red-600">{errors.email.message}</p>}
                   </div>
