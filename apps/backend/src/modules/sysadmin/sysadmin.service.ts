@@ -13,7 +13,6 @@ import {
 import { SysAdminJwtPayload } from '../../types/request';
 import * as bcrypt from 'bcrypt';
 import { NotificationsService } from '../notifications/notifications.service';
-import { PasswordResetService } from '../password-reset/password-reset.service';
 
 @Injectable()
 export class SysAdminService {
@@ -21,7 +20,6 @@ export class SysAdminService {
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
     private readonly notificationsService: NotificationsService,
-    private readonly passwordResetService: PasswordResetService,
   ) {}
 
   async login(loginDto: LoginDto) {

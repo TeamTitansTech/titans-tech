@@ -40,18 +40,6 @@ export type PasswordResetPayload =
   | PasswordResetUserPayload
   | PasswordResetSysAdminPayload;
 
-export function isPasswordResetUser(
-  payload: PasswordResetPayload,
-): payload is PasswordResetUserPayload {
-  return payload.type === 'USER';
-}
-
-export function isPasswordResetSysAdmin(
-  payload: PasswordResetPayload,
-): payload is PasswordResetSysAdminPayload {
-  return payload.type === 'SYSADMIN';
-}
-
 export interface ActivationUserPayload {
   userId: string;
   companyId: string;
@@ -70,18 +58,6 @@ export interface ActivationSysAdminPayload {
 export type ActivationPayload =
   | ActivationUserPayload
   | ActivationSysAdminPayload;
-
-export function isActivationUser(
-  payload: ActivationPayload,
-): payload is ActivationUserPayload {
-  return payload.type === 'USER_ACTIVATION';
-}
-
-export function isActivationSysAdmin(
-  payload: ActivationPayload,
-): payload is ActivationSysAdminPayload {
-  return payload.type === 'SYSADMIN_ACTIVATION';
-}
 
 export interface ReqWithAuthUser extends Request {
   user: JwtPayload;
