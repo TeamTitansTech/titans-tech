@@ -1,9 +1,9 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-import { test as base, Page } from '@playwright/test';
+import { test as base } from '@playwright/test';
 import { PrismaClient } from '@titans-tech/db';
 import { PrismaClientExtended } from '@titans-tech/db';
 import { TestSeeder } from './test-seed';
-import { PageHelpers } from './page';
+import { ExtendedPage, PageHelpers } from './page';
 import { testTranslations } from './translations';
 
 async function setupDatabase() {
@@ -27,21 +27,7 @@ type AllFixtures = {
   dbWithSoftDelete: PrismaClientExtended;
   pageHelpers: PageHelpers;
   t: typeof testTranslations;
-  page: Page & {
-    goto: (
-      url: string,
-      options?: {
-        referer?: string;
-        timeout?: number;
-        waitUntil?: 'load' | 'domcontentloaded' | 'networkidle' | 'commit';
-        subdomain?: string;
-      },
-    ) => Promise<void>;
-    waitForURL: (
-      url: string | RegExp,
-      options?: { timeout?: number; subdomain?: string },
-    ) => Promise<void>;
-  };
+  page: ExtendedPage;
 };
 
 export const test = base.extend<AllFixtures>({

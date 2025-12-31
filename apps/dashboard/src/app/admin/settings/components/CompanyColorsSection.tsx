@@ -88,7 +88,7 @@ export function CompanyColorsSection({ selectedCompany }: CompanyColorsSectionPr
   if (!selectedCompany) return null;
 
   return (
-    <div className="space-y-6 pt-6 border-t">
+    <div className="space-y-6 pt-6 border-t" data-testid="company-colors-section">
       <div className="flex items-center gap-3">
         <Palette className="h-5 w-5" />
         <div>
@@ -98,16 +98,16 @@ export function CompanyColorsSection({ selectedCompany }: CompanyColorsSectionPr
       </div>
 
       {/* Color pickers */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6" data-testid="color-pickers-grid">
         {/* Brand Color */}
-        <div className="space-y-2">
+        <div className="space-y-2" data-testid="brand-color-section">
           <Label>{t('brandColor')}</Label>
           <p className="text-xs text-muted-foreground">{t('brandColorDescription')}</p>
           <ColorPicker color={brandColor} onChange={setBrandColor} disabled={isSaving} />
         </div>
 
         {/* Accent Color */}
-        <div className="space-y-2">
+        <div className="space-y-2" data-testid="accent-color-section">
           <Label>{t('accentColor')}</Label>
           <p className="text-xs text-muted-foreground">{t('accentColorDescription')}</p>
           <ColorPicker color={accentColor} onChange={setAccentColor} disabled={isSaving} />
@@ -115,28 +115,43 @@ export function CompanyColorsSection({ selectedCompany }: CompanyColorsSectionPr
       </div>
 
       {/* Preview */}
-      <div className="space-y-2">
+      <div className="space-y-2" data-testid="color-preview-section">
         <Label>{t('preview')}</Label>
-        <div className="flex items-center gap-4 p-4 border rounded-lg bg-muted/30">
+        <div
+          className="flex items-center gap-4 p-4 border rounded-lg bg-muted/30"
+          data-testid="color-preview-area"
+        >
           <div className="flex flex-col gap-2">
-            <Button size="sm" style={{ backgroundColor: brandColor }} className="text-white">
+            <Button
+              size="sm"
+              style={{ backgroundColor: brandColor }}
+              className="text-white"
+              data-testid="preview-primary-button"
+            >
               {t('previewPrimary')}
             </Button>
             <Button
               size="sm"
               variant="outline"
               style={{ borderColor: brandColor, color: brandColor }}
+              data-testid="preview-outline-button"
             >
               {t('previewOutline')}
             </Button>
           </div>
           <div className="flex flex-col gap-2">
-            <Button size="sm" style={{ backgroundColor: accentColor }} className="text-white">
+            <Button
+              size="sm"
+              style={{ backgroundColor: accentColor }}
+              className="text-white"
+              data-testid="preview-accent-button"
+            >
               {t('previewAccent')}
             </Button>
             <div
               className="px-3 py-1 rounded text-sm font-medium"
               style={{ backgroundColor: `${accentColor}20`, color: accentColor }}
+              data-testid="preview-highlight"
             >
               {t('previewHighlight')}
             </div>
@@ -146,12 +161,23 @@ export function CompanyColorsSection({ selectedCompany }: CompanyColorsSectionPr
 
       {/* Actions */}
       {hasChanges && (
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={handleReset} disabled={isSaving}>
+        <div className="flex items-center gap-2" data-testid="color-actions">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleReset}
+            disabled={isSaving}
+            data-testid="reset-colors-button"
+          >
             <RotateCcw className="h-4 w-4 mr-1" />
             {t('reset')}
           </Button>
-          <Button size="sm" onClick={handleSave} disabled={isSaving}>
+          <Button
+            size="sm"
+            onClick={handleSave}
+            disabled={isSaving}
+            data-testid="save-colors-button"
+          >
             <Check className="h-4 w-4 mr-1" />
             {isSaving ? t('saving') : t('save')}
           </Button>

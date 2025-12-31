@@ -288,7 +288,7 @@ export function EditUserDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[700px]">
+      <DialogContent className="sm:max-w-[700px]" data-testid="edit-user-dialog">
         <DialogHeader>
           <DialogTitle>{t('title')}</DialogTitle>
           <DialogDescription>{t('description')}</DialogDescription>
@@ -307,6 +307,7 @@ export function EditUserDialog({
                       {...register('name')}
                       placeholder={t('form.name.placeholder')}
                       disabled={isSubmitting}
+                      data-testid="edit-user-name-input"
                     />
                     {errors.name && <p className="text-sm text-red-600">{errors.name.message}</p>}
                   </div>
@@ -319,6 +320,7 @@ export function EditUserDialog({
                       {...register('email')}
                       placeholder={t('form.email.placeholder')}
                       disabled={isSubmitting}
+                      data-testid="edit-user-email-input"
                     />
                     {errors.email && <p className="text-sm text-red-600">{errors.email.message}</p>}
                   </div>
@@ -331,7 +333,7 @@ export function EditUserDialog({
             {/* Branch Selection - Only show if user has assignUsersToBranches permission */}
             {canAssignToBranches && (
               <>
-                <div className="space-y-3">
+                <div className="space-y-3" data-testid="edit-user-branch-selection">
                   <div className="flex items-center justify-between">
                     <div>
                       <Label className="text-sm font-medium">{tBranches('label')}</Label>
@@ -443,7 +445,7 @@ export function EditUserDialog({
               {t('cancel')}
             </Button>
             {(canUpdateUserInfo || canManagePermissions || canAssignToBranches) && (
-              <Button type="submit" disabled={isSubmitting}>
+              <Button type="submit" disabled={isSubmitting} data-testid="edit-user-submit-button">
                 {isSubmitting ? t('submitting') : t('submit')}
               </Button>
             )}

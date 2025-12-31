@@ -37,7 +37,7 @@ export function CompanyCard({ company }: CompanyCardProps) {
   }, [company.id]);
 
   return (
-    <Card>
+    <Card data-testid="selected-company-card">
       <CardContent className="pt-6">
         <div className="flex items-start gap-4">
           <div className="p-3 rounded-lg bg-primary/10">
@@ -45,11 +45,13 @@ export function CompanyCard({ company }: CompanyCardProps) {
           </div>
           <div className="flex-1 space-y-3">
             <div>
-              <h3 className="text-lg font-semibold">{company.name}</h3>
+              <h3 className="text-lg font-semibold" data-testid="company-name">
+                {company.name}
+              </h3>
             </div>
 
             {!isLoading && companyAdmin && (
-              <div className="pt-3 border-t">
+              <div className="pt-3 border-t" data-testid="company-admin-section">
                 <div className="flex items-center gap-2 mb-2">
                   <User className="h-4 w-4 text-muted-foreground" />
                   <span className="text-sm font-medium text-muted-foreground">
@@ -57,8 +59,12 @@ export function CompanyCard({ company }: CompanyCardProps) {
                   </span>
                 </div>
                 <div className="ml-6">
-                  <p className="text-sm font-medium">{companyAdmin.name || t('unknownUser')}</p>
-                  <p className="text-xs text-muted-foreground">{companyAdmin.email}</p>
+                  <p className="text-sm font-medium" data-testid="company-admin-name">
+                    {companyAdmin.name || t('unknownUser')}
+                  </p>
+                  <p className="text-xs text-muted-foreground" data-testid="company-admin-email">
+                    {companyAdmin.email}
+                  </p>
                 </div>
               </div>
             )}

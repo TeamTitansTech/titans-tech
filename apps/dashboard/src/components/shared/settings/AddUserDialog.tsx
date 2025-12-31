@@ -326,7 +326,10 @@ export function AddUserDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
+      <DialogContent
+        className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto"
+        data-testid="add-user-dialog"
+      >
         <DialogHeader>
           <DialogTitle>{t('title')}</DialogTitle>
           <DialogDescription>{t('descriptionCompanyLevel')}</DialogDescription>
@@ -344,6 +347,7 @@ export function AddUserDialog({
                 {...register('name')}
                 placeholder={t('form.name.placeholder')}
                 disabled={isSubmitting}
+                data-testid="add-user-name-input"
               />
               {errors.name && <p className="text-sm text-destructive">{errors.name.message}</p>}
             </div>
@@ -358,6 +362,7 @@ export function AddUserDialog({
                 {...register('email')}
                 placeholder={t('form.email.placeholder')}
                 disabled={isSubmitting}
+                data-testid="add-user-email-input"
               />
               {errors.email && <p className="text-sm text-destructive">{errors.email.message}</p>}
             </div>
@@ -418,6 +423,7 @@ export function AddUserDialog({
                           handleBranchToggle(branch.id, checked as boolean)
                         }
                         disabled={isSubmitting}
+                        data-testid={`add-user-branch-checkbox-${branch.id}`}
                       />
                       <Label
                         htmlFor={`branch-${branch.id}`}
@@ -460,7 +466,11 @@ export function AddUserDialog({
             <Button type="button" variant="outline" onClick={handleClose} disabled={isSubmitting}>
               {t('cancel')}
             </Button>
-            <Button type="submit" disabled={isSubmitting || selectedBranchIds.size === 0}>
+            <Button
+              type="submit"
+              disabled={isSubmitting || selectedBranchIds.size === 0}
+              data-testid="add-user-submit-button"
+            >
               {isSubmitting ? t('submitting') : t('submit')}
             </Button>
           </DialogFooter>

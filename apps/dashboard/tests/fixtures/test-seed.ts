@@ -4,7 +4,7 @@ import * as bcrypt from 'bcrypt';
 export const TEST_SEED_DATA = {
   SYSADMIN: {
     id: 'test-sysadmin',
-    email: 'admin@admin.com',
+    email: 'admin-e2etest@admin.com',
     password: 'password',
   },
   COMPANY: {
@@ -38,6 +38,13 @@ export const TEST_SEED_DATA = {
       id: 'test-employee-all',
       email: 'manager@test.com',
       name: 'Manager All Permissions',
+      password: 'password',
+      isCompanyAdmin: false,
+    },
+    EMPLOYEE_NO_PERMISSIONS: {
+      id: 'test-employee-none',
+      email: 'nopermissions@test.com',
+      name: 'Employee No Permissions',
       password: 'password',
       isCompanyAdmin: false,
     },
@@ -91,6 +98,15 @@ export class TestSeeder {
     const employeeAll = await this.db.user.create({
       data: {
         ...TEST_SEED_DATA.USERS.EMPLOYEE_ALL_PERMISSIONS,
+        password: hashedPassword,
+        companyId: company.id,
+        isUsingDefaultPassword: true,
+      },
+    });
+
+    const employeeNone = await this.db.user.create({
+      data: {
+        ...TEST_SEED_DATA.USERS.EMPLOYEE_NO_PERMISSIONS,
         password: hashedPassword,
         companyId: company.id,
         isUsingDefaultPassword: true,
@@ -151,11 +167,38 @@ export class TestSeeder {
       },
     });
 
+    await this.db.userBranch.create({
+      data: {
+        userId: employeeNone.id,
+        branchId: branch.id,
+        readUsers: false,
+        createUsers: false,
+        updateUsers: false,
+        deleteUsers: false,
+        manageUserPermissions: false,
+        assignUsersToBranches: false,
+        readBranches: false,
+        updateBranches: false,
+        readMachines: false,
+        createMachines: false,
+        updateMachines: false,
+        deleteMachines: false,
+        readServices: false,
+        createServices: false,
+        updateServices: false,
+        deleteServices: false,
+        readProductionLines: false,
+        createProductionLines: false,
+        updateProductionLines: false,
+        deleteProductionLines: false,
+      },
+    });
+
     return {
       sysAdmin,
       company,
       branch,
-      users: { companyAdmin, employeeSome, employeeAll },
+      users: { companyAdmin, employeeSome, employeeAll, employeeNone },
     };
   }
 

@@ -57,4 +57,9 @@ export const testTranslations = {
   validation: createTestTranslator('validation'),
 
   navigation: createTestTranslator('navigation'),
+
+  settings: {
+    deleteUserDialog: createTestTranslator('settings.deleteUserDialog'),
+    addUserDialog: createTestTranslator('settings.addUserDialog'),
+  },
 } as const;

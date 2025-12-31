@@ -86,7 +86,7 @@ export function DeleteUserDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[500px]" data-testid="delete-user-dialog">
         <DialogHeader>
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-100">
@@ -109,8 +109,15 @@ export function DeleteUserDialog({
           <div className="space-y-2">
             <p className="text-sm font-medium text-foreground">{t('userInfo')}</p>
             <div className="rounded-lg bg-muted p-3 border border-border">
-              <p className="text-sm font-semibold text-foreground">{user.name}</p>
-              <p className="text-xs text-muted-foreground">{user.email}</p>
+              <p
+                className="text-sm font-semibold text-foreground"
+                data-testid="delete-dialog-user-name"
+              >
+                {user.name}
+              </p>
+              <p className="text-xs text-muted-foreground" data-testid="delete-dialog-user-email">
+                {user.email}
+              </p>
             </div>
           </div>
 
@@ -124,11 +131,11 @@ export function DeleteUserDialog({
               onValueChange={(value) => setDeleteScope(value as 'branch' | 'company')}
               disabled={isDeleting}
             >
-              <SelectTrigger id="deleteScope">
+              <SelectTrigger id="deleteScope" data-testid="delete-scope-select">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="branch">
+                <SelectItem value="branch" data-testid="delete-scope-branch">
                   <div className="space-y-0.5">
                     <div className="font-medium">{t('scopeOptions.branch')}</div>
                     <div className="text-xs text-muted-foreground">
@@ -136,7 +143,7 @@ export function DeleteUserDialog({
                     </div>
                   </div>
                 </SelectItem>
-                <SelectItem value="company">
+                <SelectItem value="company" data-testid="delete-scope-company">
                   <div className="space-y-0.5">
                     <div className="font-medium">{t('scopeOptions.company')}</div>
                     <div className="text-xs text-muted-foreground">
@@ -153,7 +160,13 @@ export function DeleteUserDialog({
           <Button type="button" variant="outline" onClick={handleClose} disabled={isDeleting}>
             {t('cancel')}
           </Button>
-          <Button type="button" variant="destructive" onClick={handleDelete} disabled={isDeleting}>
+          <Button
+            type="button"
+            variant="destructive"
+            onClick={handleDelete}
+            disabled={isDeleting}
+            data-testid="confirm-delete-button"
+          >
             {isDeleting ? t('confirming') : t('confirm')}
           </Button>
         </DialogFooter>
