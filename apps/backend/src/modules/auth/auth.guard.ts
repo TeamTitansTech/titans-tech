@@ -215,6 +215,7 @@ export class AuthGuard implements CanActivate {
           'Access denied: Only company administrators can access this resource',
         );
       }
+      (request as ReqWithAuthUser)['isCompanyAdmin'] = true;
       return true;
     }
 
