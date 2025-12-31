@@ -69,7 +69,9 @@ export function CompanyView({ company, branches, companyUser }: CompanyViewProps
             <Building2 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{totalBranches}</div>
+            <div className="text-2xl font-bold" data-testid="company-total-branches-count">
+              {totalBranches}
+            </div>
             <p className="text-xs text-muted-foreground">
               {totalBranches === 1 ? t('companies.branch') : t('companies.branches')}
             </p>
@@ -111,11 +113,11 @@ export function CompanyView({ company, branches, companyUser }: CompanyViewProps
       )}
 
       {/* Branches Section */}
-      <div className="space-y-4">
+      <div className="space-y-4" data-testid="company-branches-section">
         <Typography variant="h3">{t('companies.branches')}</Typography>
 
         {branches.length === 0 ? (
-          <Card>
+          <Card data-testid="company-no-branches-message">
             <CardContent className="flex flex-col items-center justify-center py-12">
               <Building2 className="h-12 w-12 text-muted-foreground mb-4" />
               <Typography variant="h4" className="text-center mb-2">
@@ -127,13 +129,17 @@ export function CompanyView({ company, branches, companyUser }: CompanyViewProps
             </CardContent>
           </Card>
         ) : (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div
+            className="grid gap-4 md:grid-cols-2 lg:grid-cols-3"
+            data-testid="company-branches-grid"
+          >
             {branches.map((branch) => (
               <BranchCard
                 key={branch.id}
                 branch={branch}
                 machineCount={branch.machineCount}
                 companyUser={companyUser}
+                data-testid={`company-branch-card-${branch.id}`}
               />
             ))}
           </div>
