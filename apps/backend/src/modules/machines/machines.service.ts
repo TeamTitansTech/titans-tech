@@ -10,24 +10,28 @@ import {
   CreateMachineDto,
   UpdateMachineDto,
 } from '@titans-tech/shared/backend-dtos';
+import {
+  hasPermissionInBranch,
+  type UserWithBranchPermissions,
+  type Permissions,
+} from '@titans-tech/shared/types';
 
 @Injectable()
 export class MachinesService {
   constructor(private prisma: PrismaService) {}
 
   /**
-   * Gets the branch IDs accessible by a user
-   * - Company admins/managers: all branches of their company
-   * - Regular users: only branches they're assigned to
+   * Gets the branch IDs where user has readMachines permission
+   * - Company admins/managers: all branches of their company (inherit all permissions)
+   * - Regular users: only branches where they have readMachines permission
    */
-  private async getUserBranchIds(userId: string): Promise<string[]> {
+  private async getUserBranchIdsWithReadMachinesPermission(
+    userId: string,
+  ): Promise<string[]> {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
       include: {
-        branches: {
-          where: { deletedAt: null },
-          select: { branchId: true },
-        },
+        branches: { where: { deletedAt: null } },
         company: {
           include: {
             branches: {
@@ -42,11 +46,29 @@ export class MachinesService {
       throw new NotFoundException('User not found');
     }
 
+    // Company admins have access to all branches in their company
     if (user.isCompanyAdmin) {
       return user.company.branches.map((b) => b.id);
     }
 
-    return user.branches.map((ub) => ub.branchId);
+    // For regular users, filter branches by readMachines permission
+    const userWithPermissions: UserWithBranchPermissions = {
+      id: user.id,
+      isCompanyAdmin: false,
+      branches: user.branches.map((ub) => ({
+        branchId: ub.branchId,
+        ...(ub as unknown as Permissions),
+      })),
+    };
+
+    // Filter branches where user has readMachines permission
+    const permittedBranchIds = user.branches
+      .filter((ub) =>
+        hasPermissionInBranch(userWithPermissions, ub.branchId, 'readMachines'),
+      )
+      .map((ub) => ub.branchId);
+
+    return permittedBranchIds;
   }
 
   /**
@@ -152,7 +174,7 @@ export class MachinesService {
   }
 
   /**
-   * Find all machines for a regular user (filtered by their accessible branches)
+   * Find all machines for a regular user (filtered by readMachines permission)
    */
   async findAll(userId: string): Promise<
     Prisma.MachineGetPayload<{
@@ -162,7 +184,8 @@ export class MachinesService {
       };
     }>[]
   > {
-    const branchIds = await this.getUserBranchIds(userId);
+    const branchIds =
+      await this.getUserBranchIdsWithReadMachinesPermission(userId);
 
     return this.prisma.machine.findMany({
       where: {
