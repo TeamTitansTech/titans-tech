@@ -523,6 +523,7 @@ export function MachinesPageClient() {
               onClick={handleDeleteConfirm}
               disabled={isDeleting}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              data-testid="machine-delete-confirm-button"
             >
               {isDeleting ? t('deleting') : t('confirmDelete')}
             </AlertDialogAction>

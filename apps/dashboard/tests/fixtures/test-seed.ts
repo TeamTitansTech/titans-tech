@@ -235,6 +235,36 @@ export class TestSeeder {
       },
     });
 
+    // Create a test machine for update/delete tests
+    await this.db.machine.create({
+      data: {
+        id: 'test-machine-p2h',
+        name: 'Existing P2H Machine',
+        blueprintId: TEST_SEED_DATA.BLUEPRINT.P2H.id,
+        branchId: branch.id,
+        fields: {
+          create: [
+            {
+              fieldSlug: 'serial_number',
+              value: 'EXISTING001',
+            },
+            {
+              fieldSlug: 'model_year',
+              value: '2023',
+            },
+            {
+              fieldSlug: 'tonnage',
+              value: '150',
+            },
+            {
+              fieldSlug: 'stroke',
+              value: '2.0',
+            },
+          ],
+        },
+      },
+    });
+
     return {
       sysAdmin,
       company,
