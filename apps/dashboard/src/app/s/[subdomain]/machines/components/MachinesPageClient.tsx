@@ -212,12 +212,32 @@ export function MachinesPageClient() {
     return userBranch?.deleteMachines || false;
   };
 
+  // Check if user has permission to read machines in ANY branch
+  const hasReadMachinesPermission = useMemo(() => {
+    if (!companyUser) return false;
+
+    // Company admin can read machines
+    if (companyUser.isCompanyAdmin) return true;
+
+    // Check if user has readMachines permission in at least one branch
+    return companyUser.branches.some((ub) => ub.readMachines);
+  }, [companyUser]);
+
   // Fetch all machines on mount and their latest reports
   useEffect(() => {
     const fetchMachinesWithStatus = async () => {
       setIsLoading(true);
       setError(null);
       setErrorStatus(null);
+
+      // Check if user has permission to read machines
+      if (!hasReadMachinesPermission) {
+        setError('You do not have permission to view machines');
+        setErrorStatus(403);
+        setMachines([]);
+        setIsLoading(false);
+        return;
+      }
 
       // 1. Fetch all machines
       const response = await getMachines();
@@ -262,9 +282,14 @@ export function MachinesPageClient() {
     };
 
     fetchMachinesWithStatus();
-  }, []);
+  }, [hasReadMachinesPermission]);
 
   const handleSuccess = async () => {
+    // Check permission before refreshing
+    if (!hasReadMachinesPermission) {
+      return;
+    }
+
     // Refresh machines list with latest reports
     const response = await getMachines();
     if (response.data) {
