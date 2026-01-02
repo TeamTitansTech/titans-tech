@@ -100,14 +100,7 @@ test.describe('updateBranches Permission Flow', () => {
 
     // Verify branch settings section is visible but verify functionality without updateBranches permission
     await expect(page.getByTestId('branch-settings-section')).toBeVisible();
-    await expect(page.getByTestId('measurement-unit-trigger')).toBeVisible();
-
-    // Try to change the measurement unit (this should fail silently or show error without updateBranches permission)
-    const measurementUnitTrigger = page.getByTestId('measurement-unit-trigger');
-    await measurementUnitTrigger.click();
-
-    // Try to select MM (assuming default is INCHES)
-    await page.getByTestId('measurement-unit-mm').click();
+    await expect(page.getByTestId('measurement-unit-trigger')).not.toBeVisible();
 
     // Now admin grants updateBranches permission
     await grantPermissionsToTestEmployee({
