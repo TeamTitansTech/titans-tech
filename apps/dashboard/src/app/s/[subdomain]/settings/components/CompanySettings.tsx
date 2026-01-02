@@ -41,7 +41,7 @@ export function CompanySettings() {
           <p className="text-muted-foreground mt-2">{t('pageDescription')}</p>
         </div>
         {canCreateUsers && companyUser?.companyId && (
-          <Button onClick={() => setIsAddUserDialogOpen(true)}>
+          <Button onClick={() => setIsAddUserDialogOpen(true)} data-testid="client-add-user-button">
             <Plus className="mr-2 h-4 w-4" />
             {t('userManagement.addUser')}
           </Button>

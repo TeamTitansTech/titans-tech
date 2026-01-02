@@ -84,7 +84,7 @@ export function PermissionsEditor({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-testid="edit-user-permissions-section">
       {/* Role Preset Selector */}
       {showPresetSelector && (
         <>
