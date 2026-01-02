@@ -869,6 +869,7 @@ export function MachineCreationModal({
               type="submit"
               disabled={isLoading || !selectedBlueprint || !selectedBranchId}
               className="bg-primary text-primary-foreground hover:bg-primary/90"
+              data-testid="machine-creation-submit-button"
             >
               {isLoading ? t('form.submit.loading') : t('form.submit.idle')}
             </Button>
