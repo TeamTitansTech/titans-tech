@@ -40,17 +40,18 @@ export class CompanyBranchesService {
   }
 
   async findAllByCompany(companyId: string) {
-    return this.prisma.companyBranch.findMany({
-      where: { companyId },
-      include: {
-        _count: {
-          select: {
-            machines: true,
-            users: true,
-          },
-        },
-      },
-    });
+    return companyBranchesService.findAllByCompany(this.prisma, companyId);
+  }
+
+  async findAllByCompanyFilteredByPermissions(
+    companyId: string,
+    userId: string,
+  ) {
+    return companyBranchesService.findAllByCompanyFilteredByPermissions(
+      this.prisma,
+      companyId,
+      userId,
+    );
   }
 
   async findOne(id: string) {

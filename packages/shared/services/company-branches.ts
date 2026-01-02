@@ -5,6 +5,58 @@ type TransactionClient = Parameters<Parameters<PrismaClient['$transaction']>[0]>
 
 export const companyBranchesService = {
   /**
+   * Get all branches for a company (Admin/SysAdmin only)
+   */
+  async findAllByCompany(prisma: PrismaClient, companyId: string) {
+    return prisma.companyBranch.findMany({
+      where: { companyId },
+      include: {
+        _count: {
+          select: {
+            machines: true,
+            users: true,
+          },
+        },
+      },
+    });
+  },
+
+  /**
+   * Get branches for a company filtered by user permissions
+   * Only returns branches where the user has readBranches permission
+   */
+  async findAllByCompanyFilteredByPermissions(
+    prisma: PrismaClient,
+    companyId: string,
+    userId: string,
+  ) {
+    const result = await prisma.companyBranch.findMany({
+      where: {
+        companyId,
+        users: {
+          some: {
+            deletedAt: null,
+            userId,
+            readBranches: {
+              equals: true,
+            },
+          },
+        },
+      },
+      include: {
+        _count: {
+          select: {
+            machines: true,
+            users: true,
+          },
+        },
+      },
+    });
+    console.log('Filtered branches:', result);
+    return result;
+  },
+
+  /**
    * Soft delete cascade for company branch and all related entities
    * Handles: Machines -> ProductionLines -> UserBranches -> CompanyBranch
    */

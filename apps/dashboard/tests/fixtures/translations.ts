@@ -61,5 +61,8 @@ export const testTranslations = {
   settings: {
     deleteUserDialog: createTestTranslator('settings.deleteUserDialog'),
     addUserDialog: createTestTranslator('settings.addUserDialog'),
+    branchSettings: createTestTranslator('settings.branchSettings'),
+    userManagement: createTestTranslator('settings.userManagement'),
+    branches: createTestTranslator('settings.branches'),
   },
 } as const;
