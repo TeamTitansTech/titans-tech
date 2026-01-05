@@ -105,7 +105,12 @@ export function UpcomingServicesClient({
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle>{t('upcomingServices')}</CardTitle>
           {canCreateServices && (
-            <Button size="sm" onClick={() => setIsServiceModalOpen(true)} className="shrink-0">
+            <Button
+              size="sm"
+              onClick={() => setIsServiceModalOpen(true)}
+              className="shrink-0"
+              data-testid="new-service-button"
+            >
               <Plus className="w-4 h-4 mr-2" />
               {t('newService')}
             </Button>
@@ -113,11 +118,15 @@ export function UpcomingServicesClient({
         </CardHeader>
         <CardContent>
           {upcomingServices.length === 0 ? (
-            <Typography variant="muted" className="text-center py-8">
+            <Typography
+              variant="muted"
+              className="text-center py-8"
+              data-testid="no-services-message"
+            >
               {t('noUpcomingServices')}
             </Typography>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-4" data-testid="upcoming-services-list">
               {upcomingServices.map((service) => {
                 const serviceDate = new Date(service.date);
                 // Check if service has any sections completed (in progress)
@@ -130,6 +139,7 @@ export function UpcomingServicesClient({
                 return (
                   <div
                     key={service.id}
+                    data-testid={`upcoming-service-item-${service.id}`}
                     onClick={canUpdateServices ? () => handleServiceClick(service) : undefined}
                     className={`flex items-start justify-between border-b pb-4 last:border-b-0 last:pb-4 rounded-lg p-2 transition-colors ${
                       canUpdateServices ? 'cursor-pointer hover:bg-muted' : ''
@@ -166,6 +176,7 @@ export function UpcomingServicesClient({
                           size="icon"
                           className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
                           onClick={(e) => handleDeleteClick(e, service)}
+                          data-testid={`delete-service-button-${service.id}`}
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -224,11 +235,14 @@ export function UpcomingServicesClient({
             <AlertDialogDescription>{t('deleteServiceDescription')}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>{tActions('cancel')}</AlertDialogCancel>
+            <AlertDialogCancel disabled={isDeleting} data-testid="cancel-delete-button">
+              {tActions('cancel')}
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleConfirmDelete}
               disabled={isDeleting}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              data-testid="confirm-delete-button"
             >
               {isDeleting ? tActions('deleting') : tActions('delete')}
             </AlertDialogAction>

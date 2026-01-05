@@ -1,5 +1,5 @@
 import { PrismaClient } from '@titans-tech/db';
-import { ServiceSection } from '@titans-tech/db/enums';
+import { ServiceSection, ServiceType, ServiceStatus } from '@titans-tech/db/enums';
 import * as bcrypt from 'bcrypt';
 
 export const TEST_SEED_DATA = {
@@ -50,6 +50,9 @@ export const TEST_SEED_DATA = {
       isCompanyAdmin: false,
     },
   },
+  MACHINE: {
+    P2H: 'test-machine-p2h',
+  },
   BLUEPRINT: {
     P2H: {
       id: 'test-p2h-blueprint',
@@ -81,6 +84,42 @@ export const TEST_SEED_DATA = {
           fieldType: 'string',
         },
       ],
+    },
+  },
+  SERVICES: {
+    UPCOMING_INSPECTION: {
+      id: 'test-service-upcoming',
+      date: (() => {
+        const twoDaysFromNow = new Date();
+        twoDaysFromNow.setDate(twoDaysFromNow.getDate() + 2);
+        return twoDaysFromNow.toISOString();
+      })(), // Dynamic date: 2 days from today
+      type: ServiceType.INSPECTION,
+      status: ServiceStatus.PENDING,
+      performedBy: 'test-employee-all',
+      completedSections: '[]',
+      selectedSections: JSON.stringify([
+        ServiceSection.BEARING_CLEARANCE,
+        ServiceSection.CLUTCH,
+        ServiceSection.LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER,
+      ]),
+    },
+    COMPLETED_INSPECTION: {
+      id: 'test-service-completed',
+      date: '2025-12-20T14:30:00.000Z', // Past date for completed
+      type: ServiceType.INSPECTION,
+      status: ServiceStatus.COMPLETED,
+      performedBy: 'test-employee-all',
+      completedSections: JSON.stringify([
+        ServiceSection.BEARING_CLEARANCE,
+        ServiceSection.CLUTCH,
+        ServiceSection.LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER,
+      ]),
+      selectedSections: JSON.stringify([
+        ServiceSection.BEARING_CLEARANCE,
+        ServiceSection.CLUTCH,
+        ServiceSection.LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER,
+      ]),
     },
   },
 };
@@ -236,7 +275,7 @@ export class TestSeeder {
     });
 
     // Create a test machine for update/delete tests
-    await this.db.machine.create({
+    const machine = await this.db.machine.create({
       data: {
         id: 'test-machine-p2h',
         name: 'Existing P2H Machine',
@@ -262,6 +301,23 @@ export class TestSeeder {
             },
           ],
         },
+      },
+    });
+
+    // Create test services for service permission tests
+    await this.db.machineService.create({
+      data: {
+        ...TEST_SEED_DATA.SERVICES.UPCOMING_INSPECTION,
+        machineId: machine.id,
+        date: new Date(TEST_SEED_DATA.SERVICES.UPCOMING_INSPECTION.date),
+      },
+    });
+
+    await this.db.machineService.create({
+      data: {
+        ...TEST_SEED_DATA.SERVICES.COMPLETED_INSPECTION,
+        machineId: machine.id,
+        date: new Date(TEST_SEED_DATA.SERVICES.COMPLETED_INSPECTION.date),
       },
     });
 

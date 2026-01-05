@@ -48,6 +48,10 @@ export function createTestTranslator(namespace: string, locale: Locale = 'pt') {
 export const testTranslations = {
   companies: createTestTranslator('companies'),
 
+  machines: createTestTranslator('machines'),
+
+  services: createTestTranslator('services'),
+
   adminSettings: {
     createCompany: createTestTranslator('adminSettings.createCompany'),
   },
