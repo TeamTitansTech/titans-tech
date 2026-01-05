@@ -50,6 +50,9 @@ export const TEST_SEED_DATA = {
       isCompanyAdmin: false,
     },
   },
+  MACHINE: {
+    P2H: 'test-machine-p2h',
+  },
   BLUEPRINT: {
     P2H: {
       id: 'test-p2h-blueprint',
@@ -86,7 +89,11 @@ export const TEST_SEED_DATA = {
   SERVICES: {
     UPCOMING_INSPECTION: {
       id: 'test-service-upcoming',
-      date: '2030-01-15T10:00:00.000Z', // Future date for upcoming
+      date: (() => {
+        const twoDaysFromNow = new Date();
+        twoDaysFromNow.setDate(twoDaysFromNow.getDate() + 2);
+        return twoDaysFromNow.toISOString();
+      })(), // Dynamic date: 2 days from today
       type: ServiceType.INSPECTION,
       status: ServiceStatus.PENDING,
       performedBy: 'test-employee-all',

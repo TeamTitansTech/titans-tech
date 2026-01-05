@@ -8,8 +8,10 @@ export default async function ServicesPage() {
   return (
     <div className="space-y-6 p-8">
       <div>
-        <Typography variant="h2">{t('pageTitle')}</Typography>
-        <Typography variant="muted" className="mt-1">
+        <Typography variant="h2" data-testid="services-page-title">
+          {t('pageTitle')}
+        </Typography>
+        <Typography variant="muted" className="mt-1" data-testid="services-page-description">
           {t('pageDescription')}
         </Typography>
       </div>

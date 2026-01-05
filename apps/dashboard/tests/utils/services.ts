@@ -27,6 +27,14 @@ export const SERVICE_TEST_DATA = {
     machineId: 'test-machine-p2h',
     date: TEST_SEED_DATA.SERVICES.COMPLETED_INSPECTION.date,
   },
+  COMPLETED_SERVICE: {
+    id: TEST_SEED_DATA.SERVICES.COMPLETED_INSPECTION.id,
+    type: 'INSPECTION' as const,
+    status: 'COMPLETED' as const,
+    machineName: 'Existing P2H Machine',
+    machineId: 'test-machine-p2h',
+    date: TEST_SEED_DATA.SERVICES.COMPLETED_INSPECTION.date,
+  },
 } as const;
 
 export function formatTestDate(dateString: string): string {
@@ -90,9 +98,25 @@ export async function verifyServiceExists(
   service: ServiceTestData,
   options: {
     shouldExist?: boolean;
+    skipTabNavigation?: boolean;
   } = {},
 ) {
-  const { shouldExist = true } = options;
+  const { shouldExist = true, skipTabNavigation = false } = options;
+
+  // Automatically navigate to the appropriate tab based on service status
+  if (!skipTabNavigation && shouldExist) {
+    if (service.status === 'PENDING') {
+      const upcomingTab = page.getByTestId('services-tab-upcoming');
+      if (await upcomingTab.isVisible()) {
+        await upcomingTab.click();
+      }
+    } else if (service.status === 'COMPLETED') {
+      const historyTab = page.getByTestId('services-tab-history');
+      if (await historyTab.isVisible()) {
+        await historyTab.click();
+      }
+    }
+  }
 
   if (shouldExist) {
     await expect(page.getByTestId(`service-card-${service.id}`)).toBeVisible();
@@ -140,5 +164,54 @@ export async function verifyServiceTabCounts(
     // Matches count in parentheses: "Todos (5)"
     const countPattern = new RegExp(`\\(${expectedCounts.all}\\)`);
     await expect(allTab.getByText(countPattern)).toBeVisible();
+  }
+}
+
+/**
+ * Verify home page service overview elements
+ */
+export async function verifyHomePageServices(
+  page: Page,
+  expectedUpcomingCount: number,
+  hasCompletedService: boolean = true,
+) {
+  // Verify services overview card shows correct count
+  const servicesOverviewCard = page.getByTestId('home-services-overview-card');
+  const servicesCount = page.getByTestId('home-services-count');
+
+  await expect(servicesOverviewCard).toBeVisible();
+  await expect(servicesCount).toHaveText(expectedUpcomingCount.toString());
+
+  // Verify recent completed services card
+  const recentServicesCard = page.getByTestId('home-recent-completed-services-card');
+  await expect(recentServicesCard).toBeVisible();
+
+  if (hasCompletedService) {
+    const completedService = page.getByTestId(
+      `home-completed-service-${SERVICE_TEST_DATA.COMPLETED_SERVICE.id}`,
+    );
+    await expect(completedService).toBeVisible();
+  }
+
+  // Verify upcoming services timeline shows the service (seeded with date within 30-day window)
+  if (expectedUpcomingCount > 0) {
+    // The service could appear in either the Next30DaysTimeline or UpcomingServicesTimeline
+    const next30DaysService = page.getByTestId(
+      `next30days-upcoming-service-${SERVICE_TEST_DATA.UPCOMING_INSPECTION.id}`,
+    );
+    const timelineService = page.getByTestId(
+      `timeline-upcoming-service-${SERVICE_TEST_DATA.UPCOMING_INSPECTION.id}`,
+    );
+
+    // Check if service appears in either timeline component
+    const serviceInNext30Days = await next30DaysService.isVisible().catch(() => false);
+    const serviceInTimeline = await timelineService.isVisible().catch(() => false);
+
+    // At least one should be visible
+    if (!serviceInNext30Days && !serviceInTimeline) {
+      throw new Error(
+        `Expected upcoming service to be visible in either Next30DaysTimeline or UpcomingServicesTimeline, but found in neither`,
+      );
+    }
   }
 }

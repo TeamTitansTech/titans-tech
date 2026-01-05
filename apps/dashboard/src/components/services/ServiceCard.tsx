@@ -43,20 +43,29 @@ export function ServiceCard({ service, onClick }: ServiceCardProps) {
   const getStatusBadge = () => {
     if (isCompleted) {
       return (
-        <Badge className="bg-green-100 text-green-800 hover:bg-green-100 dark:bg-green-900/30 dark:text-green-400">
+        <Badge
+          className="bg-green-100 text-green-800 hover:bg-green-100 dark:bg-green-900/30 dark:text-green-400"
+          data-testid="service-status-completed"
+        >
           {tMachines('completed')}
         </Badge>
       );
     }
     if (isInProgress) {
       return (
-        <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-400">
+        <Badge
+          className="bg-blue-100 text-blue-800 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-400"
+          data-testid="service-status-in-progress"
+        >
           {tMachines('inProgress')}
         </Badge>
       );
     }
     return (
-      <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100 dark:bg-yellow-900/30 dark:text-yellow-400">
+      <Badge
+        className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100 dark:bg-yellow-900/30 dark:text-yellow-400"
+        data-testid="service-status-pending"
+      >
         {t('pending')}
       </Badge>
     );
@@ -83,6 +92,7 @@ export function ServiceCard({ service, onClick }: ServiceCardProps) {
         onClick ? 'hover:border-orange-300' : ''
       }`}
       onClick={onClick}
+      data-testid={`service-card-${service.id}`}
     >
       <CardContent className="p-4">
         <div className="flex flex-col gap-3">
@@ -105,11 +115,26 @@ export function ServiceCard({ service, onClick }: ServiceCardProps) {
           <div className="flex flex-wrap items-center gap-3 text-sm">
             <div className="flex items-center gap-1.5">
               {service.type === ServiceType.INSPECTION ? (
-                <ClipboardCheck className="h-4 w-4 text-blue-600" />
+                <ClipboardCheck
+                  className="h-4 w-4 text-blue-600"
+                  data-testid="service-type-inspection-icon"
+                />
               ) : (
-                <Wrench className="h-4 w-4 text-orange-600" />
+                <Wrench
+                  className="h-4 w-4 text-orange-600"
+                  data-testid="service-type-maintenance-icon"
+                />
               )}
-              <span className="text-gray-700">{getServiceTypeLabel()}</span>
+              <span
+                className="text-gray-700"
+                data-testid={
+                  service.type === ServiceType.INSPECTION
+                    ? 'service-type-inspection-badge'
+                    : 'service-type-maintenance-badge'
+                }
+              >
+                {getServiceTypeLabel()}
+              </span>
             </div>
 
             <div className="flex items-center gap-1.5">

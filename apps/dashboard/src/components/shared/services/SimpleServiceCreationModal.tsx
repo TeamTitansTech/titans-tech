@@ -103,7 +103,9 @@ export default function SimpleServiceCreationModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="w-[95vw] max-w-md sm:w-auto">
         <DialogHeader>
-          <DialogTitle>{t('createNewService')}</DialogTitle>
+          <DialogTitle data-testid="create-service-dialog-title">
+            {t('createNewService')}
+          </DialogTitle>
           <DialogDescription>{t('createServiceDescription')}</DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
@@ -115,6 +117,7 @@ export default function SimpleServiceCreationModal({
                   <Button
                     variant="outline"
                     className="w-full justify-start bg-transparent text-left font-normal"
+                    data-testid="service-date-input"
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
                     {date ? format(date, 'PPP') : <span>Pick a date</span>}
@@ -139,6 +142,7 @@ export default function SimpleServiceCreationModal({
               <Select
                 value={serviceType}
                 onValueChange={(value) => setServiceType(value as ServiceType)}
+                data-testid="service-type-select"
               >
                 <SelectTrigger id="type">
                   <SelectValue />
@@ -163,10 +167,15 @@ export default function SimpleServiceCreationModal({
               variant="outline"
               onClick={() => onOpenChange(false)}
               disabled={isSubmitting}
+              data-testid="create-service-cancel-button"
             >
               {tActions('cancel')}
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              data-testid="create-service-submit-button"
+            >
               {isSubmitting ? t('creating') : t('createService')}
             </Button>
           </DialogFooter>

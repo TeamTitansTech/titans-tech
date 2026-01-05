@@ -68,6 +68,7 @@ export function Next30DaysTimeline({ services }: Next30DaysTimelineProps) {
                 key={service.id}
                 className="flex items-start gap-3 cursor-pointer hover:bg-muted/50 rounded-lg p-2 -mx-2 transition-colors"
                 onClick={() => handleServiceClick(service.machineId)}
+                data-testid={`next30days-upcoming-service-${service.id}`}
               >
                 <div className="flex flex-col items-center">
                   <div className="w-2 h-2 rounded-full bg-primary" />

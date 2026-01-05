@@ -90,6 +90,7 @@ export function UpcomingServicesTimeline({ services }: UpcomingServicesTimelineP
                 key={service.id}
                 href={`/services`}
                 className="block hover:bg-accent rounded-lg transition-colors"
+                data-testid={`timeline-upcoming-service-${service.id}`}
               >
                 <div className="flex items-start gap-4 p-3">
                   {/* Timeline */}

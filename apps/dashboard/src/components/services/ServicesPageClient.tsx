@@ -182,14 +182,19 @@ export function ServicesPageClient() {
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12">
             <CalendarX className="h-12 w-12 text-gray-400 mb-4" />
-            <p className="text-gray-600 text-center">{t('noServicesFound')}</p>
+            <p className="text-gray-600 text-center" data-testid="no-services-message">
+              {t('noServicesFound')}
+            </p>
           </CardContent>
         </Card>
       );
     }
 
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+        data-testid="services-grid"
+      >
         {servicesList.map((service) => (
           <ServiceCard
             key={service.id}
@@ -230,13 +235,25 @@ export function ServicesPageClient() {
       <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-6">
         <div className="overflow-x-auto -mx-2 px-2">
           <TabsList className="w-auto inline-flex">
-            <TabsTrigger value="upcoming" className="whitespace-nowrap text-xs sm:text-sm">
+            <TabsTrigger
+              value="upcoming"
+              className="whitespace-nowrap text-xs sm:text-sm"
+              data-testid="services-tab-upcoming"
+            >
               {t('tabs.upcoming')} ({upcomingServices.length})
             </TabsTrigger>
-            <TabsTrigger value="history" className="whitespace-nowrap text-xs sm:text-sm">
+            <TabsTrigger
+              value="history"
+              className="whitespace-nowrap text-xs sm:text-sm"
+              data-testid="services-tab-history"
+            >
               {t('tabs.history')} ({historyServices.length})
             </TabsTrigger>
-            <TabsTrigger value="all" className="whitespace-nowrap text-xs sm:text-sm">
+            <TabsTrigger
+              value="all"
+              className="whitespace-nowrap text-xs sm:text-sm"
+              data-testid="services-tab-all"
+            >
               {t('tabs.all')} ({allServices.length})
             </TabsTrigger>
           </TabsList>
