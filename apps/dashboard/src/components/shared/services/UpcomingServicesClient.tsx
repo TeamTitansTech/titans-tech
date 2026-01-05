@@ -139,6 +139,7 @@ export function UpcomingServicesClient({
                 return (
                   <div
                     key={service.id}
+                    data-testid={`upcoming-service-item-${service.id}`}
                     onClick={canUpdateServices ? () => handleServiceClick(service) : undefined}
                     className={`flex items-start justify-between border-b pb-4 last:border-b-0 last:pb-4 rounded-lg p-2 transition-colors ${
                       canUpdateServices ? 'cursor-pointer hover:bg-muted' : ''

@@ -142,9 +142,8 @@ export default function SimpleServiceCreationModal({
               <Select
                 value={serviceType}
                 onValueChange={(value) => setServiceType(value as ServiceType)}
-                data-testid="service-type-select"
               >
-                <SelectTrigger id="type">
+                <SelectTrigger id="type" data-testid="service-type-select">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
