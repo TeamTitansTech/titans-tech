@@ -1,4 +1,5 @@
 import { PrismaClient } from '@titans-tech/db';
+import { ServiceSection } from '@titans-tech/db/enums';
 import * as bcrypt from 'bcrypt';
 
 export const TEST_SEED_DATA = {
@@ -49,7 +50,40 @@ export const TEST_SEED_DATA = {
       isCompanyAdmin: false,
     },
   },
-} as const;
+  BLUEPRINT: {
+    P2H: {
+      id: 'test-p2h-blueprint',
+      name: 'P2H',
+      sections: [
+        ServiceSection.BEARING_CLEARANCE,
+        ServiceSection.CLUTCH,
+        ServiceSection.LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER,
+      ],
+      fields: [
+        {
+          fieldName: 'Serial Number',
+          fieldSlug: 'serial_number',
+          fieldType: 'string',
+        },
+        {
+          fieldName: 'Model Year',
+          fieldSlug: 'model_year',
+          fieldType: 'int',
+        },
+        {
+          fieldName: 'Tonnage',
+          fieldSlug: 'tonnage',
+          fieldType: 'int',
+        },
+        {
+          fieldName: 'Stroke',
+          fieldSlug: 'stroke',
+          fieldType: 'string',
+        },
+      ],
+    },
+  },
+};
 export class TestSeeder {
   constructor(private db: PrismaClient) {}
 
@@ -191,6 +225,43 @@ export class TestSeeder {
         createProductionLines: false,
         updateProductionLines: false,
         deleteProductionLines: false,
+      },
+    });
+
+    // Create P2H Blueprint
+    await this.db.blueprint.create({
+      data: {
+        ...TEST_SEED_DATA.BLUEPRINT.P2H,
+      },
+    });
+
+    // Create a test machine for update/delete tests
+    await this.db.machine.create({
+      data: {
+        id: 'test-machine-p2h',
+        name: 'Existing P2H Machine',
+        blueprintId: TEST_SEED_DATA.BLUEPRINT.P2H.id,
+        branchId: branch.id,
+        fields: {
+          create: [
+            {
+              fieldSlug: 'serial_number',
+              value: 'EXISTING001',
+            },
+            {
+              fieldSlug: 'model_year',
+              value: '2023',
+            },
+            {
+              fieldSlug: 'tonnage',
+              value: '150',
+            },
+            {
+              fieldSlug: 'stroke',
+              value: '2.0',
+            },
+          ],
+        },
       },
     });
 
