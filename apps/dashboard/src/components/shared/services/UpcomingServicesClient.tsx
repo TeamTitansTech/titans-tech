@@ -176,6 +176,7 @@ export function UpcomingServicesClient({
                           size="icon"
                           className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
                           onClick={(e) => handleDeleteClick(e, service)}
+                          data-testid={`delete-service-button-${service.id}`}
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
