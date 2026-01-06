@@ -78,10 +78,15 @@ export class ProductionLinesController {
       };
     }>[]
   > {
-    return this.dispatchByUserType(
-      req.user,
-      () => this.productionLinesService.findAllForSysAdmin(),
-      (userId) => this.productionLinesService.findAll(userId),
+    // SysAdmin can see all production lines across all companies
+    if (isSysAdmin(req.user)) {
+      return this.productionLinesService.findAllForSysAdmin();
+    }
+
+    // CompanyAdmin or regular users see filtered production lines by company
+    return this.productionLinesService.findAllByCompanyFilteredByPermissions(
+      req.user.companyId,
+      req.user.id,
     );
   }
 
