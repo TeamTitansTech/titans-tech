@@ -19,6 +19,7 @@ import {
 } from '@/components/ui/select';
 import { getBranchesWithPermission, filterByBranchPermission } from '@/lib/branchFilters';
 import { type CompanyBranch } from '@/data/services/company-branches.api';
+import { hasPermissionInAnyBranch } from '@titans-tech/shared/types';
 
 interface ProductionLinesPageProps {
   productionLines: ProductionLine[];
@@ -89,7 +90,7 @@ export function ProductionLinesPage({ productionLines, allBranches }: Production
     if (companyUser.isCompanyAdmin) return true;
 
     // Check if user has createProductionLines permission in at least one branch
-    return companyUser.branches.some((ub) => ub.createProductionLines);
+    return hasPermissionInAnyBranch(companyUser, 'createProductionLines');
   }, [companyUser, isSysAdmin]);
 
   // Get branches where user can CREATE production lines (for the create dialog)
@@ -129,20 +130,40 @@ export function ProductionLinesPage({ productionLines, allBranches }: Production
       <div className="space-y-6 p-4 sm:p-6 lg:p-8">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="min-w-0">
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">{t('pageTitle')}</h1>
-            <p className="text-muted-foreground text-sm sm:text-base">{t('pageDescription')}</p>
+            <h1
+              className="text-2xl sm:text-3xl font-bold tracking-tight"
+              data-testid="page-production-lines-title"
+            >
+              {t('pageTitle')}
+            </h1>
+            <p
+              className="text-muted-foreground text-sm sm:text-base"
+              data-testid="page-production-lines-description"
+            >
+              {t('pageDescription')}
+            </p>
           </div>
           <div className="flex items-center gap-2 sm:gap-4 shrink-0">
             {/* Branch Filter */}
             <Select value={selectedBranchFilter} onValueChange={setSelectedBranchFilter}>
-              <SelectTrigger className="w-[180px] sm:w-[250px] [&_.branch-location]:hidden">
+              <SelectTrigger
+                className="w-[180px] sm:w-[250px] [&_.branch-location]:hidden"
+                data-testid="page-branch-filter"
+              >
                 <MapPin className="w-4 h-4 mr-2 shrink-0" />
                 <SelectValue placeholder="Filter by branch" />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">{t('allBranches')}</SelectItem>
+              <SelectContent data-testid="page-branch-options">
+                <SelectItem value="all" data-testid="page-branch-all">
+                  {t('allBranches')}
+                </SelectItem>
                 {userBranches.map((branch) => (
-                  <SelectItem key={branch.id} value={branch.id} textValue={branch.name}>
+                  <SelectItem
+                    key={branch.id}
+                    value={branch.id}
+                    textValue={branch.name}
+                    data-testid={`page-branch-${branch.id}`}
+                  >
                     <div className="flex flex-col">
                       <div className="flex items-center justify-between gap-2">
                         <span>{branch.name}</span>
@@ -161,7 +182,10 @@ export function ProductionLinesPage({ productionLines, allBranches }: Production
               </SelectContent>
             </Select>
             {hasCreateProductionLinesPermission && (
-              <Button onClick={() => setIsCreateDialogOpen(true)}>
+              <Button
+                onClick={() => setIsCreateDialogOpen(true)}
+                data-testid="page-new-production-line-button"
+              >
                 <Plus className="w-4 h-4 mr-2" />
                 {t('newButton')}
               </Button>
@@ -170,7 +194,7 @@ export function ProductionLinesPage({ productionLines, allBranches }: Production
         </div>
 
         {filteredProductionLines.length === 0 ? (
-          <div className="text-center py-12">
+          <div className="text-center py-12" data-testid="page-empty-state">
             <p className="text-muted-foreground">
               {selectedBranchFilter === 'all'
                 ? t('emptyState')
@@ -178,7 +202,10 @@ export function ProductionLinesPage({ productionLines, allBranches }: Production
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+            data-testid="page-production-lines-grid"
+          >
             {filteredProductionLines.map((line) => (
               <ProductionLineCard key={line.id} productionLine={line} />
             ))}

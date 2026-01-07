@@ -129,34 +129,47 @@ export function ConfigTab({ productionLine, onSuccess }: ConfigTabProps) {
   };
 
   return (
-    <div className="space-y-6">
-      <Card>
+    <div className="space-y-6" data-testid="config-tab-container">
+      <Card data-testid="config-machines-card">
         <CardHeader>
-          <CardTitle>{t('selectMachines')}</CardTitle>
+          <CardTitle data-testid="config-machines-title">{t('selectMachines')}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           {isLoadingMachines ? (
-            <p className="text-muted-foreground">Carregando máquinas...</p>
+            <p className="text-muted-foreground" data-testid="config-loading-message">
+              Carregando máquinas...
+            </p>
           ) : availableMachines.length === 0 ? (
-            <p className="text-muted-foreground">{t('noMachinesAvailable')}</p>
+            <p className="text-muted-foreground" data-testid="config-no-machines-message">
+              {t('noMachinesAvailable')}
+            </p>
           ) : (
-            <div className="space-y-2">
+            <div className="space-y-2" data-testid="config-machines-list">
               {availableMachines.map((machine) => (
-                <div key={machine.id} className="flex items-center space-x-2">
+                <div
+                  key={machine.id}
+                  className="flex items-center space-x-2"
+                  data-testid={`config-machine-${machine.id}`}
+                >
                   <Checkbox
                     id={machine.id}
                     checked={selectedMachineIds.includes(machine.id)}
                     onCheckedChange={(checked) =>
                       handleMachineToggle(machine.id, checked as boolean)
                     }
+                    data-testid={`config-machine-checkbox-${machine.id}`}
                   />
                   <label
                     htmlFor={machine.id}
                     className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer flex items-center gap-2"
+                    data-testid={`config-machine-label-${machine.id}`}
                   >
                     {machine.name}
                     {machine.id === mainMachineId && (
-                      <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
+                      <Star
+                        className="w-4 h-4 text-yellow-500 fill-yellow-500"
+                        data-testid={`config-main-star-${machine.id}`}
+                      />
                     )}
                   </label>
                 </div>
@@ -168,22 +181,28 @@ export function ConfigTab({ productionLine, onSuccess }: ConfigTabProps) {
 
       {/* Main Machine Selection */}
       {selectedMachines.length > 0 && (
-        <Card>
+        <Card data-testid="config-main-machine-card">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2" data-testid="config-main-machine-title">
               <Star className="w-5 h-5 text-yellow-500" />
               {t('mainMachine')}
             </CardTitle>
-            <CardDescription>{t('mainMachineDescription')}</CardDescription>
+            <CardDescription data-testid="config-main-machine-description">
+              {t('mainMachineDescription')}
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <Select value={mainMachineId} onValueChange={handleMainMachineChange}>
-              <SelectTrigger className="w-full">
+              <SelectTrigger className="w-full" data-testid="config-main-machine-select">
                 <SelectValue placeholder={t('selectMainMachine')} />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent data-testid="config-main-machine-options">
                 {selectedMachines.map((machine) => (
-                  <SelectItem key={machine.id} value={machine.id}>
+                  <SelectItem
+                    key={machine.id}
+                    value={machine.id}
+                    data-testid={`config-main-option-${machine.id}`}
+                  >
                     {machine.name}
                   </SelectItem>
                 ))}
@@ -194,7 +213,7 @@ export function ConfigTab({ productionLine, onSuccess }: ConfigTabProps) {
       )}
 
       <div className="flex justify-end">
-        <Button onClick={handleSave} disabled={isSaving}>
+        <Button onClick={handleSave} disabled={isSaving} data-testid="config-save-button">
           <Save className="w-4 h-4 mr-2" />
           {isSaving ? t('savingConfig') : t('saveConfig')}
         </Button>

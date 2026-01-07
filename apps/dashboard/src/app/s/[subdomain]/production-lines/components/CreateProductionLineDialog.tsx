@@ -132,17 +132,25 @@ export function CreateProductionLineDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="lg:max-w-[500px]">
+      <DialogContent className="lg:max-w-[500px]" data-testid="create-production-line-dialog">
         <DialogHeader>
-          <DialogTitle>{t('createDialog.title')}</DialogTitle>
-          <DialogDescription>{t('createDialog.description')}</DialogDescription>
+          <DialogTitle data-testid="create-production-line-title">
+            {t('createDialog.title')}
+          </DialogTitle>
+          <DialogDescription data-testid="dialog-description">
+            {t('createDialog.description')}
+          </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="flex min-h-0 flex-1 flex-col">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="flex min-h-0 flex-1 flex-col"
+          data-testid="dialog-form"
+        >
           <DialogBody className="space-y-6 py-4">
             {/* Branch selection */}
             <div className="space-y-2">
-              <Label>{t('selectBranch') || 'Filial'}</Label>
+              <Label data-testid="dialog-branch-label">{t('selectBranch') || 'Filial'}</Label>
               <Controller
                 name="branchId"
                 control={control}
@@ -152,15 +160,20 @@ export function CreateProductionLineDialog({
                     onValueChange={field.onChange}
                     disabled={isSubmitting}
                   >
-                    <SelectTrigger className="w-full">
+                    <SelectTrigger className="w-full" data-testid="dialog-branch-select">
                       <MapPin className="mr-2 h-4 w-4 shrink-0" />
                       <SelectValue
                         placeholder={t('selectBranchPlaceholder') || 'Selecione uma filial'}
                       />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent data-testid="dialog-branch-options">
                       {branches.map((branch) => (
-                        <SelectItem key={branch.id} value={branch.id} textValue={branch.name}>
+                        <SelectItem
+                          key={branch.id}
+                          value={branch.id}
+                          textValue={branch.name}
+                          data-testid={`dialog-branch-option-${branch.id}`}
+                        >
                           <div className="flex flex-col">
                             <div className="flex items-center justify-between gap-2">
                               <span>{branch.name}</span>
@@ -188,14 +201,21 @@ export function CreateProductionLineDialog({
 
             {/* Nome da linha de produção */}
             <div className="space-y-2">
-              <Label htmlFor="name">{t('lineName')}</Label>
+              <Label htmlFor="name" data-testid="dialog-name-label">
+                {t('lineName')}
+              </Label>
               <Input
                 id="name"
                 placeholder={t('lineNamePlaceholder')}
                 {...register('name')}
                 disabled={isSubmitting}
+                data-testid="dialog-name-input"
               />
-              {errors.name && <p className="text-sm text-destructive">{errors.name.message}</p>}
+              {errors.name && (
+                <p className="text-sm text-destructive" data-testid="dialog-name-error">
+                  {errors.name.message}
+                </p>
+              )}
             </div>
 
             <p className="text-sm text-muted-foreground">
@@ -209,10 +229,11 @@ export function CreateProductionLineDialog({
               variant="outline"
               onClick={() => handleOpenChange(false)}
               disabled={isSubmitting}
+              data-testid="dialog-cancel-button"
             >
               {t('createDialog.cancel')}
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
+            <Button type="submit" disabled={isSubmitting} data-testid="dialog-submit-button">
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />

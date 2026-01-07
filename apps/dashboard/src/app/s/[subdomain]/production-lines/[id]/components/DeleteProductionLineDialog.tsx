@@ -64,32 +64,53 @@ export function DeleteProductionLineDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="">
+      <DialogContent className="" data-testid="delete-dialog">
         <DialogHeader>
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30">
-              <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-400" />
+              <AlertTriangle
+                className="h-5 w-5 text-red-600 dark:text-red-400"
+                data-testid="delete-warning-icon"
+              />
             </div>
             <div>
-              <DialogTitle>{t('title')}</DialogTitle>
-              <DialogDescription className="mt-1">{t('description')}</DialogDescription>
+              <DialogTitle data-testid="delete-dialog-title">{t('title')}</DialogTitle>
+              <DialogDescription className="mt-1" data-testid="delete-dialog-description">
+                {t('description')}
+              </DialogDescription>
             </div>
           </div>
         </DialogHeader>
 
         <DialogBody>
-          <div className="rounded-md border border-red-200 bg-red-50 p-4 dark:border-red-900/50 dark:bg-red-900/20">
-            <p className="text-sm text-red-800 dark:text-red-300">
+          <div
+            className="rounded-md border border-red-200 bg-red-50 p-4 dark:border-red-900/50 dark:bg-red-900/20"
+            data-testid="delete-warning-box"
+          >
+            <p
+              className="text-sm text-red-800 dark:text-red-300"
+              data-testid="delete-warning-message"
+            >
               {t('warningMessage', { name: productionLine.name })}
             </p>
           </div>
         </DialogBody>
 
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isDeleting}>
+          <Button
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            disabled={isDeleting}
+            data-testid="delete-cancel-button"
+          >
             {t('cancel')}
           </Button>
-          <Button variant="destructive" onClick={handleDelete} disabled={isDeleting}>
+          <Button
+            variant="destructive"
+            onClick={handleDelete}
+            disabled={isDeleting}
+            data-testid="delete-confirm-button"
+          >
             {isDeleting ? t('deleting') : t('confirm')}
           </Button>
         </DialogFooter>

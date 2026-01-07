@@ -1,4 +1,4 @@
-import { PrismaClient } from '@titans-tech/db';
+import { PrismaClient, ProductionLineDirection } from '@titans-tech/db';
 import { ServiceSection, ServiceType, ServiceStatus } from '@titans-tech/db/enums';
 import * as bcrypt from 'bcrypt';
 
@@ -52,6 +52,12 @@ export const TEST_SEED_DATA = {
   },
   MACHINE: {
     P2H: 'test-machine-p2h',
+    PRESS: 'test-machine-press',
+  },
+  PRODUCTION_LINE: {
+    id: 'test-production-line',
+    name: 'Test Production Line',
+    direction: ProductionLineDirection.LEFT_TO_RIGHT,
   },
   BLUEPRINT: {
     P2H: {
@@ -304,6 +310,61 @@ export class TestSeeder {
       },
     });
 
+    // Create a second test machine for production line
+    const pressMachine = await this.db.machine.create({
+      data: {
+        id: 'test-machine-press',
+        name: 'Test Press Machine',
+        blueprintId: TEST_SEED_DATA.BLUEPRINT.P2H.id,
+        branchId: branch.id,
+        fields: {
+          create: [
+            {
+              fieldSlug: 'serial_number',
+              value: 'PRESS001',
+            },
+            {
+              fieldSlug: 'model_year',
+              value: '2024',
+            },
+            {
+              fieldSlug: 'tonnage',
+              value: '200',
+            },
+            {
+              fieldSlug: 'stroke',
+              value: '3.0',
+            },
+          ],
+        },
+      },
+    });
+
+    // Create test production line
+    const productionLine = await this.db.productionLine.create({
+      data: {
+        ...TEST_SEED_DATA.PRODUCTION_LINE,
+        branchId: branch.id,
+      },
+    });
+
+    // Associate machines with production line
+    await this.db.machineProductionLine.create({
+      data: {
+        machineId: machine.id,
+        productionLineId: productionLine.id,
+        order: 1,
+      },
+    });
+
+    await this.db.machineProductionLine.create({
+      data: {
+        machineId: pressMachine.id,
+        productionLineId: productionLine.id,
+        order: 2,
+      },
+    });
+
     // Create test services for service permission tests
     await this.db.machineService.create({
       data: {
@@ -326,6 +387,8 @@ export class TestSeeder {
       company,
       branch,
       users: { companyAdmin, employeeSome, employeeAll, employeeNone },
+      machines: { machine, pressMachine },
+      productionLine,
     };
   }
 
@@ -334,7 +397,11 @@ export class TestSeeder {
     // 1. Delete all machine-related data first (most dependent)
     await this.db.machineService.deleteMany({});
     await this.db.machineField.deleteMany({});
+    await this.db.machineProductionLine.deleteMany({});
     await this.db.machine.deleteMany({});
+
+    // 2. Delete production lines
+    await this.db.productionLine.deleteMany({});
 
     // 2. Delete blueprint thresholds (depend on blueprints)
     await this.db.thresholdBearingClearance.deleteMany({});

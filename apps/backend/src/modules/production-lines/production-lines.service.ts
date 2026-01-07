@@ -187,13 +187,24 @@ export class ProductionLinesService {
 
     return productionLine;
   }
-  async findAll(userId: string) {
-    const branchIds = await this.getUserBranchIds(userId);
 
-    return this.prisma.productionLine.findMany({
+  async findAllByCompanyFilteredByPermissions(
+    companyId: string,
+    userId: string,
+  ) {
+    const result = await this.prisma.productionLine.findMany({
       where: {
-        branchId: {
-          in: branchIds,
+        branch: {
+          companyId,
+          users: {
+            some: {
+              deletedAt: null,
+              userId,
+              readProductionLines: {
+                equals: true,
+              },
+            },
+          },
         },
       },
       include: PRODUCTION_LINE_FULL_INCLUDE,
@@ -201,6 +212,8 @@ export class ProductionLinesService {
         createdAt: 'desc',
       },
     });
+
+    return result;
   }
 
   async findAllForSysAdmin() {

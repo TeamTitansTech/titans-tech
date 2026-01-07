@@ -40,45 +40,60 @@ export function ProductionLineDetail({
   };
 
   return (
-    <div className="space-y-6 p-8">
+    <div className="space-y-6 p-8" data-testid="detail-production-line-page">
       <div className="flex items-center gap-6">
-        <button onClick={() => router.push('/production-lines')} className="shrink-0">
+        <button
+          onClick={() => router.push('/production-lines')}
+          className="shrink-0"
+          data-testid="detail-back-button"
+        >
           <ArrowLeft className="w-5 h-5 hover:text-[hsl(var(--accent))] transition-colors cursor-pointer" />
         </button>
         <div className="flex-1">
-          <Typography variant="h2">{productionLine.name}</Typography>
-          <Typography variant="muted" className="mt-1">
+          <Typography variant="h2" data-testid="detail-production-line-name">
+            {productionLine.name}
+          </Typography>
+          <Typography
+            variant="muted"
+            className="mt-1"
+            data-testid="detail-production-line-description"
+          >
             {t('pageDescription')}
           </Typography>
         </div>
         {canDeleteProductionLine && (
-          <Button variant="destructive" size="sm" onClick={() => setIsDeleteDialogOpen(true)}>
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={() => setIsDeleteDialogOpen(true)}
+            data-testid="detail-delete-button"
+          >
             <Trash2 className="w-4 h-4 mr-2" />
             {t('deleteButton')}
           </Button>
         )}
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList>
-          <TabsTrigger value="view">
+      <Tabs value={activeTab} onValueChange={setActiveTab} data-testid="detail-tabs">
+        <TabsList data-testid="detail-tabs-list">
+          <TabsTrigger value="view" data-testid="detail-tab-view">
             <Eye className="w-4 h-4 mr-2" />
             {t('tabView')}
           </TabsTrigger>
           {canEditProductionLine && (
-            <TabsTrigger value="config">
+            <TabsTrigger value="config" data-testid="detail-tab-config">
               <Settings className="w-4 h-4 mr-2" />
               {t('tabConfig')}
             </TabsTrigger>
           )}
         </TabsList>
 
-        <TabsContent value="view" className="mt-6">
+        <TabsContent value="view" className="mt-6" data-testid="detail-view-content">
           <ViewTab productionLine={productionLine} canViewMachineDetails={canViewMachineDetails} />
         </TabsContent>
 
         {canEditProductionLine && (
-          <TabsContent value="config" className="mt-6">
+          <TabsContent value="config" className="mt-6" data-testid="detail-config-content">
             <ConfigTab productionLine={productionLine} onSuccess={handleConfigSaved} />
           </TabsContent>
         )}
