@@ -69,6 +69,9 @@ export interface MachineNodeData extends Record<string, unknown> {
   machine: MachineWithStatus;
   canViewDetails: boolean;
   sections: string[];
+  connectMode?: boolean;
+  isConnectedToBackbone?: boolean;
+  onToggleBackboneConnection?: (machineId: string, positionX: number, positionY: number) => void;
 }
 
 // Type for React Flow nodes

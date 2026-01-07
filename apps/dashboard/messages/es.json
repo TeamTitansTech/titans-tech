@@ -2693,7 +2693,19 @@
     "layoutSaved": "Diseño guardado exitosamente",
     "errorSavingLayout": "Error al guardar diseño",
     "resetLayout": "Restablecer Diseño",
-    "showConnectors": "Conectores"
+    "showConnectors": "Conectores",
+    "connectToLine": "Conectar a Línea",
+    "addBackbone": "Agregar Línea",
+    "removeBackbone": "Eliminar Línea",
+    "removeLastBackbone": "Eliminar Última",
+    "removeAllBackbones": "Eliminar Todas",
+    "backboneAdded": "Línea agregada",
+    "backboneRemoved": "Línea eliminada",
+    "allBackbonesRemoved": "Todas las líneas eliminadas",
+    "addBackboneFirst": "Agregue una línea primero",
+    "drawBackboneInstruction": "Haga clic y arrastre para dibujar la línea (cualquier ángulo)",
+    "backboneTooShort": "Línea muy corta. Arrastre más para crear la línea.",
+    "cancelDrawing": "Cancelar"
   },
   "serviceRequests": {
     "title": "Solicitudes de Servicio",

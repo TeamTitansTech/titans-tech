@@ -35,8 +35,20 @@ const SECTION_I18N_KEYS: Record<string, string> = {
   PISTONS: 'pistons',
 };
 
-function MachineNodeComponent({ data, selected }: NodeProps<MachineNodeType>) {
-  const { machine, canViewDetails, sections } = data;
+function MachineNodeComponent({
+  data,
+  selected,
+  positionAbsoluteX,
+  positionAbsoluteY,
+}: NodeProps<MachineNodeType>) {
+  const {
+    machine,
+    canViewDetails,
+    sections,
+    connectMode,
+    isConnectedToBackbone,
+    onToggleBackboneConnection,
+  } = data;
   const router = useInternalRouter();
   const t = useTranslations('machines');
   const [latestReport, setLatestReport] = useState<LatestReport | null>(null);
@@ -56,6 +68,11 @@ function MachineNodeComponent({ data, selected }: NodeProps<MachineNodeType>) {
   }, [machine.id]);
 
   const handleClick = () => {
+    // When in connect mode, toggle backbone connection
+    if (connectMode && onToggleBackboneConnection) {
+      onToggleBackboneConnection(machine.id, positionAbsoluteX, positionAbsoluteY);
+      return;
+    }
     if (canViewDetails) {
       router.push(`/machines/${machine.id}`);
     }
@@ -92,7 +109,9 @@ function MachineNodeComponent({ data, selected }: NodeProps<MachineNodeType>) {
       <Card
         className={`w-[200px] shrink-0 transition-all ${
           selected ? 'ring-2 ring-primary shadow-lg' : ''
-        } ${canViewDetails ? 'cursor-pointer hover:border-primary/50 hover:shadow-lg' : ''}`}
+        } ${canViewDetails && !connectMode ? 'cursor-pointer hover:border-primary/50 hover:shadow-lg' : ''} ${
+          connectMode ? 'cursor-crosshair hover:ring-2 hover:ring-green-500' : ''
+        } ${isConnectedToBackbone ? 'ring-2 ring-green-500 border-green-500' : ''}`}
         onClick={handleClick}
       >
         <CardContent className="p-0">

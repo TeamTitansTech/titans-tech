@@ -2692,7 +2692,19 @@
     "layoutSaved": "Layout saved successfully",
     "errorSavingLayout": "Error saving layout",
     "resetLayout": "Reset Layout",
-    "showConnectors": "Connectors"
+    "showConnectors": "Connectors",
+    "connectToLine": "Connect to Line",
+    "addBackbone": "Add Line",
+    "removeBackbone": "Remove Line",
+    "removeLastBackbone": "Remove Last",
+    "removeAllBackbones": "Remove All",
+    "backboneAdded": "Line added",
+    "backboneRemoved": "Line removed",
+    "allBackbonesRemoved": "All lines removed",
+    "addBackboneFirst": "Add a line first",
+    "drawBackboneInstruction": "Click and drag to draw the line (any angle)",
+    "backboneTooShort": "Line too short. Drag more to create the line.",
+    "cancelDrawing": "Cancel"
   },
   "serviceRequests": {
     "title": "Service Requests",
