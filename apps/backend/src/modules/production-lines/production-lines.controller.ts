@@ -15,6 +15,10 @@ import {
   createProductionLineSchema,
   UpdateProductionLineDto,
   updateProductionLineSchema,
+  UpdateNodePositionsDto,
+  updateNodePositionsSchema,
+  UpdateEdgesDto,
+  updateEdgesSchema,
 } from '@titans-tech/shared/backend-dtos';
 import { ZodValidationPipe } from '../../errors/zod-validation.pipe';
 import {
@@ -144,6 +148,58 @@ export class ProductionLinesController {
       req.user,
       () => this.productionLinesService.removeForSysAdmin(id),
       (userId) => this.productionLinesService.remove(userId, id),
+    );
+  }
+
+  /**
+   * Update node positions for React Flow canvas
+   * Requires updateProductionLines permission
+   */
+  @ResourcePermission('productionLine', 'updateProductionLines')
+  @Patch(':id/positions')
+  updatePositions(
+    @Request() req: ReqWithAuthUser,
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(updateNodePositionsSchema))
+    updateNodePositionsDto: UpdateNodePositionsDto,
+  ) {
+    return this.dispatchByUserType(
+      req.user,
+      () =>
+        this.productionLinesService.updateNodePositions(
+          id,
+          updateNodePositionsDto,
+        ),
+      (userId) =>
+        this.productionLinesService.updateNodePositionsForUser(
+          userId,
+          id,
+          updateNodePositionsDto,
+        ),
+    );
+  }
+
+  /**
+   * Update edges for React Flow canvas (bulk replace)
+   * Requires updateProductionLines permission
+   */
+  @ResourcePermission('productionLine', 'updateProductionLines')
+  @Patch(':id/edges')
+  updateEdges(
+    @Request() req: ReqWithAuthUser,
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(updateEdgesSchema))
+    updateEdgesDto: UpdateEdgesDto,
+  ) {
+    return this.dispatchByUserType(
+      req.user,
+      () => this.productionLinesService.updateEdges(id, updateEdgesDto),
+      (userId) =>
+        this.productionLinesService.updateEdgesForUser(
+          userId,
+          id,
+          updateEdgesDto,
+        ),
     );
   }
 }

@@ -2686,7 +2686,13 @@
       "warning": "Atenção",
       "alert": "Alerta",
       "unknown": "Desconhecido"
-    }
+    },
+    "saveLayout": "Salvar Layout",
+    "saving": "Salvando...",
+    "layoutSaved": "Layout salvo com sucesso",
+    "errorSavingLayout": "Erro ao salvar layout",
+    "resetLayout": "Resetar Layout",
+    "showConnectors": "Conectores"
   },
   "serviceRequests": {
     "title": "Solicitações de Serviço",

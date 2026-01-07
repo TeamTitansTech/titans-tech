@@ -2687,7 +2687,13 @@
       "warning": "Advertencia",
       "alert": "Alerta",
       "unknown": "Desconocido"
-    }
+    },
+    "saveLayout": "Guardar Diseño",
+    "saving": "Guardando...",
+    "layoutSaved": "Diseño guardado exitosamente",
+    "errorSavingLayout": "Error al guardar diseño",
+    "resetLayout": "Restablecer Diseño",
+    "showConnectors": "Conectores"
   },
   "serviceRequests": {
     "title": "Solicitudes de Servicio",

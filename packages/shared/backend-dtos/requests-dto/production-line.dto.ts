@@ -21,3 +21,32 @@ export const updateProductionLineSchema = z.object({
 });
 
 export type UpdateProductionLineDto = z.infer<typeof updateProductionLineSchema>;
+
+// React Flow position updates
+export const nodePositionSchema = z.object({
+  machineId: z.string(),
+  positionX: z.number(),
+  positionY: z.number(),
+});
+
+export type NodePosition = z.infer<typeof nodePositionSchema>;
+
+export const updateNodePositionsSchema = z.object({
+  positions: z.array(nodePositionSchema),
+});
+
+export type UpdateNodePositionsDto = z.infer<typeof updateNodePositionsSchema>;
+
+// React Flow edge updates
+export const productionLineEdgeSchema = z.object({
+  sourceNodeId: z.string(),
+  targetNodeId: z.string(),
+});
+
+export type ProductionLineEdgeDto = z.infer<typeof productionLineEdgeSchema>;
+
+export const updateEdgesSchema = z.object({
+  edges: z.array(productionLineEdgeSchema),
+});
+
+export type UpdateEdgesDto = z.infer<typeof updateEdgesSchema>;

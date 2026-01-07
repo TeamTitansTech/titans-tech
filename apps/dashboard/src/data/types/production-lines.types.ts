@@ -1,6 +1,16 @@
 import type { Machine } from './machines.types';
+import type { Node, Edge } from '@xyflow/react';
 
 export type ProductionLineDirection = 'LEFT_TO_RIGHT' | 'RIGHT_TO_LEFT';
+
+export interface ProductionLineEdge {
+  id: string;
+  productionLineId: string;
+  sourceNodeId: string;
+  targetNodeId: string;
+  createdAt: string;
+  updatedAt: string;
+}
 
 export interface ProductionLine {
   id: string;
@@ -18,6 +28,7 @@ export interface ProductionLine {
     companyId: string;
   };
   machines?: ProductionLineMachine[];
+  edges?: ProductionLineEdge[];
   _count?: {
     machines: number;
   };
@@ -27,6 +38,8 @@ export interface ProductionLineMachine {
   productionLineId: string;
   machineId: string;
   order: number;
+  positionX?: number | null;
+  positionY?: number | null;
   addedAt: string;
   machine?: MachineWithStatus;
 }
@@ -49,4 +62,33 @@ export interface UpdateProductionLineDto {
   name?: string;
   machineIds?: string[];
   direction?: ProductionLineDirection;
+}
+
+// React Flow node data type
+export interface MachineNodeData extends Record<string, unknown> {
+  machine: MachineWithStatus;
+  canViewDetails: boolean;
+  sections: string[];
+}
+
+// Type for React Flow nodes
+export type MachineNode = Node<MachineNodeData, 'machine'>;
+
+// Type for React Flow edges
+export type ProductionLineFlowEdge = Edge;
+
+// DTOs for updating positions and edges
+export interface UpdateNodePositionsDto {
+  positions: Array<{
+    machineId: string;
+    positionX: number;
+    positionY: number;
+  }>;
+}
+
+export interface UpdateEdgesDto {
+  edges: Array<{
+    sourceNodeId: string;
+    targetNodeId: string;
+  }>;
 }

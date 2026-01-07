@@ -74,7 +74,11 @@ export function ProductionLineDetail({
         </TabsList>
 
         <TabsContent value="view" className="mt-6">
-          <ViewTab productionLine={productionLine} canViewMachineDetails={canViewMachineDetails} />
+          <ViewTab
+            productionLine={productionLine}
+            canViewMachineDetails={canViewMachineDetails}
+            canEdit={canEditProductionLine}
+          />
         </TabsContent>
 
         {canEditProductionLine && (

@@ -2686,7 +2686,13 @@
       "warning": "Warning",
       "alert": "Alert",
       "unknown": "Unknown"
-    }
+    },
+    "saveLayout": "Save Layout",
+    "saving": "Saving...",
+    "layoutSaved": "Layout saved successfully",
+    "errorSavingLayout": "Error saving layout",
+    "resetLayout": "Reset Layout",
+    "showConnectors": "Connectors"
   },
   "serviceRequests": {
     "title": "Service Requests",

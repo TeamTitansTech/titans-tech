@@ -3,24 +3,25 @@
 import { useTranslations } from 'next-intl';
 import { Card, CardContent } from '@/components/ui/card';
 import { Factory } from 'lucide-react';
-import { MachineCardInLine } from './MachineCardInLine';
-import type { ProductionLine, ProductionLineMachine } from '@/data/types/production-lines.types';
+import { ProductionLineCanvas } from './ProductionLineCanvas';
+import type { ProductionLine } from '@/data/types/production-lines.types';
 
 interface ViewTabProps {
   productionLine: ProductionLine;
   canViewMachineDetails?: boolean;
+  canEdit?: boolean;
 }
 
-export function ViewTab({ productionLine, canViewMachineDetails = true }: ViewTabProps) {
+export function ViewTab({
+  productionLine,
+  canViewMachineDetails = true,
+  canEdit = false,
+}: ViewTabProps) {
   const t = useTranslations('productionLines');
 
-  // Get ordered machines based on saved order
-  const orderedMachines =
-    productionLine.machines
-      ?.sort((a, b) => a.order - b.order)
-      .filter((pm): pm is ProductionLineMachine => pm.machine !== undefined) || [];
+  const hasMachines = productionLine.machines && productionLine.machines.length > 0;
 
-  if (orderedMachines.length === 0) {
+  if (!hasMachines) {
     return (
       <Card>
         <CardContent className="py-12">
@@ -36,103 +37,11 @@ export function ViewTab({ productionLine, canViewMachineDetails = true }: ViewTa
     );
   }
 
-  // Separate main machine (order 0) and other machines
-  const mainMachine = orderedMachines[0]; // First machine is the principal
-  const otherMachines = orderedMachines.slice(1); // Rest are regular machines
-
-  // Split other machines into top and bottom rows (alternating)
-  const topRowMachines = otherMachines.filter((_, index) => index % 2 === 0);
-  const bottomRowMachines = otherMachines.filter((_, index) => index % 2 !== 0);
-
-  // Display machines in reverse order (right to left flow)
-  const displayTopRow = [...topRowMachines].reverse();
-  const displayBottomRow = [...bottomRowMachines].reverse();
-
   return (
-    <div className="relative w-full">
-      {/* Desktop layout - flexbox with absolute positioned line */}
-      <div className="hidden lg:block overflow-x-auto pb-8">
-        <div className="relative min-w-max px-8 py-8">
-          {/* Horizontal line - absolutely positioned at vertical center */}
-          <div
-            className="absolute h-1 bg-green-500 z-0"
-            style={{
-              left: '2rem',
-              right: '2rem',
-              top: '50%',
-              transform: 'translateY(-50%)',
-            }}
-          />
-
-          <div className="relative z-10 flex items-center">
-            {/* Middle section: machines above and below the line - fills available space */}
-            <div className="flex-1 flex flex-col">
-              {/* Top machines with vertical connectors - spread evenly */}
-              <div className="flex items-end justify-evenly">
-                {displayTopRow.map((pm) => (
-                  <div key={pm.machineId} className="flex flex-col items-center">
-                    <MachineCardInLine
-                      machine={pm.machine!}
-                      canViewDetails={canViewMachineDetails}
-                    />
-                    {/* Vertical connector going down to the line */}
-                    <div className="w-0.5 h-8 bg-green-500" />
-                  </div>
-                ))}
-              </div>
-
-              {/* Spacer where the line passes through */}
-              <div className="h-1" />
-
-              {/* Bottom machines with vertical connectors - spread evenly with offset */}
-              <div className="flex items-start justify-evenly px-[100px]">
-                {displayBottomRow.map((pm) => (
-                  <div key={pm.machineId} className="flex flex-col items-center">
-                    {/* Vertical connector going up from the line */}
-                    <div className="w-0.5 h-8 bg-green-500" />
-                    <MachineCardInLine
-                      machine={pm.machine!}
-                      canViewDetails={canViewMachineDetails}
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Main machine at the end of the line */}
-            {mainMachine && (
-              <div className="flex items-center ml-4">
-                {/* Horizontal connector to main machine */}
-                <div className="h-1 w-8 bg-green-500" />
-                <MachineCardInLine
-                  machine={mainMachine.machine!}
-                  canViewDetails={canViewMachineDetails}
-                />
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Mobile layout */}
-      <div className="lg:hidden py-8">
-        <div className="relative flex">
-          <div className="absolute left-8 top-0 bottom-0 w-1 bg-green-500" />
-
-          <div className="flex flex-col gap-8 pl-8">
-            {orderedMachines.map((productionLineMachine) => (
-              <div key={productionLineMachine.machineId} className="relative flex items-center">
-                <div className="absolute left-0 w-3 h-3 rounded-full bg-green-500 border-2 border-green-600 -translate-x-1/2" />
-                <div className="h-1 w-12 bg-green-500" />
-                <MachineCardInLine
-                  machine={productionLineMachine.machine!}
-                  canViewDetails={canViewMachineDetails}
-                />
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
+    <ProductionLineCanvas
+      productionLine={productionLine}
+      canViewMachineDetails={canViewMachineDetails}
+      canEdit={canEdit}
+    />
   );
 }
