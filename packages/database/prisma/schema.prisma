@@ -829,7 +829,7 @@ model Machine {
   // Machine specifications
   manufacturer    String?
   sizeTonnage     String?
-  serialNumber    String?
+  serialNumber    String
   stroke          String?
   foundationType  FoundationType?
   frameType       FrameType?
