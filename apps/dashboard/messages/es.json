@@ -209,7 +209,8 @@
       "inches": "Pulgadas (in)",
       "mm": "Milímetros (mm)",
       "saved": "Configuración guardada",
-      "saveError": "Error al guardar configuración"
+      "saveError": "Error al guardar configuración",
+      "noUpdatePermission": "No tiene permiso para modificar la configuración de esta sucursal"
     },
     "userManagement": {
       "title": "Cuentas de Usuario",

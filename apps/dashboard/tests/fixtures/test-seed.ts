@@ -1,10 +1,11 @@
 import { PrismaClient } from '@titans-tech/db';
+import { ServiceSection, ServiceType, ServiceStatus } from '@titans-tech/db/enums';
 import * as bcrypt from 'bcrypt';
 
 export const TEST_SEED_DATA = {
   SYSADMIN: {
     id: 'test-sysadmin',
-    email: 'admin@admin.com',
+    email: 'admin-e2etest@admin.com',
     password: 'password',
   },
   COMPANY: {
@@ -41,8 +42,87 @@ export const TEST_SEED_DATA = {
       password: 'password',
       isCompanyAdmin: false,
     },
+    EMPLOYEE_NO_PERMISSIONS: {
+      id: 'test-employee-none',
+      email: 'nopermissions@test.com',
+      name: 'Employee No Permissions',
+      password: 'password',
+      isCompanyAdmin: false,
+    },
   },
-} as const;
+  MACHINE: {
+    P2H: 'test-machine-p2h',
+  },
+  BLUEPRINT: {
+    P2H: {
+      id: 'test-p2h-blueprint',
+      name: 'P2H',
+      sections: [
+        ServiceSection.BEARING_CLEARANCE,
+        ServiceSection.CLUTCH,
+        ServiceSection.LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER,
+      ],
+      fields: [
+        {
+          fieldName: 'Serial Number',
+          fieldSlug: 'serial_number',
+          fieldType: 'string',
+        },
+        {
+          fieldName: 'Model Year',
+          fieldSlug: 'model_year',
+          fieldType: 'int',
+        },
+        {
+          fieldName: 'Tonnage',
+          fieldSlug: 'tonnage',
+          fieldType: 'int',
+        },
+        {
+          fieldName: 'Stroke',
+          fieldSlug: 'stroke',
+          fieldType: 'string',
+        },
+      ],
+    },
+  },
+  SERVICES: {
+    UPCOMING_INSPECTION: {
+      id: 'test-service-upcoming',
+      date: (() => {
+        const twoDaysFromNow = new Date();
+        twoDaysFromNow.setDate(twoDaysFromNow.getDate() + 2);
+        return twoDaysFromNow.toISOString();
+      })(), // Dynamic date: 2 days from today
+      type: ServiceType.INSPECTION,
+      status: ServiceStatus.PENDING,
+      performedBy: 'test-employee-all',
+      completedSections: '[]',
+      selectedSections: JSON.stringify([
+        ServiceSection.BEARING_CLEARANCE,
+        ServiceSection.CLUTCH,
+        ServiceSection.LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER,
+      ]),
+    },
+    COMPLETED_INSPECTION: {
+      id: 'test-service-completed',
+      date: '2025-12-20T14:30:00.000Z', // Past date for completed
+      type: ServiceType.INSPECTION,
+      status: ServiceStatus.COMPLETED,
+      performedBy: 'test-employee-all',
+      completedSections: JSON.stringify([
+        ServiceSection.BEARING_CLEARANCE,
+        ServiceSection.CLUTCH,
+        ServiceSection.LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER,
+      ]),
+      selectedSections: JSON.stringify([
+        ServiceSection.BEARING_CLEARANCE,
+        ServiceSection.CLUTCH,
+        ServiceSection.LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER,
+      ]),
+    },
+  },
+};
 export class TestSeeder {
   constructor(private db: PrismaClient) {}
 
@@ -91,6 +171,15 @@ export class TestSeeder {
     const employeeAll = await this.db.user.create({
       data: {
         ...TEST_SEED_DATA.USERS.EMPLOYEE_ALL_PERMISSIONS,
+        password: hashedPassword,
+        companyId: company.id,
+        isUsingDefaultPassword: true,
+      },
+    });
+
+    const employeeNone = await this.db.user.create({
+      data: {
+        ...TEST_SEED_DATA.USERS.EMPLOYEE_NO_PERMISSIONS,
         password: hashedPassword,
         companyId: company.id,
         isUsingDefaultPassword: true,
@@ -151,11 +240,92 @@ export class TestSeeder {
       },
     });
 
+    await this.db.userBranch.create({
+      data: {
+        userId: employeeNone.id,
+        branchId: branch.id,
+        readUsers: false,
+        createUsers: false,
+        updateUsers: false,
+        deleteUsers: false,
+        manageUserPermissions: false,
+        assignUsersToBranches: false,
+        readBranches: false,
+        updateBranches: false,
+        readMachines: false,
+        createMachines: false,
+        updateMachines: false,
+        deleteMachines: false,
+        readServices: false,
+        createServices: false,
+        updateServices: false,
+        deleteServices: false,
+        readProductionLines: false,
+        createProductionLines: false,
+        updateProductionLines: false,
+        deleteProductionLines: false,
+      },
+    });
+
+    // Create P2H Blueprint
+    await this.db.blueprint.create({
+      data: {
+        ...TEST_SEED_DATA.BLUEPRINT.P2H,
+      },
+    });
+
+    // Create a test machine for update/delete tests
+    const machine = await this.db.machine.create({
+      data: {
+        id: 'test-machine-p2h',
+        name: 'Existing P2H Machine',
+        blueprintId: TEST_SEED_DATA.BLUEPRINT.P2H.id,
+        branchId: branch.id,
+        fields: {
+          create: [
+            {
+              fieldSlug: 'serial_number',
+              value: 'EXISTING001',
+            },
+            {
+              fieldSlug: 'model_year',
+              value: '2023',
+            },
+            {
+              fieldSlug: 'tonnage',
+              value: '150',
+            },
+            {
+              fieldSlug: 'stroke',
+              value: '2.0',
+            },
+          ],
+        },
+      },
+    });
+
+    // Create test services for service permission tests
+    await this.db.machineService.create({
+      data: {
+        ...TEST_SEED_DATA.SERVICES.UPCOMING_INSPECTION,
+        machineId: machine.id,
+        date: new Date(TEST_SEED_DATA.SERVICES.UPCOMING_INSPECTION.date),
+      },
+    });
+
+    await this.db.machineService.create({
+      data: {
+        ...TEST_SEED_DATA.SERVICES.COMPLETED_INSPECTION,
+        machineId: machine.id,
+        date: new Date(TEST_SEED_DATA.SERVICES.COMPLETED_INSPECTION.date),
+      },
+    });
+
     return {
       sysAdmin,
       company,
       branch,
-      users: { companyAdmin, employeeSome, employeeAll },
+      users: { companyAdmin, employeeSome, employeeAll, employeeNone },
     };
   }
 

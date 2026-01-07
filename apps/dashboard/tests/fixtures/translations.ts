@@ -48,6 +48,10 @@ export function createTestTranslator(namespace: string, locale: Locale = 'pt') {
 export const testTranslations = {
   companies: createTestTranslator('companies'),
 
+  machines: createTestTranslator('machines'),
+
+  services: createTestTranslator('services'),
+
   adminSettings: {
     createCompany: createTestTranslator('adminSettings.createCompany'),
   },
@@ -57,4 +61,12 @@ export const testTranslations = {
   validation: createTestTranslator('validation'),
 
   navigation: createTestTranslator('navigation'),
+
+  settings: {
+    deleteUserDialog: createTestTranslator('settings.deleteUserDialog'),
+    addUserDialog: createTestTranslator('settings.addUserDialog'),
+    branchSettings: createTestTranslator('settings.branchSettings'),
+    userManagement: createTestTranslator('settings.userManagement'),
+    branches: createTestTranslator('settings.branches'),
+  },
 } as const;

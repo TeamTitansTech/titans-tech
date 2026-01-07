@@ -99,6 +99,7 @@ export function BranchesSection({ selectedBranchId, onSelectBranch }: BranchesSe
                   : 'hover:border-primary/50 hover:shadow-md'
               }`}
               onClick={() => onSelectBranch(branch.id)}
+              data-testid={`branch-card-client-${branch.id}`}
             >
               <CardContent className="pt-6">
                 <div className="space-y-2">

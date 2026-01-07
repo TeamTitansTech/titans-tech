@@ -209,7 +209,8 @@
       "inches": "Inches (in)",
       "mm": "Millimeters (mm)",
       "saved": "Settings saved",
-      "saveError": "Failed to save settings"
+      "saveError": "Failed to save settings",
+      "noUpdatePermission": "You do not have permission to modify the settings for this branch"
     },
     "userManagement": {
       "title": "User Accounts",

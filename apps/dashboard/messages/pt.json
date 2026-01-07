@@ -209,7 +209,8 @@
       "inches": "Polegadas (in)",
       "mm": "Milímetros (mm)",
       "saved": "Configurações salvas",
-      "saveError": "Erro ao salvar configurações"
+      "saveError": "Erro ao salvar configurações",
+      "noUpdatePermission": "Você não tem permissão para alterar as configurações desta filial"
     },
     "userManagement": {
       "title": "Contas de Usuário",

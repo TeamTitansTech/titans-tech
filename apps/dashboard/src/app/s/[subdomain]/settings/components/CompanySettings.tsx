@@ -49,6 +49,7 @@ export function CompanySettings() {
             <TooltipTrigger>
               <Button
                 onClick={() => setIsAddUserDialogOpen(true)}
+                data-testid="client-add-user-button"
                 disabled={!canCreateUser}
                 className={!canCreateUser ? 'opacity-50 cursor-not-allowed' : ''}
               >
