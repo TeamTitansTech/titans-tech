@@ -19,6 +19,7 @@ import {
 } from '@/components/ui/select';
 import { getBranchesWithPermission, filterByBranchPermission } from '@/lib/branchFilters';
 import { type CompanyBranch } from '@/data/services/company-branches.api';
+import { hasPermissionInAnyBranch } from '@titans-tech/shared/types';
 
 interface ProductionLinesPageProps {
   productionLines: ProductionLine[];
@@ -89,7 +90,7 @@ export function ProductionLinesPage({ productionLines, allBranches }: Production
     if (companyUser.isCompanyAdmin) return true;
 
     // Check if user has createProductionLines permission in at least one branch
-    return companyUser.branches.some((ub) => ub.createProductionLines);
+    return hasPermissionInAnyBranch(companyUser, 'createProductionLines');
   }, [companyUser, isSysAdmin]);
 
   // Get branches where user can CREATE production lines (for the create dialog)
