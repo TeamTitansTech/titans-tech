@@ -30,6 +30,7 @@ export interface MachineCardProps {
   location?: string;
   lastInspection?: string;
   status?: 'operational' | 'maintenance' | 'offline';
+  serialNumber: string;
   // Admin-specific props
   onEdit?: () => void;
   onDelete?: () => void;
@@ -48,6 +49,7 @@ export function MachineCard({
   location,
   lastInspection,
   status = 'operational',
+  serialNumber,
   onEdit,
   onDelete,
   canViewDetails = true,
@@ -136,6 +138,13 @@ export function MachineCard({
                 {location}
               </Typography>
             )}
+            <Typography
+              variant="h4"
+              className="text-muted-foreground text-sm truncate leading-relaxed"
+            >
+              <span className="font-medium">{t('form.specifications.serialNumber.label')}:</span>{' '}
+              {serialNumber}
+            </Typography>
             {lastInspection && (
               <div className="flex items-center gap-[clamp(0.5rem,1.5vw,0.625rem)] text-muted-foreground">
                 <Calendar className="w-[clamp(0.875rem,3.5vw,1.125rem)] h-[clamp(0.875rem,3.5vw,1.125rem)] shrink-0" />

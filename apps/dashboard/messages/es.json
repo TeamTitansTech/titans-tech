@@ -199,7 +199,30 @@
       "loadingFailed": "Error al cargar sucursales",
       "mainBranch": "Sucursal Principal",
       "users": "usuarios",
-      "clickToViewUsers": "Haga clic para ver usuarios"
+      "clickToViewUsers": "Haga clic para ver usuarios",
+      "editBranch": "Editar Sucursal"
+    },
+    "editBranchDialog": {
+      "title": "Editar Sucursal",
+      "description": "Actualizar nombre, ubicación y configuración de la sucursal",
+      "form": {
+        "name": {
+          "label": "Nombre de la Sucursal",
+          "placeholder": "Ingrese el nombre de la sucursal"
+        },
+        "location": {
+          "label": "Ubicación",
+          "placeholder": "Ingrese la ubicación de la sucursal (opcional)"
+        },
+        "isMainBranch": {
+          "label": "Establecer como sucursal principal"
+        }
+      },
+      "cancel": "Cancelar",
+      "submit": "Guardar Cambios",
+      "submitting": "Guardando...",
+      "success": "Sucursal actualizada correctamente",
+      "error": "Error al actualizar sucursal"
     },
     "branchSettings": {
       "title": "Configuración de Sucursal",
@@ -975,6 +998,7 @@
     "cancel": "Cancelar",
     "createdSuccessfully": "Máquina creada exitosamente",
     "deletedSuccessfully": "Máquina eliminada exitosamente",
+    "serialNumberToast": "Número de Serie: {serialNumber}",
     "deleteConfirmTitle": "Eliminar Máquina",
     "deleteConfirmDescription": "¿Está seguro de que desea eliminar {name}? Esta acción no se puede deshacer y eliminará permanentemente todos los datos asociados.",
     "confirmDelete": "Eliminar",
@@ -2621,6 +2645,11 @@
     "tabInspection": "Inspecciones",
     "tabConfig": "Configuración",
     "deleteButton": "Eliminar Línea",
+    "editName": "Editar nombre de la línea de producción",
+    "namePlaceholder": "Nombre de la línea de producción",
+    "nameRequired": "El nombre es obligatorio",
+    "errorSavingName": "Error al guardar el nombre",
+    "nameSaved": "Nombre actualizado exitosamente",
     "selectCompany": "Seleccionar Empresa",
     "selectBranch": "Seleccionar Sucursal",
     "selectBranchPlaceholder": "Seleccione una sucursal",

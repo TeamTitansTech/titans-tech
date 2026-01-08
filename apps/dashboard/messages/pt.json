@@ -199,7 +199,30 @@
       "loadingFailed": "Falha ao carregar filiais",
       "mainBranch": "Matriz (Filial Principal)",
       "users": "usuários",
-      "clickToViewUsers": "Clique para ver usuários"
+      "clickToViewUsers": "Clique para ver usuários",
+      "editBranch": "Editar Filial"
+    },
+    "editBranchDialog": {
+      "title": "Editar Filial",
+      "description": "Atualizar nome, localização e configurações da filial",
+      "form": {
+        "name": {
+          "label": "Nome da Filial",
+          "placeholder": "Digite o nome da filial"
+        },
+        "location": {
+          "label": "Localização",
+          "placeholder": "Digite a localização da filial (opcional)"
+        },
+        "isMainBranch": {
+          "label": "Definir como filial principal"
+        }
+      },
+      "cancel": "Cancelar",
+      "submit": "Salvar Alterações",
+      "submitting": "Salvando...",
+      "success": "Filial atualizada com sucesso",
+      "error": "Falha ao atualizar filial"
     },
     "branchSettings": {
       "title": "Configurações da Filial",
@@ -971,6 +994,7 @@
     "cancel": "Cancelar",
     "createdSuccessfully": "Máquina criada com sucesso",
     "deletedSuccessfully": "Máquina excluída com sucesso",
+    "serialNumberToast": "Número de Série: {serialNumber}",
     "deleteConfirmTitle": "Excluir Máquina",
     "deleteConfirmDescription": "Tem certeza de que deseja excluir {name}? Esta ação não pode ser desfeita e removerá permanentemente todos os dados associados.",
     "confirmDelete": "Excluir",
@@ -2620,6 +2644,11 @@
     "tabInspection": "Inspeções",
     "tabConfig": "Configuração",
     "deleteButton": "Excluir Linha",
+    "editName": "Editar nome da linha de produção",
+    "namePlaceholder": "Nome da linha de produção",
+    "nameRequired": "Nome é obrigatório",
+    "errorSavingName": "Erro ao salvar nome",
+    "nameSaved": "Nome atualizado com sucesso",
     "selectCompany": "Selecionar Empresa",
     "selectBranch": "Selecionar Filial",
     "selectBranchPlaceholder": "Selecione uma filial",

@@ -66,7 +66,7 @@ interface Machine {
   manufacturer?: string | null;
   model?: string | null;
   sizeTonnage?: string | null;
-  serialNumber?: string | null;
+  serialNumber: string;
   stroke?: string | null;
   foundationType?: FoundationType | null;
   frameType?: FrameType | null;
@@ -316,6 +316,7 @@ export function MachineListPage({ machines }: MachineListPageProps) {
                   location={locationDisplay}
                   lastInspection={machine.lastInspection}
                   status={cardStatus}
+                  serialNumber={machine.serialNumber}
                   onEdit={() => handleEdit(machine)}
                   onDelete={() => handleDeleteClick({ id: machine.id, name: machine.name })}
                 />

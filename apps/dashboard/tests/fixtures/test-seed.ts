@@ -281,6 +281,7 @@ export class TestSeeder {
         name: 'Existing P2H Machine',
         blueprintId: TEST_SEED_DATA.BLUEPRINT.P2H.id,
         branchId: branch.id,
+        serialNumber: 'EXISTING001',
         fields: {
           create: [
             {

@@ -3,14 +3,17 @@
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useInternalRouter } from '@/hooks/useInternalRouter';
-import { ArrowLeft, Eye, Settings, Trash2 } from 'lucide-react';
+import { ArrowLeft, Eye, Settings, Trash2, Pencil, Check, X } from 'lucide-react';
+import { toast } from 'sonner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Typography } from '@/components/ui/typography';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { ConfigTab } from './ConfigTab';
 import { ViewTab } from './ViewTab';
 import { DeleteProductionLineDialog } from './DeleteProductionLineDialog';
 import type { ProductionLine } from '@/data/types/production-lines.types';
+import { updateProductionLine } from '@/data/services/production-lines.api';
 
 interface ProductionLineDetailProps {
   productionLine: ProductionLine;
@@ -32,6 +35,9 @@ export function ProductionLineDetail({
   const [activeTab, setActiveTab] = useState(initialTab);
   const [productionLine, setProductionLine] = useState(initialProductionLine);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [editedName, setEditedName] = useState(initialProductionLine.name);
+  const [isSavingName, setIsSavingName] = useState(false);
   const t = useTranslations('productionLines');
   const router = useInternalRouter();
 
@@ -41,6 +47,47 @@ export function ProductionLineDetail({
     router.refresh();
   };
 
+  const handleSaveName = async () => {
+    const trimmedName = editedName.trim();
+
+    if (trimmedName.length === 0) {
+      toast.error(t('nameRequired'));
+      return;
+    }
+
+    if (trimmedName === productionLine.name) {
+      setIsEditingName(false);
+      return;
+    }
+
+    setIsSavingName(true);
+    try {
+      const result = await updateProductionLine(productionLine.id, { name: trimmedName });
+
+      if (result.errors) {
+        toast.error(t('errorSavingName'));
+        return;
+      }
+
+      if (result.data) {
+        toast.success(t('nameSaved'));
+        setProductionLine(result.data);
+        setIsEditingName(false);
+        router.refresh();
+      }
+    } catch (error) {
+      toast.error(t('errorSavingName'));
+      console.error(error);
+    } finally {
+      setIsSavingName(false);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditedName(productionLine.name);
+    setIsEditingName(false);
+  };
+
   return (
     <div className="space-y-6 p-8">
       <div className="flex items-center gap-6">
@@ -48,7 +95,48 @@ export function ProductionLineDetail({
           <ArrowLeft className="w-5 h-5 hover:text-[hsl(var(--accent))] transition-colors cursor-pointer" />
         </button>
         <div className="flex-1">
-          <Typography variant="h2">{productionLine.name}</Typography>
+          {isEditingName ? (
+            <div className="flex items-center gap-2">
+              <Input
+                value={editedName}
+                onChange={(e) => setEditedName(e.target.value)}
+                disabled={isSavingName}
+                autoFocus
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleSaveName();
+                  if (e.key === 'Escape') handleCancelEdit();
+                }}
+                className="text-2xl font-bold h-auto py-1"
+                placeholder={t('namePlaceholder')}
+              />
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleSaveName}
+                disabled={isSavingName || editedName.trim().length === 0}
+              >
+                <Check className="w-4 h-4" />
+              </Button>
+              <Button variant="ghost" size="sm" onClick={handleCancelEdit} disabled={isSavingName}>
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <Typography variant="h2">{productionLine.name}</Typography>
+              {canEditProductionLine && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setIsEditingName(true)}
+                  className="h-8 w-8 p-0"
+                >
+                  <Pencil className="h-4 w-4" />
+                  <span className="sr-only">{t('editName')}</span>
+                </Button>
+              )}
+            </div>
+          )}
           <Typography variant="muted" className="mt-1">
             {t('pageDescription')}
           </Typography>

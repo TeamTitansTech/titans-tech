@@ -8,6 +8,7 @@ interface MachineCardProps {
   blueprintName: string;
   imageUrl?: string | null;
   location?: string;
+  serialNumber: string;
   lastInspection?: string;
   status?: 'operational' | 'maintenance' | 'offline';
   canViewDetails?: boolean;

@@ -52,7 +52,7 @@ export const CreateMachineSchema = z.object({
   imageUrl: z.string().optional(),
   manufacturer: z.string().optional(),
   sizeTonnage: z.string().optional(),
-  serialNumber: z.string().optional(),
+  serialNumber: z.string().min(1, 'Serial number is required'),
   stroke: z.string().optional(),
   foundationType: FoundationType.optional(),
   frameType: FrameType.optional(),
