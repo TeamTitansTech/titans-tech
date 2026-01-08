@@ -110,6 +110,7 @@ export default function CompanyBranchesManager({ selectedCompany }: Props) {
 
     const response = await executeDelete({
       branchId,
+      companyId: selectedCompany.id,
     });
     if (response !== null) {
       await loadBranches();
