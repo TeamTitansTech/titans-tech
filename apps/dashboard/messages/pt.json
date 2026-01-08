@@ -994,6 +994,7 @@
     "cancel": "Cancelar",
     "createdSuccessfully": "Máquina criada com sucesso",
     "deletedSuccessfully": "Máquina excluída com sucesso",
+    "serialNumberToast": "Número de Série: {serialNumber}",
     "deleteConfirmTitle": "Excluir Máquina",
     "deleteConfirmDescription": "Tem certeza de que deseja excluir {name}? Esta ação não pode ser desfeita e removerá permanentemente todos os dados associados.",
     "confirmDelete": "Excluir",

@@ -73,7 +73,7 @@ interface Machine {
   manufacturer?: string;
   model?: string;
   sizeTonnage?: string;
-  serialNumber?: string;
+  serialNumber: string;
   stroke?: string;
   foundationType?: FoundationType;
   frameType?: FrameType;
@@ -476,6 +476,7 @@ export function MachinesPageClient() {
                     imageUrl={machine.imageUrl}
                     location={machine.branch?.name}
                     lastInspection={machine.lastInspection}
+                    serialNumber={machine.serialNumber}
                     status={cardStatus}
                     onEdit={
                       canUpdateMachine(machine.branchId) ? () => handleEdit(machine) : undefined
