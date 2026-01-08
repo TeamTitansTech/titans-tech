@@ -18,6 +18,7 @@ interface ProductionLineDetailProps {
   canViewMachineDetails?: boolean;
   canEditProductionLine?: boolean;
   canDeleteProductionLine?: boolean;
+  canEditCanvas?: boolean;
 }
 
 export function ProductionLineDetail({
@@ -26,6 +27,7 @@ export function ProductionLineDetail({
   canViewMachineDetails = true,
   canEditProductionLine = false,
   canDeleteProductionLine = false,
+  canEditCanvas = false,
 }: ProductionLineDetailProps) {
   const [activeTab, setActiveTab] = useState(initialTab);
   const [productionLine, setProductionLine] = useState(initialProductionLine);
@@ -77,7 +79,7 @@ export function ProductionLineDetail({
           <ViewTab
             productionLine={productionLine}
             canViewMachineDetails={canViewMachineDetails}
-            canEdit={canEditProductionLine}
+            canEditCanvas={canEditCanvas}
           />
         </TabsContent>
 

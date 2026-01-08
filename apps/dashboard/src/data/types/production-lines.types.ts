@@ -12,12 +12,30 @@ export interface ProductionLineEdge {
   updatedAt: string;
 }
 
+// Canvas shape types for Konva drawing
+export interface CanvasShape {
+  id: string;
+  type: 'line' | 'rectangle' | 'circle' | 'arrow' | 'text';
+  x: number;
+  y: number;
+  stroke: string;
+  strokeWidth: number;
+  points?: number[];
+  width?: number;
+  height?: number;
+  radius?: number;
+  text?: string;
+  fontSize?: number;
+  fill?: string;
+}
+
 export interface ProductionLine {
   id: string;
   name: string;
   branchId: string;
   createdBy?: string;
   direction: ProductionLineDirection;
+  canvasShapes?: CanvasShape[];
   createdAt: string;
   updatedAt: string;
   branch?: {
@@ -94,4 +112,8 @@ export interface UpdateEdgesDto {
     sourceNodeId: string;
     targetNodeId: string;
   }>;
+}
+
+export interface UpdateCanvasShapesDto {
+  shapes: CanvasShape[];
 }

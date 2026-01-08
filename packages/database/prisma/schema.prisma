@@ -1969,14 +1969,15 @@ model PistonsData {
 // Production Line Models
 
 model ProductionLine {
-  id        String                  @id @default(cuid())
-  name      String
-  branchId  String
-  createdBy String?
-  direction ProductionLineDirection @default(LEFT_TO_RIGHT)
-  createdAt DateTime                @default(now())
-  updatedAt DateTime                @updatedAt
-  deletedAt DateTime?
+  id           String                  @id @default(cuid())
+  name         String
+  branchId     String
+  createdBy    String?
+  direction    ProductionLineDirection @default(LEFT_TO_RIGHT)
+  canvasShapes Json?                   @default("[]") // Array of drawn shapes [{id, type, points, stroke, etc}]
+  createdAt    DateTime                @default(now())
+  updatedAt    DateTime                @updatedAt
+  deletedAt    DateTime?
 
   branch   CompanyBranch           @relation(fields: [branchId], references: [id], onDelete: Restrict)
   machines MachineProductionLine[]

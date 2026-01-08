@@ -10,6 +10,7 @@ import {
   UpdateProductionLineDto,
   UpdateNodePositionsDto,
   UpdateEdgesDto,
+  UpdateCanvasShapesDto,
 } from '@titans-tech/shared/backend-dtos';
 
 /**
@@ -521,6 +522,55 @@ export class ProductionLinesService {
         })),
       }),
     ]);
+
+    return this.findOne(userId, id);
+  }
+
+  // Canvas shapes methods
+
+  async updateCanvasShapes(
+    id: string,
+    updateCanvasShapesDto: UpdateCanvasShapesDto,
+  ) {
+    const productionLine = await this.prisma.productionLine.findUnique({
+      where: { id },
+    });
+
+    if (!productionLine) {
+      throw new NotFoundException(`Production line with ID ${id} not found`);
+    }
+
+    await this.prisma.productionLine.update({
+      where: { id },
+      data: {
+        canvasShapes: updateCanvasShapesDto.shapes,
+      },
+    });
+
+    return this.findOneForSysAdmin(id);
+  }
+
+  async updateCanvasShapesForUser(
+    userId: string,
+    id: string,
+    updateCanvasShapesDto: UpdateCanvasShapesDto,
+  ) {
+    const productionLine = await this.prisma.productionLine.findUnique({
+      where: { id },
+    });
+
+    if (!productionLine) {
+      throw new NotFoundException(`Production line with ID ${id} not found`);
+    }
+
+    await this.validateUserBranchAccess(userId, productionLine.branchId);
+
+    await this.prisma.productionLine.update({
+      where: { id },
+      data: {
+        canvasShapes: updateCanvasShapesDto.shapes,
+      },
+    });
 
     return this.findOne(userId, id);
   }

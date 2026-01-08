@@ -19,6 +19,8 @@ import {
   updateNodePositionsSchema,
   UpdateEdgesDto,
   updateEdgesSchema,
+  UpdateCanvasShapesDto,
+  updateCanvasShapesSchema,
 } from '@titans-tech/shared/backend-dtos';
 import { ZodValidationPipe } from '../../errors/zod-validation.pipe';
 import {
@@ -199,6 +201,34 @@ export class ProductionLinesController {
           userId,
           id,
           updateEdgesDto,
+        ),
+    );
+  }
+
+  /**
+   * Update canvas shapes for Konva drawing canvas
+   * Requires updateProductionLines permission
+   */
+  @ResourcePermission('productionLine', 'updateProductionLines')
+  @Patch(':id/canvas-shapes')
+  updateCanvasShapes(
+    @Request() req: ReqWithAuthUser,
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(updateCanvasShapesSchema))
+    updateCanvasShapesDto: UpdateCanvasShapesDto,
+  ) {
+    return this.dispatchByUserType(
+      req.user,
+      () =>
+        this.productionLinesService.updateCanvasShapes(
+          id,
+          updateCanvasShapesDto,
+        ),
+      (userId) =>
+        this.productionLinesService.updateCanvasShapesForUser(
+          userId,
+          id,
+          updateCanvasShapesDto,
         ),
     );
   }

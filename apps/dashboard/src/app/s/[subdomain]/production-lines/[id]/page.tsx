@@ -56,7 +56,6 @@ export default async function ProductionLineDetailPage({
   }
 
   const canViewMachineDetails = hasPermissionInBranch(user, branchId, 'readMachines');
-  const canEditProductionLine = hasPermissionInBranch(user, branchId, 'updateProductionLines');
   const canDeleteProductionLine = hasPermissionInBranch(user, branchId, 'deleteProductionLines');
 
   return (
@@ -64,7 +63,6 @@ export default async function ProductionLineDetailPage({
       productionLine={productionLine}
       initialTab={tab}
       canViewMachineDetails={canViewMachineDetails}
-      canEditProductionLine={canEditProductionLine}
       canDeleteProductionLine={canDeleteProductionLine}
     />
   );

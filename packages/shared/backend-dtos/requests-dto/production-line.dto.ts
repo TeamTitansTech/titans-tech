@@ -50,3 +50,33 @@ export const updateEdgesSchema = z.object({
 });
 
 export type UpdateEdgesDto = z.infer<typeof updateEdgesSchema>;
+
+// Canvas shapes for Konva drawing
+export const canvasShapeSchema = z.object({
+  id: z.string(),
+  type: z.enum(['line', 'rectangle', 'circle', 'arrow', 'text']),
+  x: z.number(),
+  y: z.number(),
+  stroke: z.string(),
+  strokeWidth: z.number(),
+  // Line and arrow specific
+  points: z.array(z.number()).optional(),
+  // Rectangle specific
+  width: z.number().optional(),
+  height: z.number().optional(),
+  // Circle specific
+  radius: z.number().optional(),
+  // Text specific
+  text: z.string().optional(),
+  fontSize: z.number().optional(),
+  // Optional fill
+  fill: z.string().optional(),
+});
+
+export type CanvasShape = z.infer<typeof canvasShapeSchema>;
+
+export const updateCanvasShapesSchema = z.object({
+  shapes: z.array(canvasShapeSchema),
+});
+
+export type UpdateCanvasShapesDto = z.infer<typeof updateCanvasShapesSchema>;

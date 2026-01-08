@@ -6,6 +6,7 @@ import type {
   UpdateProductionLineDto,
   UpdateNodePositionsDto,
   UpdateEdgesDto,
+  UpdateCanvasShapesDto,
 } from '../types/production-lines.types';
 
 /**
@@ -70,6 +71,16 @@ export const updateNodePositions = async (id: string, data: UpdateNodePositionsD
  */
 export const updateEdges = async (id: string, data: UpdateEdgesDto) => {
   return await responseHandler<ProductionLine>(`/production-lines/${id}/edges`, {
+    method: 'PATCH',
+    body: data,
+  });
+};
+
+/**
+ * Update canvas shapes for Konva drawing canvas
+ */
+export const updateCanvasShapes = async (id: string, data: UpdateCanvasShapesDto) => {
+  return await responseHandler<ProductionLine>(`/production-lines/${id}/canvas-shapes`, {
     method: 'PATCH',
     body: data,
   });

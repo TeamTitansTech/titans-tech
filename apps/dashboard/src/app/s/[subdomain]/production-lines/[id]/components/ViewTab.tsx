@@ -3,19 +3,19 @@
 import { useTranslations } from 'next-intl';
 import { Card, CardContent } from '@/components/ui/card';
 import { Factory } from 'lucide-react';
-import { ProductionLineCanvas } from './ProductionLineCanvas';
+import { ProductionLineKonvaCanvas } from './ProductionLineKonvaCanvas';
 import type { ProductionLine } from '@/data/types/production-lines.types';
 
 interface ViewTabProps {
   productionLine: ProductionLine;
   canViewMachineDetails?: boolean;
-  canEdit?: boolean;
+  canEditCanvas?: boolean;
 }
 
 export function ViewTab({
   productionLine,
   canViewMachineDetails = true,
-  canEdit = false,
+  canEditCanvas = false,
 }: ViewTabProps) {
   const t = useTranslations('productionLines');
 
@@ -38,10 +38,10 @@ export function ViewTab({
   }
 
   return (
-    <ProductionLineCanvas
+    <ProductionLineKonvaCanvas
       productionLine={productionLine}
       canViewMachineDetails={canViewMachineDetails}
-      canEdit={canEdit}
+      canEdit={canEditCanvas}
     />
   );
 }

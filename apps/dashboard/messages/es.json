@@ -2705,7 +2705,19 @@
     "addBackboneFirst": "Agregue una línea primero",
     "drawBackboneInstruction": "Haga clic y arrastre para dibujar la línea (cualquier ángulo)",
     "backboneTooShort": "Línea muy corta. Arrastre más para crear la línea.",
-    "cancelDrawing": "Cancelar"
+    "cancelDrawing": "Cancelar",
+    "select": "Seleccionar",
+    "moveMachines": "Mover",
+    "drawLine": "Dibujar Línea",
+    "drawRectangle": "Dibujar Rectángulo",
+    "drawCircle": "Dibujar Círculo",
+    "drawArrow": "Dibujar Flecha",
+    "addText": "Agregar Texto",
+    "eraser": "Borrador",
+    "clickToAddText": "Haga clic en el lienzo para agregar texto",
+    "enterText": "Ingrese el texto...",
+    "add": "Agregar",
+    "fitToView": "Ajustar a la Vista"
   },
   "serviceRequests": {
     "title": "Solicitudes de Servicio",

@@ -2704,7 +2704,19 @@
     "addBackboneFirst": "Add a line first",
     "drawBackboneInstruction": "Click and drag to draw the line (any angle)",
     "backboneTooShort": "Line too short. Drag more to create the line.",
-    "cancelDrawing": "Cancel"
+    "cancelDrawing": "Cancel",
+    "select": "Select",
+    "moveMachines": "Move",
+    "drawLine": "Draw Line",
+    "drawRectangle": "Draw Rectangle",
+    "drawCircle": "Draw Circle",
+    "drawArrow": "Draw Arrow",
+    "addText": "Add Text",
+    "eraser": "Eraser",
+    "clickToAddText": "Click on the canvas to add text",
+    "enterText": "Enter text...",
+    "add": "Add",
+    "fitToView": "Fit to View"
   },
   "serviceRequests": {
     "title": "Service Requests",
