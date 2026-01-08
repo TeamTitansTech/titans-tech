@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { type CompanyBranch } from '@/data/services/company-branches.api';
 import { useCompanyUser } from '@/contexts/CompanyUserContext';
 import { hasPermissionInBranch } from '@titans-tech/shared/types';
-import { EditBranchDialog } from './EditBranchDialog';
+import { EditBranchDialog } from '@/components/shared/settings/EditBranchDialog';
 
 interface BranchesSectionProps {
   selectedBranchId: string;

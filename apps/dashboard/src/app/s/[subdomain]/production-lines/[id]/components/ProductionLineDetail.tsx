@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useInternalRouter } from '@/hooks/useInternalRouter';
-import { usePathname } from 'next/navigation';
 import { ArrowLeft, Eye, Settings, Trash2, Pencil, Check, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -14,7 +13,7 @@ import { ConfigTab } from './ConfigTab';
 import { ViewTab } from './ViewTab';
 import { DeleteProductionLineDialog } from './DeleteProductionLineDialog';
 import type { ProductionLine } from '@/data/types/production-lines.types';
-import { updateProductionLineName } from '../actions';
+import { updateProductionLine } from '@/data/services/production-lines.api';
 
 interface ProductionLineDetailProps {
   productionLine: ProductionLine;
@@ -39,7 +38,6 @@ export function ProductionLineDetail({
   const [isSavingName, setIsSavingName] = useState(false);
   const t = useTranslations('productionLines');
   const router = useInternalRouter();
-  const pathname = usePathname();
 
   const handleConfigSaved = (updatedLine: ProductionLine) => {
     setProductionLine(updatedLine);
@@ -62,14 +60,10 @@ export function ProductionLineDetail({
 
     setIsSavingName(true);
     try {
-      const result = await updateProductionLineName(
-        productionLine.id,
-        trimmedName,
-        pathname || `/production-lines/${productionLine.id}`,
-      );
+      const result = await updateProductionLine(productionLine.id, { name: trimmedName });
 
-      if (!result.success) {
-        toast.error(t(result.error || 'errorSavingName'));
+      if (result.errors) {
+        toast.error(t('errorSavingName'));
         return;
       }
 

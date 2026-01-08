@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { type CompanyBranch } from '@/data/services/company-branches.api';
 import { CreateBranchDialog } from '@/app/admin/companies/[companyId]/components/CreateBranchDialog';
 import { AddUserDialog } from './AddUserDialog';
-import { EditBranchDialog } from './EditBranchDialog';
+import { EditBranchDialog } from '@/components/shared/settings/EditBranchDialog';
 
 interface BranchesSectionProps {
   companyId: string;
