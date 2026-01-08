@@ -199,7 +199,30 @@
       "loadingFailed": "Failed to load branches",
       "mainBranch": "Main Branch",
       "users": "users",
-      "clickToViewUsers": "Click to view users"
+      "clickToViewUsers": "Click to view users",
+      "editBranch": "Edit Branch"
+    },
+    "editBranchDialog": {
+      "title": "Edit Branch",
+      "description": "Update branch name, location, and settings",
+      "form": {
+        "name": {
+          "label": "Branch Name",
+          "placeholder": "Enter branch name"
+        },
+        "location": {
+          "label": "Location",
+          "placeholder": "Enter branch location (optional)"
+        },
+        "isMainBranch": {
+          "label": "Set as main branch"
+        }
+      },
+      "cancel": "Cancel",
+      "submit": "Save Changes",
+      "submitting": "Saving...",
+      "success": "Branch updated successfully",
+      "error": "Failed to update branch"
     },
     "branchSettings": {
       "title": "Branch Settings",
@@ -2620,6 +2643,11 @@
     "tabInspection": "Inspections",
     "tabConfig": "Configuration",
     "deleteButton": "Delete Line",
+    "editName": "Edit production line name",
+    "namePlaceholder": "Production line name",
+    "nameRequired": "Name is required",
+    "errorSavingName": "Error saving name",
+    "nameSaved": "Name updated successfully",
     "selectCompany": "Select Company",
     "selectBranch": "Select Branch",
     "selectBranchPlaceholder": "Select a branch",

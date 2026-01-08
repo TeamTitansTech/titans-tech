@@ -1,6 +1,6 @@
 'use client';
 
-import { Factory } from 'lucide-react';
+import { Factory, MapPin } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { type ProductionLine } from '@/data/types/production-lines.types';
 import { useInternalRouter } from '@/hooks/useInternalRouter';
@@ -43,16 +43,18 @@ export function ProductionLineCard({ productionLine }: ProductionLineCardProps) 
             </div>
           </div>
 
-          <p className="text-sm text-muted-foreground line-clamp-2">
-            Linha de produção {machineCount > 0 ? `principal com ${machineCount}` : 'sem'} máquina
-            {machineCount !== 1 ? 's' : ''}
-          </p>
-
           <div className="flex items-center gap-1 text-sm text-muted-foreground">
             <span>
               {machineCount} {t('machineCount')}
             </span>
           </div>
+
+          {productionLine.branch && (
+            <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+              <MapPin className="h-3.5 w-3.5" />
+              <span className="truncate">{productionLine.branch.name}</span>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>
