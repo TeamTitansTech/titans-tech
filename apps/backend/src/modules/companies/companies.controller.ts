@@ -16,6 +16,8 @@ import {
   CreateCompanySchema,
   UpdateCompanyDto,
   UpdateCompanySchema,
+  UpdateCompanyLimitsDto,
+  UpdateCompanyLimitsSchema,
   UpdateUserDto,
   UpdateUserSchema,
   CreateCompanyBranchDto,
@@ -182,5 +184,26 @@ export class CompaniesController {
       this.prisma,
       companyId,
     ) as Promise<AdminManagerUserResponseDto[]>;
+  }
+
+  // SysAdmin endpoints for managing company limits
+  @Admin()
+  @Patch(':companyId/limits')
+  updateCompanyLimits(
+    @Param('companyId') companyId: string,
+    @Body(new ZodValidationPipe(UpdateCompanyLimitsSchema))
+    updateLimitsDto: UpdateCompanyLimitsDto,
+  ) {
+    return companiesService.updateCompanyLimits(
+      this.prisma,
+      companyId,
+      updateLimitsDto,
+    );
+  }
+
+  @CompanyMember()
+  @Get(':companyId/usage')
+  getCompanyUsageStats(@Param('companyId') companyId: string) {
+    return companiesService.getCompanyUsageStats(this.prisma, companyId);
   }
 }

@@ -2404,6 +2404,32 @@
       "submitting": "Creating...",
       "success": "Branch created successfully",
       "error": "Failed to create branch"
+    },
+    "usage": {
+      "title": "Usage & Limits",
+      "description": "Company resource usage and contract limits",
+      "editLimits": "Edit Limits",
+      "branches": "Branches",
+      "users": "Users",
+      "productionLines": "Production Lines",
+      "loadingError": "Failed to load usage statistics",
+      "updateSuccess": "Contract limits updated successfully",
+      "updateError": "Failed to update contract limits",
+      "editDialog": {
+        "title": "Edit Contract Limits",
+        "description": "Update the contract limits for {companyName}",
+        "cancel": "Cancel",
+        "update": "Update Limits",
+        "updating": "Updating..."
+      }
+    },
+    "limits": {
+      "reached": {
+        "branches": "The company has reached its branch limit ({current}/{max}).",
+        "users": "The company has reached its user limit ({current}/{max}).",
+        "machines": "The company has reached its machine limit ({current}/{max}).",
+        "productionLines": "The company has reached its production line limit ({current}/{max})."
+      }
     }
   },
   "branches": {

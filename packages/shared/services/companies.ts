@@ -1,5 +1,6 @@
 import { PrismaClient } from '@titans-tech/db';
 import { companyBranchesService } from './company-branches';
+import { companyLimitsService } from './company-limits';
 
 type TransactionClient = Parameters<Parameters<PrismaClient['$transaction']>[0]>[0];
 
@@ -166,6 +167,38 @@ export const companiesService = {
       where: { companyId, isCompanyAdmin: true },
       select: { id: true, name: true, email: true, isCompanyAdmin: true },
     });
+  },
+
+  /**
+   * Update company contract limits (SysAdmin only)
+   */
+  async updateCompanyLimits(prisma: PrismaClient, companyId: string, updateLimitsDto: any) {
+    return companyLimitsService.updateCompanyLimits(prisma, companyId, updateLimitsDto);
+  },
+
+  /**
+   * Get complete usage statistics for a company
+   */
+  async getCompanyUsageStats(prisma: PrismaClient, companyId: string) {
+    const company = await prisma.company.findUnique({
+      where: { id: companyId },
+      select: {
+        id: true,
+        name: true,
+      },
+    });
+
+    if (!company) {
+      throw { type: 'VALIDATION_ERR', message: 'Company not found' };
+    }
+
+    const usage = await companyLimitsService.getCompanyUsageStats(prisma, companyId);
+
+    return {
+      companyId: company.id,
+      companyName: company.name,
+      usage,
+    };
   },
 };
 

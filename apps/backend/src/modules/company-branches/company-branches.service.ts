@@ -4,7 +4,10 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from '../shared/prisma.service';
-import { companyBranchesService } from '@titans-tech/shared/services';
+import {
+  companyBranchesService,
+  companyLimitsService,
+} from '@titans-tech/shared/services';
 import {
   CreateCompanyBranchDto,
   UpdateCompanyBranchDto,
@@ -74,6 +77,16 @@ export class CompanyBranchesService {
   }
 
   async create(companyId: string, createBranchDto: CreateCompanyBranchDto) {
+    const limitCheck = await companyLimitsService.checkBranchLimit(
+      this.prisma,
+      companyId,
+    );
+    if (!limitCheck.isAllowed) {
+      throw new BadRequestException(
+        `Your company has reached the maximum number of ${limitCheck.resourceType} (${limitCheck.maxAllowed}). Contact support to upgrade your plan.`,
+      );
+    }
+
     if (createBranchDto.isMainBranch) {
       return this.prisma.$transaction(async (tx) => {
         await this.unsetOtherMainBranches(tx, companyId);

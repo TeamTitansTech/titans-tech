@@ -3,6 +3,8 @@ import { responseHandler } from '@/data/helpers/responseHandler';
 import {
   CreateCompanyDto,
   UpdateCompanyDto,
+  UpdateCompanyLimitsDto,
+  CompanyUsageResponseDto,
   AdminManagerUserResponseDto,
 } from '@titans-tech/shared/backend-dtos';
 
@@ -19,6 +21,13 @@ export interface Company {
   phone?: string | null;
   website?: string | null;
   isActive?: boolean;
+
+  // Contract limits
+  contractMaxBranches: number;
+  contractMaxUsers: number;
+  contractMaxMachines: number;
+  contractMaxProductionLines: number;
+
   createdAt: string;
   updatedAt: string;
   _count?: {
@@ -72,4 +81,20 @@ export const getAdminManagerUsers = async (companyId: string) => {
       method: 'GET',
     },
   );
+};
+
+export const updateCompanyLimits = async (args: {
+  companyId: string;
+  data: UpdateCompanyLimitsDto;
+}) => {
+  return await responseHandler<Company>(`/companies/${args.companyId}/limits`, {
+    method: 'PATCH',
+    body: args.data,
+  });
+};
+
+export const getCompanyUsageStats = async (args: { companyId: string }) => {
+  return await responseHandler<CompanyUsageResponseDto>(`/companies/${args.companyId}/usage`, {
+    method: 'GET',
+  });
 };

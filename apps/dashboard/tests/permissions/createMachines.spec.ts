@@ -125,7 +125,7 @@ test.describe('createMachines Permission Flow', () => {
     await expect(page.getByRole('dialog')).toBeVisible();
 
     // Select P2H blueprint (by clicking the card)
-    await page.getByText('P2H').first().click();
+    await page.getByTestId(`blueprint-card-${TEST_SEED_DATA.BLUEPRINT.P2H.id}`).click();
 
     // Fill machine name
     await page.locator('#name').fill(TEST_MACHINE_DATA.name);
