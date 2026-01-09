@@ -21,7 +21,6 @@ import {
   ZoomIn,
   ZoomOut,
   Minus,
-  Maximize2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -1072,33 +1071,31 @@ export function ProductionLineKonvaCanvas({
         </div>
       )}
 
-      {/* Zoom Controls - only visible for editors */}
-      {canEdit && (
-        <div className="absolute bottom-4 left-4 z-20 flex gap-1 bg-white/95 backdrop-blur-sm rounded-lg p-1 shadow-md border">
-          <Button variant="ghost" size="sm" onClick={handleZoomOut} className="px-2">
-            <ZoomOut className="w-4 h-4" />
-          </Button>
-          <span className="px-2 py-1 text-sm font-medium min-w-[60px] text-center">
-            {Math.round(stageScale * 100)}%
-          </span>
-          <Button variant="ghost" size="sm" onClick={handleZoomIn} className="px-2">
-            <ZoomIn className="w-4 h-4" />
-          </Button>
-          <div className="w-px h-6 bg-border mx-1 self-center" />
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button variant="ghost" size="sm" onClick={handleFitToView} className="px-2">
-                  <Maximize2 className="w-4 h-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>{t('fitToView')}</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        </div>
-      )}
+      {/* Zoom Controls - visible for all users for navigation */}
+      <div className="absolute bottom-4 left-4 z-20 flex gap-1 bg-white/95 backdrop-blur-sm rounded-lg p-1 shadow-md border">
+        <Button variant="ghost" size="sm" onClick={handleZoomOut} className="px-2">
+          <ZoomOut className="w-4 h-4" />
+        </Button>
+        <span className="px-2 py-1 text-sm font-medium min-w-[60px] text-center">
+          {Math.round(stageScale * 100)}%
+        </span>
+        <Button variant="ghost" size="sm" onClick={handleZoomIn} className="px-2">
+          <ZoomIn className="w-4 h-4" />
+        </Button>
+        <div className="w-px h-6 bg-border mx-1 self-center" />
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="ghost" size="sm" onClick={handleFitToView} className="px-2">
+                <RotateCcw className="w-4 h-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{t('fitToView')}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </div>
 
       {/* Save/Reset buttons */}
       {canEdit && (
@@ -1178,8 +1175,8 @@ export function ProductionLineKonvaCanvas({
           onMousemove={canEdit ? handleMouseMove : undefined}
           onMouseup={canEdit ? handleMouseUp : undefined}
           onMouseLeave={canEdit ? handleMouseUp : undefined}
-          onWheel={canEdit ? handleWheel : undefined}
-          draggable={canEdit && activeTool === 'select'}
+          onWheel={handleWheel}
+          draggable={!canEdit || activeTool === 'select'}
           onDragEnd={(e) => {
             if (e.target === stageRef.current) {
               setStagePosition({ x: e.target.x(), y: e.target.y() });
@@ -1187,7 +1184,7 @@ export function ProductionLineKonvaCanvas({
           }}
           style={{
             cursor: !canEdit
-              ? 'default'
+              ? 'grab'
               : activeTool === 'select'
                 ? 'grab'
                 : activeTool === 'move'
