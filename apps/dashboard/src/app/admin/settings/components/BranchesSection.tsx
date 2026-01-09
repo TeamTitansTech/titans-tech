@@ -1,22 +1,24 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { MapPin, Users, Plus, UserPlus } from 'lucide-react';
+import { MapPin, Users, Plus, UserPlus, Pencil } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
 import { useCompanyLimits } from '@/hooks/useCompanyLimits';
-import { getAllBranches, type CompanyBranch } from '@/data/services/company-branches.api';
+import { type CompanyBranch } from '@/data/services/company-branches.api';
 import { CreateBranchDialog } from '@/app/admin/companies/[companyId]/components/CreateBranchDialog';
 import { AddUserDialog } from './AddUserDialog';
-import { toast } from 'sonner';
+import { EditBranchDialog } from '@/components/shared/settings/EditBranchDialog';
 
 interface BranchesSectionProps {
   companyId: string;
   selectedBranchId: string;
   onSelectBranch: (branchId: string) => void;
   onUserAdded?: () => void;
+  initialBranches: CompanyBranch[] | null;
+  onBranchUpdated?: () => void;
 }
 
 export function BranchesSection({
@@ -24,106 +26,34 @@ export function BranchesSection({
   selectedBranchId,
   onSelectBranch,
   onUserAdded,
+  initialBranches,
+  onBranchUpdated,
 }: BranchesSectionProps) {
   const t = useTranslations('settings.branches');
   const tCompanies = useTranslations('companies');
   const tUserManagement = useTranslations('settings.userManagement');
   const tLimits = useTranslations('companies.limits.reached');
-  const [branches, setBranches] = useState<CompanyBranch[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isAddUserDialogOpen, setIsAddUserDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [selectedBranch, setSelectedBranch] = useState<CompanyBranch | null>(null);
   const { canCreateBranch, canCreateUser, getLimitCheck } = useCompanyLimits(companyId);
+
+  const branches = initialBranches || [];
 
   const handleUserAdded = () => {
     onUserAdded?.();
   };
 
-  useEffect(() => {
-    if (!companyId) return;
-
-    let cancelled = false;
-
-    const fetchBranches = async () => {
-      setIsLoading(true);
-      const response = await getAllBranches({ companyId });
-
-      if (cancelled) return;
-
-      if (response.errors) {
-        toast.error(t('loadingFailed'));
-      } else {
-        setBranches(response.data || []);
-      }
-      setIsLoading(false);
-    };
-
-    fetchBranches();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [companyId, t]);
-
-  const handleSuccess = async () => {
-    setIsLoading(true);
-    const response = await getAllBranches({ companyId });
-    if (response.errors) {
-      toast.error(t('loadingFailed'));
-    } else {
-      setBranches(response.data || []);
-    }
-    setIsLoading(false);
+  const handleSuccess = () => {
+    onBranchUpdated?.();
   };
 
-  if (isLoading) {
-    return (
-      <>
-        <div className="space-y-4">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <h3 className="text-base font-semibold flex items-center gap-2">
-              <MapPin className="h-4 w-4" />
-              {t('title')}
-            </h3>
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setIsAddUserDialogOpen(true)}
-                className="flex-1 sm:flex-none"
-                data-testid="add-user-button-loading"
-              >
-                <UserPlus className="h-4 w-4 sm:mr-2" />
-                <span className="hidden sm:inline">{tUserManagement('addUser')}</span>
-              </Button>
-              <Button
-                size="sm"
-                onClick={() => setIsCreateDialogOpen(true)}
-                className="flex-1 sm:flex-none"
-                data-testid="create-branch-button-loading"
-              >
-                <Plus className="h-4 w-4 sm:mr-2" />
-                <span className="hidden sm:inline">{tCompanies('newBranch')}</span>
-              </Button>
-            </div>
-          </div>
-          <p className="text-sm text-muted-foreground">{t('loading')}</p>
-        </div>
-        <CreateBranchDialog
-          open={isCreateDialogOpen}
-          onOpenChange={setIsCreateDialogOpen}
-          onSuccess={handleSuccess}
-          companyId={companyId}
-        />
-        <AddUserDialog
-          open={isAddUserDialogOpen}
-          onOpenChange={setIsAddUserDialogOpen}
-          companyId={companyId}
-          onSuccess={handleUserAdded}
-        />
-      </>
-    );
-  }
+  const handleEditClick = (branch: CompanyBranch, event: React.MouseEvent) => {
+    event.stopPropagation();
+    setSelectedBranch(branch);
+    setIsEditDialogOpen(true);
+  };
 
   if (branches.length === 0) {
     return (
@@ -306,6 +236,16 @@ export function BranchesSection({
                           </span>
                         )}
                       </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={(e) => handleEditClick(branch, e)}
+                        className="h-8 w-8 p-0 -mt-1 -mr-2"
+                        data-testid={`edit-branch-button-${branch.id}`}
+                      >
+                        <Pencil className="h-4 w-4" />
+                        <span className="sr-only">{t('editBranch')}</span>
+                      </Button>
                     </div>
                     {branch.location && (
                       <p
@@ -342,6 +282,12 @@ export function BranchesSection({
         onOpenChange={setIsAddUserDialogOpen}
         companyId={companyId}
         onSuccess={handleUserAdded}
+      />
+      <EditBranchDialog
+        open={isEditDialogOpen}
+        onOpenChange={setIsEditDialogOpen}
+        branch={selectedBranch}
+        onSuccess={handleSuccess}
       />
     </>
   );

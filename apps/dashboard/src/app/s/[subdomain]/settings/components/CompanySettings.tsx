@@ -14,15 +14,23 @@ import { BranchUserManagement } from './BranchUserManagement';
 import { AddUserDialog } from './AddUserDialog';
 import { useCompanyUser } from '@/contexts/CompanyUserContext';
 import { hasPermissionInAnyBranch } from '@titans-tech/shared/types';
+import { getAllBranches, type CompanyBranch } from '@/data/services/company-branches.api';
+import { toast } from 'sonner';
 
-export function CompanySettings() {
+interface CompanySettingsProps {
+  initialBranches: CompanyBranch[] | null;
+}
+
+export function CompanySettings({ initialBranches }: CompanySettingsProps) {
   const t = useTranslations('settings');
   const tLimits = useTranslations('companies.limits.reached');
+  const tBranches = useTranslations('settings.branches');
   const { companyUser } = useCompanyUser();
   const { canCreateUser, getLimitCheck } = useCompanyLimits(companyUser?.companyId ?? '');
   const [selectedBranchId, setSelectedBranchId] = useState<string>('');
   const [isAddUserDialogOpen, setIsAddUserDialogOpen] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [branches, setBranches] = useState<CompanyBranch[] | null>(initialBranches);
 
   // Check if user can view branches (company admins or users with readBranches permission)
   // Note: isCompanyAdmin already grants all permissions via hasPermissionInAnyBranch
@@ -36,6 +44,17 @@ export function CompanySettings() {
     // Trigger refresh in BranchUserManagement
     setRefreshKey((prev) => prev + 1);
   }, []);
+
+  const handleBranchUpdated = useCallback(async () => {
+    if (!companyUser?.companyId) return;
+
+    const response = await getAllBranches({ companyId: companyUser.companyId });
+    if (response.errors) {
+      toast.error(tBranches('loadingFailed'));
+    } else {
+      setBranches(response.data || []);
+    }
+  }, [companyUser, tBranches]);
 
   return (
     <div className="space-y-6 p-8">
@@ -81,6 +100,8 @@ export function CompanySettings() {
           <BranchesSection
             selectedBranchId={selectedBranchId}
             onSelectBranch={setSelectedBranchId}
+            initialBranches={branches}
+            onBranchUpdated={handleBranchUpdated}
           />
 
           {selectedBranchId && (

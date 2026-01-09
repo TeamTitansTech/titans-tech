@@ -26,7 +26,7 @@ interface CreateMachinePayload {
   imageUrl?: string;
   manufacturer?: string;
   sizeTonnage?: string;
-  serialNumber?: string;
+  serialNumber: string;
   stroke?: string;
   foundationType?: FoundationType;
   frameType?: FrameType;
@@ -65,7 +65,7 @@ export interface Machine {
   manufacturer?: string;
   model?: string;
   sizeTonnage?: string;
-  serialNumber?: string;
+  serialNumber: string;
   stroke?: string;
   foundationType?: FoundationType;
   frameType?: FrameType;

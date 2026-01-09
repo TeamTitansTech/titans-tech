@@ -257,10 +257,10 @@ export function MachineCreationModal({
       branchId: effectiveBranchId,
       name: machineName,
       fields,
-      // Machine specifications (optional)
+      // Machine specifications
       manufacturer: manufacturer || undefined,
       sizeTonnage: sizeTonnage || undefined,
-      serialNumber: serialNumber || undefined,
+      serialNumber,
       stroke: stroke || undefined,
       foundationType: foundationType || undefined,
       frameType: frameType || undefined,

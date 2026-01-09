@@ -75,7 +75,7 @@ interface Machine {
   manufacturer?: string;
   model?: string;
   sizeTonnage?: string;
-  serialNumber?: string;
+  serialNumber: string;
   stroke?: string;
   foundationType?: FoundationType;
   frameType?: FrameType;
@@ -354,29 +354,27 @@ export function MachinesPageClient() {
                 {hasCreateMachinesPermission && (
                   <TooltipProvider>
                     <Tooltip>
-                      <Tooltip>
-                        <TooltipTrigger>
-                          <Button
-                            onClick={() => setIsModalOpen(true)}
-                            data-testid="new-machine-button"
-                            disabled={!canCreateMachine}
-                            className={!canCreateMachine ? 'opacity-50 cursor-not-allowed' : ''}
-                          >
-                            <Plus className="w-4 h-4 mr-2" />
-                            {t('newButton')}
-                          </Button>
-                        </TooltipTrigger>
-                        {!canCreateMachine && (
-                          <TooltipContent side="bottom" className="max-w-[250px] text-center">
-                            <p className="text-sm">
-                              {tLimits('machines', {
-                                current: getLimitCheck('machines').current,
-                                max: getLimitCheck('machines').max,
-                              })}
-                            </p>
-                          </TooltipContent>
-                        )}
-                      </Tooltip>
+                      <TooltipTrigger>
+                        <Button
+                          onClick={() => setIsModalOpen(true)}
+                          data-testid="new-machine-button"
+                          disabled={!canCreateMachine}
+                          className={!canCreateMachine ? 'opacity-50 cursor-not-allowed' : ''}
+                        >
+                          <Plus className="w-4 h-4 mr-2" />
+                          {t('newButton')}
+                        </Button>
+                      </TooltipTrigger>
+                      {!canCreateMachine && (
+                        <TooltipContent side="bottom" className="max-w-[250px] text-center">
+                          <p className="text-sm">
+                            {tLimits('machines', {
+                              current: getLimitCheck('machines').current,
+                              max: getLimitCheck('machines').max,
+                            })}
+                          </p>
+                        </TooltipContent>
+                      )}
                     </Tooltip>
                   </TooltipProvider>
                 )}
@@ -503,6 +501,7 @@ export function MachinesPageClient() {
                     imageUrl={machine.imageUrl}
                     location={machine.branch?.name}
                     lastInspection={machine.lastInspection}
+                    serialNumber={machine.serialNumber}
                     status={cardStatus}
                     onEdit={
                       canUpdateMachine(machine.branchId) ? () => handleEdit(machine) : undefined

@@ -215,7 +215,7 @@ export function MachineCreationModal({
       // Machine specifications (optional)
       manufacturer: manufacturer || undefined,
       sizeTonnage: sizeTonnage || undefined,
-      serialNumber: serialNumber || undefined,
+      serialNumber: serialNumber,
       stroke: stroke || undefined,
       foundationType: foundationType || undefined,
       frameType: frameType || undefined,
@@ -486,6 +486,7 @@ export function MachineCreationModal({
                     value={serialNumber}
                     onChange={(e) => setSerialNumber(e.target.value)}
                     placeholder={t('form.specifications.serialNumber.placeholder')}
+                    required
                   />
                 </div>
 
