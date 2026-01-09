@@ -199,7 +199,30 @@
       "loadingFailed": "Falha ao carregar filiais",
       "mainBranch": "Matriz (Filial Principal)",
       "users": "usuários",
-      "clickToViewUsers": "Clique para ver usuários"
+      "clickToViewUsers": "Clique para ver usuários",
+      "editBranch": "Editar Filial"
+    },
+    "editBranchDialog": {
+      "title": "Editar Filial",
+      "description": "Atualizar nome, localização e configurações da filial",
+      "form": {
+        "name": {
+          "label": "Nome da Filial",
+          "placeholder": "Digite o nome da filial"
+        },
+        "location": {
+          "label": "Localização",
+          "placeholder": "Digite a localização da filial (opcional)"
+        },
+        "isMainBranch": {
+          "label": "Definir como filial principal"
+        }
+      },
+      "cancel": "Cancelar",
+      "submit": "Salvar Alterações",
+      "submitting": "Salvando...",
+      "success": "Filial atualizada com sucesso",
+      "error": "Falha ao atualizar filial"
     },
     "branchSettings": {
       "title": "Configurações da Filial",
@@ -209,7 +232,8 @@
       "inches": "Polegadas (in)",
       "mm": "Milímetros (mm)",
       "saved": "Configurações salvas",
-      "saveError": "Erro ao salvar configurações"
+      "saveError": "Erro ao salvar configurações",
+      "noUpdatePermission": "Você não tem permissão para alterar as configurações desta filial"
     },
     "userManagement": {
       "title": "Contas de Usuário",
@@ -970,6 +994,7 @@
     "cancel": "Cancelar",
     "createdSuccessfully": "Máquina criada com sucesso",
     "deletedSuccessfully": "Máquina excluída com sucesso",
+    "serialNumberToast": "Número de Série: {serialNumber}",
     "deleteConfirmTitle": "Excluir Máquina",
     "deleteConfirmDescription": "Tem certeza de que deseja excluir {name}? Esta ação não pode ser desfeita e removerá permanentemente todos os dados associados.",
     "confirmDelete": "Excluir",
@@ -2206,6 +2231,32 @@
       "submitting": "Criando...",
       "success": "Filial criada com sucesso",
       "error": "Falha ao criar filial"
+    },
+    "usage": {
+      "title": "Uso e Limites",
+      "description": "Uso de recursos da empresa e limites contratuais",
+      "editLimits": "Editar Limites",
+      "branches": "Filiais",
+      "users": "Usuários",
+      "productionLines": "Linhas de Produção",
+      "loadingError": "Falha ao carregar estatísticas de uso",
+      "updateSuccess": "Limites contratuais atualizados com sucesso",
+      "updateError": "Falha ao atualizar limites contratuais",
+      "editDialog": {
+        "title": "Editar Limites Contratuais",
+        "description": "Atualizar os limites contratuais para {companyName}",
+        "cancel": "Cancelar",
+        "update": "Atualizar Limites",
+        "updating": "Atualizando..."
+      }
+    },
+    "limits": {
+      "reached": {
+        "branches": "A empresa atingiu o limite de filiais ({current}/{max}).",
+        "users": "A empresa atingiu o limite de usuários ({current}/{max}).",
+        "machines": "A empresa atingiu o limite de máquinas ({current}/{max}).",
+        "productionLines": "A empresa atingiu o limite de linhas de produção ({current}/{max})."
+      }
     }
   },
   "branches": {
@@ -2433,6 +2484,9 @@
       "wristPinToBushing": "Pino de Pulso à Bucha",
       "slideAdjNutToScrewSleeve": "Porca de Ajuste do Slide ao Parafuso/Manguito"
     },
+    "bearingClearanceSingleHammer": {
+      "title": "FOLGA DE ROLAMENTO (Martelo Único) - Configuração de Alerta"
+    },
     "clutch": {
       "title": "EMBREAGEM - Configuração de Alerta",
       "hydClutchClearanceTotal": "Folga da Embreagem Hidráulica Total",
@@ -2448,6 +2502,12 @@
     "slide": {
       "title": "SLIDE - Configuração de Alerta",
       "maxDeviation": "Desvio Máximo"
+    },
+    "slideSingleHammer": {
+      "title": "SLIDE (Martelo Único) - Configuração de Alerta"
+    },
+    "slideDoubleHammer": {
+      "title": "SLIDE (Martelo Duplo) - Configuração de Alerta"
     },
     "gibs": {
       "title": "GIBS - Configuração de Alerta",
@@ -2473,6 +2533,23 @@
         "success": "Thresholds atualizados. {count} alertas gerados para {services} serviços.",
         "successNoRecalc": "Thresholds atualizados. Novos alertas serão gerados apenas para serviços futuros.",
         "error": "Erro ao atualizar thresholds"
+      },
+      "mode": {
+        "label": "Modo de Threshold",
+        "linear": "Linear (Sequencial)",
+        "central": "Central (Formato U)",
+        "linearDescription": "Valores abaixo do limite amarelo são verdes, entre amarelo e vermelho são amarelos, acima do limite vermelho são vermelhos.",
+        "centralDescription": "O valor ideal está no centro. Valores muito baixos OU muito altos são problemáticos (formato U)."
+      },
+      "central": {
+        "yellowMin": "Limite Vermelho/Amarelo (Baixo)",
+        "greenMin": "Limite Amarelo/Verde (Baixo)",
+        "greenMax": "Limite Verde/Amarelo (Alto)",
+        "yellowMax": "Limite Amarelo/Vermelho (Alto)",
+        "greenRange": "Faixa Verde",
+        "yellowRange": "Faixa Amarela",
+        "redRange": "Faixa Vermelha",
+        "or": "ou"
       }
     },
     "history": {
@@ -2593,6 +2670,11 @@
     "tabInspection": "Inspeções",
     "tabConfig": "Configuração",
     "deleteButton": "Excluir Linha",
+    "editName": "Editar nome da linha de produção",
+    "namePlaceholder": "Nome da linha de produção",
+    "nameRequired": "Nome é obrigatório",
+    "errorSavingName": "Erro ao salvar nome",
+    "nameSaved": "Nome atualizado com sucesso",
     "selectCompany": "Selecionar Empresa",
     "selectBranch": "Selecionar Filial",
     "selectBranchPlaceholder": "Selecione uma filial",
@@ -2904,5 +2986,10 @@
       }
     },
     "viewParts": "Ver Lista de Peças"
+  },
+  "inspectionForm": {
+    "placeholders": {
+      "generatesAlert": "Este campo gera alertas"
+    }
   }
 }

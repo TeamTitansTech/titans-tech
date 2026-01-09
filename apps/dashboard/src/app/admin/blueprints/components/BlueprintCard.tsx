@@ -40,12 +40,14 @@ export function BlueprintCard({
   const hasAlertSections = sections.some((section) =>
     [
       'BEARING_CLEARANCE',
+      'BEARING_CLEARANCE_SINGLE_HAMMER',
       'CLUTCH',
       'SLIDE_SINGLE_HAMMER',
       'SLIDE_DOUBLE_HAMMER',
       'GIBS',
       'TRAMMING',
       'PISTONS',
+      'CLUTCH_CEVOLANI',
     ].includes(section),
   );
 

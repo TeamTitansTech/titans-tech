@@ -199,7 +199,30 @@
       "loadingFailed": "Failed to load branches",
       "mainBranch": "Main Branch",
       "users": "users",
-      "clickToViewUsers": "Click to view users"
+      "clickToViewUsers": "Click to view users",
+      "editBranch": "Edit Branch"
+    },
+    "editBranchDialog": {
+      "title": "Edit Branch",
+      "description": "Update branch name, location, and settings",
+      "form": {
+        "name": {
+          "label": "Branch Name",
+          "placeholder": "Enter branch name"
+        },
+        "location": {
+          "label": "Location",
+          "placeholder": "Enter branch location (optional)"
+        },
+        "isMainBranch": {
+          "label": "Set as main branch"
+        }
+      },
+      "cancel": "Cancel",
+      "submit": "Save Changes",
+      "submitting": "Saving...",
+      "success": "Branch updated successfully",
+      "error": "Failed to update branch"
     },
     "branchSettings": {
       "title": "Branch Settings",
@@ -209,7 +232,8 @@
       "inches": "Inches (in)",
       "mm": "Millimeters (mm)",
       "saved": "Settings saved",
-      "saveError": "Failed to save settings"
+      "saveError": "Failed to save settings",
+      "noUpdatePermission": "You do not have permission to modify the settings for this branch"
     },
     "userManagement": {
       "title": "User Accounts",
@@ -833,7 +857,7 @@
     "gibs": "Gibs",
     "lubrication_hydraulics_pressure_switches_oil_filter": "Lubrication / Hydraulics / Pressure Switches / Oil & Filter",
     "clutch": "Clutch",
-    "clutch_cevolani": "Clutch Cevolani",
+    "clutch_cevolani": "Clutch (Cevolani)",
     "counterbalance_cylinder_airbag": "Counterbalance Cylinder / Airbag",
     "tramming": "Tramming",
     "pistons": "Pistons",
@@ -969,6 +993,7 @@
     "cancel": "Cancel",
     "createdSuccessfully": "Machine created successfully",
     "deletedSuccessfully": "Machine deleted successfully",
+    "serialNumberToast": "Serial Number: {serialNumber}",
     "deleteConfirmTitle": "Delete Machine",
     "deleteConfirmDescription": "Are you sure you want to delete {name}? This action cannot be undone and will permanently remove all associated data.",
     "confirmDelete": "Delete",
@@ -2379,6 +2404,32 @@
       "submitting": "Creating...",
       "success": "Branch created successfully",
       "error": "Failed to create branch"
+    },
+    "usage": {
+      "title": "Usage & Limits",
+      "description": "Company resource usage and contract limits",
+      "editLimits": "Edit Limits",
+      "branches": "Branches",
+      "users": "Users",
+      "productionLines": "Production Lines",
+      "loadingError": "Failed to load usage statistics",
+      "updateSuccess": "Contract limits updated successfully",
+      "updateError": "Failed to update contract limits",
+      "editDialog": {
+        "title": "Edit Contract Limits",
+        "description": "Update the contract limits for {companyName}",
+        "cancel": "Cancel",
+        "update": "Update Limits",
+        "updating": "Updating..."
+      }
+    },
+    "limits": {
+      "reached": {
+        "branches": "The company has reached its branch limit ({current}/{max}).",
+        "users": "The company has reached its user limit ({current}/{max}).",
+        "machines": "The company has reached its machine limit ({current}/{max}).",
+        "productionLines": "The company has reached its production line limit ({current}/{max})."
+      }
     }
   },
   "branches": {
@@ -2432,6 +2483,9 @@
       "wristPinToBushing": "Wrist Pin to Bushing",
       "slideAdjNutToScrewSleeve": "Slide Adj Nut to Screw/Sleeve"
     },
+    "bearingClearanceSingleHammer": {
+      "title": "BEARING CLEARANCE (Single Hammer) - Alert Configuration"
+    },
     "clutch": {
       "title": "CLUTCH - Alert Configuration",
       "hydClutchClearanceTotal": "Hydraulic Clutch Clearance Total",
@@ -2447,6 +2501,12 @@
     "slide": {
       "title": "SLIDE - Alert Configuration",
       "maxDeviation": "Max Deviation"
+    },
+    "slideSingleHammer": {
+      "title": "SLIDE (Single Hammer) - Alert Configuration"
+    },
+    "slideDoubleHammer": {
+      "title": "SLIDE (Double Hammer) - Alert Configuration"
     },
     "gibs": {
       "title": "GIBS - Alert Configuration",
@@ -2477,6 +2537,23 @@
         "success": "Thresholds updated. {count} alerts generated for {services} services.",
         "successNoRecalc": "Thresholds updated. New alerts will only be generated for future services.",
         "error": "Error updating thresholds"
+      },
+      "mode": {
+        "label": "Threshold Mode",
+        "linear": "Linear (Sequential)",
+        "central": "Central (U-Shaped)",
+        "linearDescription": "Values below yellow threshold are green, between yellow and red are yellow, above red threshold are red.",
+        "centralDescription": "The ideal value is in the center. Values too low OR too high are problematic (U-shaped)."
+      },
+      "central": {
+        "yellowMin": "Red/Yellow Boundary (Low)",
+        "greenMin": "Yellow/Green Boundary (Low)",
+        "greenMax": "Green/Yellow Boundary (High)",
+        "yellowMax": "Yellow/Red Boundary (High)",
+        "greenRange": "Green Range",
+        "yellowRange": "Yellow Range",
+        "redRange": "Red Range",
+        "or": "or"
       }
     },
     "history": {
@@ -2593,6 +2670,11 @@
     "tabInspection": "Inspections",
     "tabConfig": "Configuration",
     "deleteButton": "Delete Line",
+    "editName": "Edit production line name",
+    "namePlaceholder": "Production line name",
+    "nameRequired": "Name is required",
+    "errorSavingName": "Error saving name",
+    "nameSaved": "Name updated successfully",
     "selectCompany": "Select Company",
     "selectBranch": "Select Branch",
     "selectBranchPlaceholder": "Select a branch",
@@ -2904,5 +2986,10 @@
       }
     },
     "viewParts": "View Parts List"
+  },
+  "inspectionForm": {
+    "placeholders": {
+      "generatesAlert": "This field generates alerts"
+    }
   }
 }

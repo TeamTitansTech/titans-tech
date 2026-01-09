@@ -391,6 +391,7 @@ export function MachineEditModal({ isOpen, onClose, onSuccess, machine }: Machin
               type="submit"
               disabled={isLoading}
               className="bg-primary text-primary-foreground hover:bg-primary/90"
+              data-testid="machine-edit-update-button"
             >
               {isLoading ? 'Updating...' : 'Update Machine'}
             </Button>

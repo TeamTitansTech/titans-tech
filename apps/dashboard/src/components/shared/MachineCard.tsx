@@ -30,6 +30,7 @@ export interface MachineCardProps {
   location?: string;
   lastInspection?: string;
   status?: 'operational' | 'maintenance' | 'offline';
+  serialNumber: string;
   // Admin-specific props
   onEdit?: () => void;
   onDelete?: () => void;
@@ -48,6 +49,7 @@ export function MachineCard({
   location,
   lastInspection,
   status = 'operational',
+  serialNumber,
   onEdit,
   onDelete,
   canViewDetails = true,
@@ -62,6 +64,7 @@ export function MachineCard({
       className={`relative shadow-md hover:shadow-xl transition-all duration-200 border-2 hover:border-primary/20 ${
         canViewDetails && !hasActions ? 'cursor-pointer hover:-translate-y-1' : ''
       }`}
+      data-testid={`machine-card-${id}`}
     >
       {/* Status Indicator */}
       {!showStatusBadge && (
@@ -135,6 +138,13 @@ export function MachineCard({
                 {location}
               </Typography>
             )}
+            <Typography
+              variant="h4"
+              className="text-muted-foreground text-sm truncate leading-relaxed"
+            >
+              <span className="font-medium">{t('form.specifications.serialNumber.label')}:</span>{' '}
+              {serialNumber}
+            </Typography>
             {lastInspection && (
               <div className="flex items-center gap-[clamp(0.5rem,1.5vw,0.625rem)] text-muted-foreground">
                 <Calendar className="w-[clamp(0.875rem,3.5vw,1.125rem)] h-[clamp(0.875rem,3.5vw,1.125rem)] shrink-0" />
@@ -161,6 +171,7 @@ export function MachineCard({
                   variant="outline"
                   size="sm"
                   className="flex-1 px-2 text-sm gap-0 sm:gap-1.5 md:gap-2"
+                  data-testid="machine-card-edit-button"
                 >
                   <Pencil className="w-4 h-4 sm:w-4 sm:h-4 md:w-5 md:h-5 shrink-0" />
                   <span className="hidden sm:inline">{t('edit')}</span>
@@ -176,6 +187,7 @@ export function MachineCard({
                   variant="outline"
                   size="sm"
                   className="flex-1 px-2 text-sm text-destructive hover:text-destructive hover:bg-destructive/10 hover:border-destructive/50 gap-0 sm:gap-1.5 md:gap-2"
+                  data-testid="machine-card-delete-button"
                 >
                   <Trash2 className="w-4 h-4 sm:w-4 sm:h-4 md:w-5 md:h-5 shrink-0" />
                   <span className="hidden sm:inline">{t('delete')}</span>

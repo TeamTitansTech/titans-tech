@@ -14,9 +14,15 @@ interface BranchCardProps {
   branch: CompanyBranch;
   machineCount: number;
   companyUser: UserResponseDto;
+  'data-testid'?: string;
 }
 
-export function BranchCard({ branch, machineCount, companyUser }: BranchCardProps) {
+export function BranchCard({
+  branch,
+  machineCount,
+  companyUser,
+  'data-testid': testId,
+}: BranchCardProps) {
   const t = useTranslations();
   const router = useInternalRouter();
   const { setSelectedBranchId } = useBranch();
@@ -32,7 +38,7 @@ export function BranchCard({ branch, machineCount, companyUser }: BranchCardProp
   };
 
   return (
-    <Card className="hover:shadow-lg transition-shadow duration-200">
+    <Card className="hover:shadow-lg transition-shadow duration-200" data-testid={testId}>
       <CardHeader>
         <div className="flex items-start justify-between gap-2">
           <div className="space-y-1 flex-1 min-w-0">

@@ -29,7 +29,7 @@ export function RecentCompletedServices({ services }: RecentCompletedServicesPro
   };
 
   return (
-    <Card>
+    <Card data-testid="home-recent-completed-services-card">
       <CardHeader className="pb-3">
         <CardTitle className="text-base font-semibold flex items-center gap-2">
           <CheckCircle2 className="h-4 w-4" />
@@ -48,6 +48,7 @@ export function RecentCompletedServices({ services }: RecentCompletedServicesPro
                 key={service.id}
                 className="flex items-center justify-between cursor-pointer hover:bg-muted/50 rounded-lg p-2 -mx-2 transition-colors"
                 onClick={() => handleServiceClick(service.machineId)}
+                data-testid={`home-completed-service-${service.id}`}
               >
                 <div className="flex items-center gap-3">
                   <div

@@ -199,7 +199,30 @@
       "loadingFailed": "Error al cargar sucursales",
       "mainBranch": "Sucursal Principal",
       "users": "usuarios",
-      "clickToViewUsers": "Haga clic para ver usuarios"
+      "clickToViewUsers": "Haga clic para ver usuarios",
+      "editBranch": "Editar Sucursal"
+    },
+    "editBranchDialog": {
+      "title": "Editar Sucursal",
+      "description": "Actualizar nombre, ubicación y configuración de la sucursal",
+      "form": {
+        "name": {
+          "label": "Nombre de la Sucursal",
+          "placeholder": "Ingrese el nombre de la sucursal"
+        },
+        "location": {
+          "label": "Ubicación",
+          "placeholder": "Ingrese la ubicación de la sucursal (opcional)"
+        },
+        "isMainBranch": {
+          "label": "Establecer como sucursal principal"
+        }
+      },
+      "cancel": "Cancelar",
+      "submit": "Guardar Cambios",
+      "submitting": "Guardando...",
+      "success": "Sucursal actualizada correctamente",
+      "error": "Error al actualizar sucursal"
     },
     "branchSettings": {
       "title": "Configuración de Sucursal",
@@ -209,7 +232,8 @@
       "inches": "Pulgadas (in)",
       "mm": "Milímetros (mm)",
       "saved": "Configuración guardada",
-      "saveError": "Error al guardar configuración"
+      "saveError": "Error al guardar configuración",
+      "noUpdatePermission": "No tiene permiso para modificar la configuración de esta sucursal"
     },
     "userManagement": {
       "title": "Cuentas de Usuario",
@@ -838,7 +862,7 @@
     "gibs": "Guías",
     "lubrication_hydraulics_pressure_switches_oil_filter": "Lubricación / Hidráulica / Interruptores de Presión / Aceite y Filtro",
     "clutch": "Embrague",
-    "clutch_cevolani": "Embrague Cevolani",
+    "clutch_cevolani": "Embrague (Cevolani)",
     "counterbalance_cylinder_airbag": "Cilindro de Contrapeso / Bolsa de Aire",
     "tramming": "Tramming",
     "pistons": "Pistones",
@@ -974,6 +998,7 @@
     "cancel": "Cancelar",
     "createdSuccessfully": "Máquina creada exitosamente",
     "deletedSuccessfully": "Máquina eliminada exitosamente",
+    "serialNumberToast": "Número de Serie: {serialNumber}",
     "deleteConfirmTitle": "Eliminar Máquina",
     "deleteConfirmDescription": "¿Está seguro de que desea eliminar {name}? Esta acción no se puede deshacer y eliminará permanentemente todos los datos asociados.",
     "confirmDelete": "Eliminar",
@@ -2385,6 +2410,32 @@
       "submitting": "Creando...",
       "success": "Sucursal creada exitosamente",
       "error": "Error al crear la sucursal"
+    },
+    "usage": {
+      "title": "Uso y Límites",
+      "description": "Uso de recursos de la empresa y límites contractuales",
+      "editLimits": "Editar Límites",
+      "branches": "Sucursales",
+      "users": "Usuarios",
+      "productionLines": "Líneas de Producción",
+      "loadingError": "Error al cargar estadísticas de uso",
+      "updateSuccess": "Límites contractuales actualizados exitosamente",
+      "updateError": "Error al actualizar límites contractuales",
+      "editDialog": {
+        "title": "Editar Límites Contractuales",
+        "description": "Actualizar los límites contractuales para {companyName}",
+        "cancel": "Cancelar",
+        "update": "Actualizar Límites",
+        "updating": "Actualizando..."
+      }
+    },
+    "limits": {
+      "reached": {
+        "branches": "La empresa ha alcanzado el límite de sucursales ({current}/{max}).",
+        "users": "La empresa ha alcanzado el límite de usuarios ({current}/{max}).",
+        "machines": "La empresa ha alcanzado el límite de máquinas ({current}/{max}).",
+        "productionLines": "La empresa ha alcanzado el límite de líneas de producción ({current}/{max})."
+      }
     }
   },
   "branches": {
@@ -2438,6 +2489,9 @@
       "wristPinToBushing": "Pasador de Muñeca a Casquillo",
       "slideAdjNutToScrewSleeve": "Tuerca de Ajuste de Corredera a Tornillo/Manguito"
     },
+    "bearingClearanceSingleHammer": {
+      "title": "HOLGURA DE COJINETE (Martillo Único) - Configuración de Alerta"
+    },
     "clutch": {
       "title": "EMBRAGUE - Configuración de Alerta",
       "hydClutchClearanceTotal": "Holgura del Embrague Hidráulico Total",
@@ -2453,6 +2507,12 @@
     "slide": {
       "title": "SLIDE - Configuración de Alerta",
       "maxDeviation": "Desviación Máxima"
+    },
+    "slideSingleHammer": {
+      "title": "SLIDE (Martillo Único) - Configuración de Alerta"
+    },
+    "slideDoubleHammer": {
+      "title": "SLIDE (Martillo Doble) - Configuración de Alerta"
     },
     "gibs": {
       "title": "GIBS - Configuración de Alerta",
@@ -2478,6 +2538,23 @@
         "success": "Thresholds actualizados. {count} alertas generadas para {services} servicios.",
         "successNoRecalc": "Thresholds actualizados. Las nuevas alertas solo se generarán para servicios futuros.",
         "error": "Error al actualizar thresholds"
+      },
+      "mode": {
+        "label": "Modo de Threshold",
+        "linear": "Lineal (Secuencial)",
+        "central": "Central (Forma U)",
+        "linearDescription": "Valores por debajo del límite amarillo son verdes, entre amarillo y rojo son amarillos, por encima del límite rojo son rojos.",
+        "centralDescription": "El valor ideal está en el centro. Valores muy bajos O muy altos son problemáticos (forma U)."
+      },
+      "central": {
+        "yellowMin": "Límite Rojo/Amarillo (Bajo)",
+        "greenMin": "Límite Amarillo/Verde (Bajo)",
+        "greenMax": "Límite Verde/Amarillo (Alto)",
+        "yellowMax": "Límite Amarillo/Rojo (Alto)",
+        "greenRange": "Rango Verde",
+        "yellowRange": "Rango Amarillo",
+        "redRange": "Rango Rojo",
+        "or": "o"
       }
     },
     "history": {
@@ -2594,6 +2671,11 @@
     "tabInspection": "Inspecciones",
     "tabConfig": "Configuración",
     "deleteButton": "Eliminar Línea",
+    "editName": "Editar nombre de la línea de producción",
+    "namePlaceholder": "Nombre de la línea de producción",
+    "nameRequired": "El nombre es obligatorio",
+    "errorSavingName": "Error al guardar el nombre",
+    "nameSaved": "Nombre actualizado exitosamente",
     "selectCompany": "Seleccionar Empresa",
     "selectBranch": "Seleccionar Sucursal",
     "selectBranchPlaceholder": "Seleccione una sucursal",
@@ -2905,5 +2987,10 @@
       }
     },
     "viewParts": "Ver Lista de Piezas"
+  },
+  "inspectionForm": {
+    "placeholders": {
+      "generatesAlert": "Este campo genera alertas"
+    }
   }
 }

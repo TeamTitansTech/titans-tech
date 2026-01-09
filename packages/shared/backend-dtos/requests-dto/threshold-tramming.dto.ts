@@ -2,9 +2,9 @@ import { z } from 'zod';
 
 export const TrammingThresholdsSchema = z
   .object({
-    greenMin: z.number().positive(),
-    yellowMin: z.number().positive(),
-    redMin: z.number().positive(),
+    greenMin: z.number().nonnegative(),
+    yellowMin: z.number().nonnegative(),
+    redMin: z.number().nonnegative(),
   })
   .refine(
     (data) => {
