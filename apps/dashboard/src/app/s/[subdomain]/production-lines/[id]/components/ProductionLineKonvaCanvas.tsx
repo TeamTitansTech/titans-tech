@@ -1002,10 +1002,10 @@ export function ProductionLineKonvaCanvas({
   ];
 
   return (
-    <div className="w-full h-[600px] lg:h-[700px] border rounded-lg overflow-hidden bg-gray-50 relative">
+    <div className="w-full h-[600px] lg:h-[700px] border rounded-lg overflow-hidden bg-muted/30 relative">
       {/* Drawing Toolbar - only show in edit mode */}
       {canEdit && (
-        <div className="absolute top-4 left-4 z-20 flex gap-1 flex-wrap bg-white/95 backdrop-blur-sm rounded-lg p-2 shadow-md border">
+        <div className="absolute top-4 left-4 z-20 flex gap-1 flex-wrap bg-background/95 backdrop-blur-sm rounded-lg p-2 shadow-md border">
           {toolButtons.map(({ tool, icon, label }) => (
             <TooltipProvider key={tool}>
               <Tooltip>
@@ -1072,7 +1072,7 @@ export function ProductionLineKonvaCanvas({
       )}
 
       {/* Zoom Controls - visible for all users for navigation */}
-      <div className="absolute bottom-4 left-4 z-20 flex gap-1 bg-white/95 backdrop-blur-sm rounded-lg p-1 shadow-md border">
+      <div className="absolute bottom-4 left-4 z-20 flex gap-1 bg-background/95 backdrop-blur-sm rounded-lg p-1 shadow-md border">
         <Button variant="ghost" size="sm" onClick={handleZoomOut} className="px-2">
           <ZoomOut className="w-4 h-4" />
         </Button>
@@ -1099,7 +1099,7 @@ export function ProductionLineKonvaCanvas({
 
       {/* Save/Reset buttons */}
       {canEdit && (
-        <div className="absolute top-4 right-4 z-20 flex gap-2 bg-white/95 backdrop-blur-sm rounded-lg p-2 shadow-md border">
+        <div className="absolute top-4 right-4 z-20 flex gap-2 bg-background/95 backdrop-blur-sm rounded-lg p-2 shadow-md border">
           <Button variant="outline" size="sm" onClick={handleReset} disabled={isSaving}>
             <RotateCcw className="w-4 h-4 mr-2" />
             {t('resetLayout')}
@@ -1113,7 +1113,7 @@ export function ProductionLineKonvaCanvas({
 
       {/* Tool instruction */}
       {canEdit && activeTool !== 'select' && activeTool !== 'move' && (
-        <div className="absolute top-20 left-1/2 -translate-x-1/2 z-10 bg-green-500/20 border-2 border-dashed border-green-500 rounded-lg px-4 py-2 text-green-700 font-medium text-sm">
+        <div className="absolute top-20 left-1/2 -translate-x-1/2 z-10 bg-green-500/20 border-2 border-dashed border-green-500 rounded-lg px-4 py-2 text-green-600 dark:text-green-400 font-medium text-sm">
           {activeTool === 'text' ? t('clickToAddText') : t('drawBackboneInstruction')}
         </div>
       )}
@@ -1121,7 +1121,7 @@ export function ProductionLineKonvaCanvas({
       {/* Text input modal */}
       {canEdit && textPosition && (
         <div
-          className="absolute z-30 bg-white rounded-lg shadow-lg p-3 border"
+          className="absolute z-30 bg-background rounded-lg shadow-lg p-3 border"
           style={{
             left: textPosition.x * stageScale + stagePosition.x,
             top: textPosition.y * stageScale + stagePosition.y,
@@ -1200,7 +1200,7 @@ export function ProductionLineKonvaCanvas({
               <Line
                 key={`grid-v-${i}`}
                 points={[i * 40, -500, i * 40, 2500]}
-                stroke="#e5e7eb"
+                stroke="rgba(128, 128, 128, 0.1)"
                 strokeWidth={1}
               />
             ))}
@@ -1208,7 +1208,7 @@ export function ProductionLineKonvaCanvas({
               <Line
                 key={`grid-h-${i}`}
                 points={[-500, i * 40, 3000, i * 40]}
-                stroke="#e5e7eb"
+                stroke="rgba(128, 128, 128, 0.1)"
                 strokeWidth={1}
               />
             ))}
