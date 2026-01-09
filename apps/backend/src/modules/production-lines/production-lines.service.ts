@@ -2,9 +2,11 @@ import {
   Injectable,
   NotFoundException,
   ForbiddenException,
+  BadRequestException,
 } from '@nestjs/common';
 import { Prisma } from '@titans-tech/db';
 import { PrismaService } from '../shared/prisma.service';
+import { companyLimitsService } from '@titans-tech/shared/services';
 import {
   CreateProductionLineDto,
   UpdateProductionLineDto,
@@ -135,6 +137,16 @@ export class ProductionLinesService {
     if (!branch) {
       throw new NotFoundException(
         `Branch with ID ${createProductionLineDto.branchId} not found`,
+      );
+    }
+
+    const limitCheck = await companyLimitsService.checkProductionLineLimit(
+      this.prisma,
+      branch.companyId,
+    );
+    if (!limitCheck.isAllowed) {
+      throw new BadRequestException(
+        `Your company has reached the maximum number of ${limitCheck.resourceType} (${limitCheck.maxAllowed}). Contact support to upgrade your plan.`,
       );
     }
 

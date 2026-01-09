@@ -2231,6 +2231,32 @@
       "submitting": "Criando...",
       "success": "Filial criada com sucesso",
       "error": "Falha ao criar filial"
+    },
+    "usage": {
+      "title": "Uso e Limites",
+      "description": "Uso de recursos da empresa e limites contratuais",
+      "editLimits": "Editar Limites",
+      "branches": "Filiais",
+      "users": "Usuários",
+      "productionLines": "Linhas de Produção",
+      "loadingError": "Falha ao carregar estatísticas de uso",
+      "updateSuccess": "Limites contratuais atualizados com sucesso",
+      "updateError": "Falha ao atualizar limites contratuais",
+      "editDialog": {
+        "title": "Editar Limites Contratuais",
+        "description": "Atualizar os limites contratuais para {companyName}",
+        "cancel": "Cancelar",
+        "update": "Atualizar Limites",
+        "updating": "Atualizando..."
+      }
+    },
+    "limits": {
+      "reached": {
+        "branches": "A empresa atingiu o limite de filiais ({current}/{max}).",
+        "users": "A empresa atingiu o limite de usuários ({current}/{max}).",
+        "machines": "A empresa atingiu o limite de máquinas ({current}/{max}).",
+        "productionLines": "A empresa atingiu o limite de linhas de produção ({current}/{max})."
+      }
     }
   },
   "branches": {

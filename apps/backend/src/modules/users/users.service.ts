@@ -2,8 +2,10 @@ import {
   ForbiddenException,
   Injectable,
   NotFoundException,
+  BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from '../shared/prisma.service';
+import { companyLimitsService } from '@titans-tech/shared/services';
 import {
   CreateUserDto,
   UpdateUserDto,
@@ -209,6 +211,16 @@ export class UsersService {
       throw FieldsErr({ email: 'Email already in use' });
     }
 
+    const limitCheck = await companyLimitsService.checkUserLimit(
+      this.prisma,
+      branch.companyId,
+    );
+    if (!limitCheck.isAllowed) {
+      throw new BadRequestException(
+        `Your company has reached the maximum number of ${limitCheck.resourceType} (${limitCheck.maxAllowed}). Contact support to upgrade your plan.`,
+      );
+    }
+
     const hashedPassword = await bcrypt.hash(defaultPassword, 10);
 
     const result = await this.prisma.$transaction(async (tx) => {
@@ -274,6 +286,16 @@ export class UsersService {
 
     if (existingUser) {
       throw FieldsErr({ email: 'Email already in use' });
+    }
+
+    const limitCheck = await companyLimitsService.checkUserLimit(
+      this.prisma,
+      branch.companyId,
+    );
+    if (!limitCheck.isAllowed) {
+      throw new BadRequestException(
+        `Your company has reached the maximum number of ${limitCheck.resourceType} (${limitCheck.maxAllowed}). Contact support to upgrade your plan.`,
+      );
     }
 
     const defaultPassword = 'password';

@@ -514,7 +514,10 @@ export function MachineCreationModal({
                           }`}
                           onClick={() => handleBlueprintSelect(blueprint.id)}
                         >
-                          <CardContent className="p-4">
+                          <CardContent
+                            className="p-4"
+                            data-testid={`blueprint-card-${blueprint.id}`}
+                          >
                             <div className="flex items-start justify-between">
                               <div className="flex flex-1 items-start gap-3">
                                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-orange-500/10">
