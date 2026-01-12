@@ -52,7 +52,6 @@ export const companyBranchesService = {
         },
       },
     });
-    console.log('Filtered branches:', result);
     return result;
   },
 
