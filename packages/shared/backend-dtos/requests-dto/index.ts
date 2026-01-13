@@ -2,6 +2,7 @@ export * from './password.dto';
 export * from './password-reset.dto';
 export * from './company.dto';
 export * from './company-branch.dto';
+export * from './company-limits.dto';
 export * from './user.dto';
 export * from './threshold-bearing-clearance.dto';
 export * from './threshold-bearing-clearance-single-hammer.dto';

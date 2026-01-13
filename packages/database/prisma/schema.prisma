@@ -407,6 +407,11 @@ enum AlertSeverity {
   NONE
 }
 
+enum ThresholdMode {
+  LINEAR // Traditional: values below yellowMin are green, below redMin are yellow, above redMin are red
+  CENTRAL // U-shaped: explicit boundaries define green in middle, yellow on edges, red at extremes
+}
+
 enum CounterbalanceAlertField {
   AIRBAG_PISTON_SEALS
   REGULATOR
@@ -429,17 +434,24 @@ model SysAdmin {
 }
 
 model Company {
-  id          String    @id @default(cuid())
+  id          String  @id @default(cuid())
   name        String
-  slug        String    @unique
+  slug        String  @unique
   logo        String?
   loginLogo   String?
   brandColor  String?
   accentColor String?
   description String?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  deletedAt   DateTime?
+
+  // Contract limits - set by SysAdmin only
+  contractMaxBranches        Int @default(5)
+  contractMaxUsers           Int @default(25)
+  contractMaxMachines        Int @default(50)
+  contractMaxProductionLines Int @default(20)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 
   branches            CompanyBranch[]
   users               User[]
@@ -768,10 +780,26 @@ model ThresholdPistons {
   id          String @id @default(cuid())
   blueprintId String @unique
 
-  // Difference thresholds (for side-to-side differences)
-  difference_greenMin  Decimal @db.Decimal(10, 6)
-  difference_yellowMin Decimal @db.Decimal(10, 6)
-  difference_redMin    Decimal @db.Decimal(10, 6)
+  // Threshold mode: LINEAR (traditional) or CENTRAL (U-shaped/target-based)
+  thresholdMode ThresholdMode @default(LINEAR)
+
+  // LINEAR mode: Difference thresholds (for side-to-side differences)
+  // Values below yellowMin are green, below redMin are yellow, at/above redMin are red
+  difference_greenMin  Decimal @db.Decimal(10, 4)
+  difference_yellowMin Decimal @db.Decimal(10, 4)
+  difference_redMin    Decimal @db.Decimal(10, 4)
+
+  // CENTRAL mode: U-shaped thresholds with explicit boundaries
+  // Example: yellowMin=0.002, greenMin=0.004, greenMax=0.008, yellowMax=0.010
+  // Red low:    0 to yellowMin (0.000 - 0.002)
+  // Yellow low: yellowMin to greenMin (0.002 - 0.004)
+  // Green:      greenMin to greenMax (0.004 - 0.008)
+  // Yellow high: greenMax to yellowMax (0.008 - 0.010)
+  // Red high:   above yellowMax (0.010+)
+  central_yellowMin Decimal? @db.Decimal(10, 4)
+  central_greenMin  Decimal? @db.Decimal(10, 4)
+  central_greenMax  Decimal? @db.Decimal(10, 4)
+  central_yellowMax Decimal? @db.Decimal(10, 4)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -808,7 +836,7 @@ model Machine {
   // Machine specifications
   manufacturer    String?
   sizeTonnage     String?
-  serialNumber    String?
+  serialNumber    String
   stroke          String?
   foundationType  FoundationType?
   frameType       FrameType?

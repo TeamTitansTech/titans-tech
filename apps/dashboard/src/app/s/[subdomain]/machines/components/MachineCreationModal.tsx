@@ -257,10 +257,10 @@ export function MachineCreationModal({
       branchId: effectiveBranchId,
       name: machineName,
       fields,
-      // Machine specifications (optional)
+      // Machine specifications
       manufacturer: manufacturer || undefined,
       sizeTonnage: sizeTonnage || undefined,
-      serialNumber: serialNumber || undefined,
+      serialNumber,
       stroke: stroke || undefined,
       foundationType: foundationType || undefined,
       frameType: frameType || undefined,
@@ -514,7 +514,10 @@ export function MachineCreationModal({
                           }`}
                           onClick={() => handleBlueprintSelect(blueprint.id)}
                         >
-                          <CardContent className="p-4">
+                          <CardContent
+                            className="p-4"
+                            data-testid={`blueprint-card-${blueprint.id}`}
+                          >
                             <div className="flex items-start justify-between">
                               <div className="flex flex-1 items-start gap-3">
                                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-orange-500/10">
@@ -869,6 +872,7 @@ export function MachineCreationModal({
               type="submit"
               disabled={isLoading || !selectedBlueprint || !selectedBranchId}
               className="bg-primary text-primary-foreground hover:bg-primary/90"
+              data-testid="machine-creation-submit-button"
             >
               {isLoading ? t('form.submit.loading') : t('form.submit.idle')}
             </Button>

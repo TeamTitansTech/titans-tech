@@ -7,6 +7,7 @@ import {
   Delete,
   Param,
   NotFoundException,
+  Req,
 } from '@nestjs/common';
 import { companiesService } from '@titans-tech/shared/services';
 import { PrismaService } from '../shared/prisma.service';
@@ -15,6 +16,8 @@ import {
   CreateCompanySchema,
   UpdateCompanyDto,
   UpdateCompanySchema,
+  UpdateCompanyLimitsDto,
+  UpdateCompanyLimitsSchema,
   UpdateUserDto,
   UpdateUserSchema,
   CreateCompanyBranchDto,
@@ -34,6 +37,7 @@ import {
 } from '../auth/auth.decorators';
 import { UsersService } from '../users/users.service';
 import { CompanyBranchesService } from '../company-branches/company-branches.service';
+import { ReqWithAuthUser, isSysAdmin } from '../../types/request';
 
 @Controller('companies')
 export class CompaniesController {
@@ -145,8 +149,20 @@ export class CompaniesController {
 
   @CompanyMember()
   @Get(':companyId/branches')
-  findAllBranches(@Param('companyId') companyId: string) {
-    return this.companyBranchesService.findAllByCompany(companyId);
+  async findAllBranches(
+    @Param('companyId') companyId: string,
+    @Req() req: ReqWithAuthUser,
+  ) {
+    // SysAdmin or CompanyAdmin can see all branches
+    if (isSysAdmin(req.user) || req.isCompanyAdmin) {
+      return this.companyBranchesService.findAllByCompany(companyId);
+    }
+
+    // Regular users only see branches they have readBranches permission for
+    return this.companyBranchesService.findAllByCompanyFilteredByPermissions(
+      companyId,
+      req.user.id,
+    );
   }
 
   @Admin()
@@ -168,5 +184,26 @@ export class CompaniesController {
       this.prisma,
       companyId,
     ) as Promise<AdminManagerUserResponseDto[]>;
+  }
+
+  // SysAdmin endpoints for managing company limits
+  @Admin()
+  @Patch(':companyId/limits')
+  updateCompanyLimits(
+    @Param('companyId') companyId: string,
+    @Body(new ZodValidationPipe(UpdateCompanyLimitsSchema))
+    updateLimitsDto: UpdateCompanyLimitsDto,
+  ) {
+    return companiesService.updateCompanyLimits(
+      this.prisma,
+      companyId,
+      updateLimitsDto,
+    );
+  }
+
+  @CompanyMember()
+  @Get(':companyId/usage')
+  getCompanyUsageStats(@Param('companyId') companyId: string) {
+    return companiesService.getCompanyUsageStats(this.prisma, companyId);
   }
 }

@@ -43,6 +43,7 @@ export function MachineForm() {
   const [blueprints, setBlueprints] = useState<Blueprint[]>([]);
   const [selectedBlueprintId, setSelectedBlueprintId] = useState<string>('');
   const [machineName, setMachineName] = useState('');
+  const [serialNumber, setSerialNumber] = useState('');
   const [fieldValues, setFieldValues] = useState<Record<string, string | number>>({});
   const [lastBlueprintId, setLastBlueprintId] = useState<string>('');
   const [isLoadingBlueprints, setIsLoadingBlueprints] = useState(true);
@@ -96,6 +97,7 @@ export function MachineForm() {
       branchId: '', // Placeholder - needs branch selection implementation
       name: machineName,
       fields,
+      serialNumber,
     };
 
     await submitMachine(payload);
@@ -202,6 +204,23 @@ export function MachineForm() {
                     onChange={(e) => setMachineName(e.target.value)}
                     required
                     placeholder={t('form.name.placeholder')}
+                  />
+                </div>
+
+                {/* Serial Number */}
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="serialNumber">
+                      {t('form.specifications.serialNumber.label')} *
+                    </Label>
+                  </div>
+                  <Input
+                    id="serialNumber"
+                    type="text"
+                    value={serialNumber}
+                    onChange={(e) => setSerialNumber(e.target.value)}
+                    required
+                    placeholder={t('form.specifications.serialNumber.placeholder')}
                   />
                 </div>
 

@@ -2,8 +2,10 @@ import {
   ForbiddenException,
   Injectable,
   NotFoundException,
+  BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from '../shared/prisma.service';
+import { companyLimitsService } from '@titans-tech/shared/services';
 import {
   CreateUserDto,
   UpdateUserDto,
@@ -226,6 +228,15 @@ export class UsersService {
     // Generate random password - user cannot login with this
     const randomPassword = crypto.randomBytes(32).toString('hex');
     const hashedPassword = await bcrypt.hash(randomPassword, 10);
+    const limitCheck = await companyLimitsService.checkUserLimit(
+      this.prisma,
+      branch.companyId,
+    );
+    if (!limitCheck.isAllowed) {
+      throw new BadRequestException(
+        `Your company has reached the maximum number of ${limitCheck.resourceType} (${limitCheck.maxAllowed}). Contact support to upgrade your plan.`,
+      );
+    }
 
     const result = await this.prisma.$transaction(async (tx) => {
       const user = await tx.user.create({
@@ -306,6 +317,15 @@ export class UsersService {
     // Generate random password - user cannot login with this
     const randomPassword = crypto.randomBytes(32).toString('hex');
     const hashedPassword = await bcrypt.hash(randomPassword, 10);
+    const limitCheck = await companyLimitsService.checkUserLimit(
+      this.prisma,
+      branch.companyId,
+    );
+    if (!limitCheck.isAllowed) {
+      throw new BadRequestException(
+        `Your company has reached the maximum number of ${limitCheck.resourceType} (${limitCheck.maxAllowed}). Contact support to upgrade your plan.`,
+      );
+    }
 
     const result = await this.prisma.$transaction(async (tx) => {
       const user = await tx.user.create({

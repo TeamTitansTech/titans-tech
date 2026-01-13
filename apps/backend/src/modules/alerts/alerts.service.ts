@@ -3128,21 +3128,32 @@ export class AlertsService {
     const rhLeft = toDecimal(data.rhLeft);
     const rhRight = toDecimal(data.rhRight);
 
-    // Calculate sums (lhRight + lhLeft, rhRight + rhLeft, lhTop + lhBottom, rhTop + rhBottom)
+    // Calculate alerts based on max (worst) measurement in each pair
     return {
-      lhLeftRight: this.calculateSumAlert(lhRight, lhLeft, threshold),
-      rhLeftRight: this.calculateSumAlert(rhRight, rhLeft, threshold),
-      lhTopBottom: this.calculateSumAlert(lhTop, lhBottom, threshold),
-      rhTopBottom: this.calculateSumAlert(rhTop, rhBottom, threshold),
+      lhLeftRight: this.calculateMaxAlert(lhRight, lhLeft, threshold),
+      rhLeftRight: this.calculateMaxAlert(rhRight, rhLeft, threshold),
+      lhTopBottom: this.calculateMaxAlert(lhTop, lhBottom, threshold),
+      rhTopBottom: this.calculateMaxAlert(rhTop, rhBottom, threshold),
     };
   }
 
   /**
-   * Calculate sum alert (value and severity based on sum of values)
-   * Example: if left = 0.5 and right = 0.6, sum = 1.1
-   * If threshold is 1.0, this would trigger an alert
+   * Calculate alert based on the maximum (worst) value of two measurements.
+   * For pistons, if either measurement in a pair is in warning/critical range,
+   * the pair should reflect that severity.
+   *
+   * Supports two threshold modes:
+   *
+   * LINEAR mode (traditional):
+   * - maxValue < yellowMin → GREEN (within spec)
+   * - yellowMin <= maxValue < redMin → YELLOW (warning)
+   * - maxValue >= redMin → RED (critical)
+   *
+   * CENTRAL mode (U-shaped):
+   * - Ideal value is in the middle range
+   * - Too low OR too high is problematic
    */
-  private calculateSumAlert(
+  private calculateMaxAlert(
     val1: Decimal | null,
     val2: Decimal | null,
     threshold: any,
@@ -3151,20 +3162,52 @@ export class AlertsService {
       return { value: null, severity: AlertSeverity.NONE };
     }
 
-    // Calculate sum (val1 + val2)
-    const sum = val1.plus(val2);
+    // Use the maximum (worst) value of the two measurements
+    const maxValue = Decimal.max(val1, val2);
 
-    // Evaluate severity based on sum
     let severity: AlertSeverity;
-    if (sum.lessThanOrEqualTo(threshold.difference_greenMin)) {
-      severity = AlertSeverity.GREEN;
-    } else if (sum.lessThan(threshold.difference_redMin)) {
-      severity = AlertSeverity.YELLOW;
+
+    // Check threshold mode
+    if (threshold.thresholdMode === 'CENTRAL') {
+      // CENTRAL mode: U-shaped thresholds with explicit boundaries
+      // Red low:     0 to yellowMin
+      // Yellow low:  yellowMin to greenMin
+      // Green:       greenMin to greenMax
+      // Yellow high: greenMax to yellowMax
+      // Red high:    above yellowMax
+      const yellowMin = new Decimal(threshold.central_yellowMin);
+      const greenMin = new Decimal(threshold.central_greenMin);
+      const greenMax = new Decimal(threshold.central_greenMax);
+      const yellowMax = new Decimal(threshold.central_yellowMax);
+
+      if (maxValue.lessThan(yellowMin)) {
+        // Below yellowMin = Red (too low)
+        severity = AlertSeverity.RED;
+      } else if (maxValue.lessThan(greenMin)) {
+        // Between yellowMin and greenMin = Yellow (low warning)
+        severity = AlertSeverity.YELLOW;
+      } else if (maxValue.lessThanOrEqualTo(greenMax)) {
+        // Between greenMin and greenMax = Green (ideal)
+        severity = AlertSeverity.GREEN;
+      } else if (maxValue.lessThanOrEqualTo(yellowMax)) {
+        // Between greenMax and yellowMax = Yellow (high warning)
+        severity = AlertSeverity.YELLOW;
+      } else {
+        // Above yellowMax = Red (too high)
+        severity = AlertSeverity.RED;
+      }
     } else {
-      severity = AlertSeverity.RED;
+      // LINEAR mode (default): traditional sequential thresholds
+      if (maxValue.lessThan(threshold.difference_yellowMin)) {
+        severity = AlertSeverity.GREEN;
+      } else if (maxValue.lessThan(threshold.difference_redMin)) {
+        severity = AlertSeverity.YELLOW;
+      } else {
+        severity = AlertSeverity.RED;
+      }
     }
 
-    return { value: sum, severity };
+    return { value: maxValue, severity };
   }
 
   async getPistonsAlertByService(machineServiceId: string) {

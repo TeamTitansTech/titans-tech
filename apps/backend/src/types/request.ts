@@ -63,4 +63,6 @@ export interface ReqWithAuthUser extends Request {
   user: JwtPayload;
   /** Branch ID resolved from resource by @ResourcePermission decorator */
   resolvedBranchId?: string;
+
+  isCompanyAdmin?: boolean;
 }

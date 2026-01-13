@@ -1,4 +1,5 @@
 'use server';
+import { revalidateTag } from 'next/cache';
 import { responseHandler } from '@/data/helpers/responseHandler';
 import type {
   ProductionLine,
@@ -12,6 +13,7 @@ import type {
 export const getProductionLines = async () => {
   return await responseHandler<ProductionLine[]>('/production-lines', {
     method: 'GET',
+    tags: ['production-lines'],
   });
 };
 
@@ -21,6 +23,7 @@ export const getProductionLines = async () => {
 export const getProductionLineById = async (id: string) => {
   return await responseHandler<ProductionLine>(`/production-lines/${id}`, {
     method: 'GET',
+    tags: ['production-lines', `production-line-${id}`],
   });
 };
 
@@ -38,10 +41,17 @@ export const createProductionLine = async (data: CreateProductionLineDto) => {
  * Atualiza uma linha de produção existente
  */
 export const updateProductionLine = async (id: string, data: UpdateProductionLineDto) => {
-  return await responseHandler<ProductionLine>(`/production-lines/${id}`, {
+  const result = await responseHandler<ProductionLine>(`/production-lines/${id}`, {
     method: 'PATCH',
     body: data,
   });
+
+  if (!result.errors) {
+    revalidateTag('production-lines', 'max');
+    revalidateTag(`production-line-${id}`, 'max');
+  }
+
+  return result;
 };
 
 /**

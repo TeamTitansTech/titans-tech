@@ -6,6 +6,8 @@ import { useTranslations } from 'next-intl';
 import { ProductionLineCard } from './ProductionLineCard';
 import { CreateProductionLineDialog } from './CreateProductionLineDialog';
 import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { useCompanyLimits } from '@/hooks/useCompanyLimits';
 import { Plus, MapPin } from 'lucide-react';
 import { type ProductionLine } from '@/data/types/production-lines.types';
 import { useCompanyUser } from '@/contexts/CompanyUserContext';
@@ -30,9 +32,11 @@ export function ProductionLinesPage({ productionLines, allBranches }: Production
   const [selectedBranchFilter, setSelectedBranchFilter] = useState<string>('all');
   const router = useInternalRouter();
   const t = useTranslations('productionLines');
+  const tLimits = useTranslations('companies.limits.reached');
   const { companyUser } = useCompanyUser();
   const { sysAdminUser } = useSysAdmin();
   const isSysAdmin = !!sysAdminUser;
+  const { canCreateProductionLine, getLimitCheck } = useCompanyLimits(companyUser?.companyId ?? '');
   const [optimisticLines, addOptimisticLine] = useOptimistic(
     productionLines,
     (state, newLine: ProductionLine) => [...state, newLine],
@@ -161,10 +165,28 @@ export function ProductionLinesPage({ productionLines, allBranches }: Production
               </SelectContent>
             </Select>
             {hasCreateProductionLinesPermission && (
-              <Button onClick={() => setIsCreateDialogOpen(true)}>
-                <Plus className="w-4 h-4 mr-2" />
-                {t('newButton')}
-              </Button>
+              <Tooltip>
+                <TooltipTrigger>
+                  <Button
+                    onClick={() => setIsCreateDialogOpen(true)}
+                    disabled={!canCreateProductionLine}
+                    className={!canCreateProductionLine ? 'opacity-50 cursor-not-allowed' : ''}
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    {t('newButton')}
+                  </Button>
+                </TooltipTrigger>
+                {!canCreateProductionLine && (
+                  <TooltipContent side="bottom" className="max-w-[250px] text-center">
+                    <p className="text-sm">
+                      {tLimits('productionLines', {
+                        current: getLimitCheck('productionLines').current,
+                        max: getLimitCheck('productionLines').max,
+                      })}
+                    </p>
+                  </TooltipContent>
+                )}
+              </Tooltip>
             )}
           </div>
         </div>

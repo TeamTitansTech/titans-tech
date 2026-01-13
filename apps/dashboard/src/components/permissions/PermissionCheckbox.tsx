@@ -34,6 +34,7 @@ export function PermissionCheckbox({
         onCheckedChange={onChange}
         disabled={disabled}
         className="data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
+        data-testid={`permission-${permission}`}
       />
       <Label
         htmlFor={permission}

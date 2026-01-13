@@ -50,14 +50,20 @@ export function OverviewHeroSection({
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
       {stats.map((stat, index) => {
         const Icon = stat.icon;
+        const testId = index === 1 ? 'home-services-overview-card' : undefined;
         return (
-          <Card key={index} className="border-2">
+          <Card key={index} className="border-2" data-testid={testId}>
             <CardContent className="p-6">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <p className="text-sm font-medium text-muted-foreground mb-2">{stat.label}</p>
                   <div className="flex items-baseline gap-2">
-                    <span className="text-4xl font-bold tracking-tight">{stat.value}</span>
+                    <span
+                      className="text-4xl font-bold tracking-tight"
+                      data-testid={index === 1 ? 'home-services-count' : undefined}
+                    >
+                      {stat.value}
+                    </span>
                   </div>
                   <p className="text-sm text-muted-foreground mt-2 flex items-center gap-1">
                     {stat.subtitle}

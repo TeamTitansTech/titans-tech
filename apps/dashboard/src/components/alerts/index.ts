@@ -11,4 +11,9 @@ export { SlideThresholds, type SlideThresholdsData } from './SlideThresholds';
 export { GibsThresholds, type GibsThresholdsData } from './GibsThresholds';
 export { TrammingThresholds, type TrammingThresholdsData } from './TrammingThresholds';
 export { ThresholdRangeInput } from './ThresholdRangeInput';
-export { PistonsThresholds, type PistonsThresholdsData } from './PistonsThresholds';
+export { ThresholdCentralInput } from './ThresholdCentralInput';
+export {
+  PistonsThresholds,
+  type PistonsThresholdsData,
+  type ThresholdMode,
+} from './PistonsThresholds';

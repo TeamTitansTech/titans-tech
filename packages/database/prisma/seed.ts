@@ -599,6 +599,7 @@ async function main() {
     create: {
       id: 'example-machine-1',
       name: 'Press Machine #001',
+      serialNumber: 'SN-12345',
       blueprintId: bearingBlueprint.id,
       branchId: acmeMainBranch.id,
       fields: {
@@ -618,6 +619,7 @@ async function main() {
     create: {
       id: 'example-machine-2',
       name: 'Stamping Machine #002',
+      serialNumber: 'SN-67890',
       blueprintId: bearingBlueprint.id,
       branchId: acmeMainBranch.id,
       fields: {
@@ -637,6 +639,7 @@ async function main() {
     create: {
       id: 'example-machine-3',
       name: 'Slide Press #003 (Double Hammer)',
+      serialNumber: 'SN-11111',
       blueprintId: slideDoubleHammerBlueprint.id,
       branchId: acmeSecondaryBranch.id,
       fields: {
@@ -652,6 +655,7 @@ async function main() {
     create: {
       id: 'example-machine-3b',
       name: 'Slide Press #003b (Single Hammer)',
+      serialNumber: 'SN-11112',
       blueprintId: slideSingleHammerBlueprint.id,
       branchId: acmeSecondaryBranch.id,
       fields: {
@@ -667,6 +671,7 @@ async function main() {
     create: {
       id: 'example-machine-4',
       name: 'Pistons Press #004',
+      serialNumber: 'SN-22222',
       blueprintId: pistonsBlueprint.id,
       branchId: acmeMainBranch.id,
       fields: {

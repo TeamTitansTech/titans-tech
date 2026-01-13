@@ -12,6 +12,7 @@ interface NoPermissionProps {
   description?: string;
   showContactAdmin?: boolean;
   variant?: 'page' | 'inline';
+  dataTestId?: string;
 }
 
 export function NoPermission({
@@ -19,6 +20,7 @@ export function NoPermission({
   description,
   showContactAdmin = true,
   variant = 'page',
+  dataTestId,
 }: NoPermissionProps) {
   const router = useInternalRouter();
   const t = useTranslations('common');
@@ -29,7 +31,7 @@ export function NoPermission({
 
   if (variant === 'inline') {
     return (
-      <Card>
+      <Card data-testid={dataTestId}>
         <CardContent className="pt-6">
           <div className="flex flex-col items-center text-center space-y-3 py-4">
             <div className="w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center">
@@ -48,7 +50,7 @@ export function NoPermission({
   }
 
   return (
-    <div className="flex items-center justify-center min-h-[60vh] p-4">
+    <div className="flex items-center justify-center min-h-[60vh] p-4" data-testid={dataTestId}>
       <Card className="max-w-md w-full">
         <CardContent className="pt-6">
           <div className="flex flex-col items-center text-center space-y-4">

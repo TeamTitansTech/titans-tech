@@ -171,7 +171,7 @@ export function BranchUserManagement({ branchId, refreshKey }: BranchUserManagem
           </h3>
         </div>
         <div className="rounded-md border border-yellow-200 bg-yellow-50 p-6 text-center">
-          <p className="text-sm text-yellow-800">
+          <p className="text-sm text-yellow-800" data-testid="no-permission-message">
             {t('noPermissionToViewUsers') ||
               'Você não tem permissão para visualizar usuários nesta filial.'}
           </p>
@@ -192,19 +192,19 @@ export function BranchUserManagement({ branchId, refreshKey }: BranchUserManagem
   });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-testid="client-branch-user-management">
       <div className="flex items-center gap-2">
         <Users className="h-4 w-4" />
-        <h3 className="text-base font-semibold">
+        <h3 className="text-base font-semibold" data-testid="client-user-management-title">
           {t('title')} - {branchName}
         </h3>
       </div>
 
       {/* Active Users Section */}
-      <div className="space-y-2">
+      <div className="space-y-2" data-testid="client-active-users-section">
         <h4 className="text-sm font-medium">{t('activeUsers') || 'Active Users'}</h4>
         <div className="rounded-md border">
-          <Table>
+          <Table data-testid="client-active-users-table">
             <TableHeader>
               <TableRow>
                 <TableHead>{t('table.name')}</TableHead>
@@ -228,12 +228,26 @@ export function BranchUserManagement({ branchId, refreshKey }: BranchUserManagem
                   const canDelete = hasPermissionInBranch(companyUser, branchId, 'deleteUsers');
 
                   return (
-                    <TableRow key={user.id}>
-                      <TableCell className="font-medium">{user.name || 'Unknown User'}</TableCell>
-                      <TableCell className="text-muted-foreground">{user.email}</TableCell>
-                      <TableCell>
+                    <TableRow key={user.id} data-testid={`client-user-row-${user.id}`}>
+                      <TableCell
+                        className="font-medium"
+                        data-testid={`client-user-name-${user.id}`}
+                      >
+                        {user.name || 'Unknown User'}
+                      </TableCell>
+                      <TableCell
+                        className="text-muted-foreground"
+                        data-testid={`client-user-email-${user.id}`}
+                      >
+                        {user.email}
+                      </TableCell>
+                      <TableCell data-testid={`client-user-role-${user.id}`}>
                         <div className="flex items-center gap-2">
-                          <Badge className={getUserRoleBadgeColor(role)} variant="secondary">
+                          <Badge
+                            className={getUserRoleBadgeColor(role)}
+                            variant="secondary"
+                            data-testid={`client-user-role-badge-${user.id}`}
+                          >
                             {t(`roles.${role}`)}
                           </Badge>
                           {user.pendingActivation && (
@@ -243,7 +257,7 @@ export function BranchUserManagement({ branchId, refreshKey }: BranchUserManagem
                           )}
                         </div>
                       </TableCell>
-                      <TableCell>
+                      <TableCell data-testid={`client-user-actions-${user.id}`}>
                         <div className="flex items-center gap-2">
                           {user.pendingActivation ? (
                             <Button
@@ -252,6 +266,7 @@ export function BranchUserManagement({ branchId, refreshKey }: BranchUserManagem
                               onClick={() => handleResendActivation(user.id)}
                               className="h-8 w-8 p-0 hover:bg-blue-50 hover:text-blue-600"
                               title={t('resendActivationEmail')}
+                              data-testid={`client-resend-activation-button-${user.id}`}
                             >
                               <Mail className="h-4 w-4" />
                               <span className="sr-only">{t('resendActivationEmail')}</span>
@@ -264,6 +279,7 @@ export function BranchUserManagement({ branchId, refreshKey }: BranchUserManagem
                                 onClick={() => handleEdit(user)}
                                 disabled={!canEdit}
                                 className="h-8 w-8 p-0"
+                                data-testid={`client-edit-user-button-${user.id}`}
                               >
                                 <Pencil className="h-4 w-4" />
                                 <span className="sr-only">{t('editUser')}</span>
@@ -274,6 +290,7 @@ export function BranchUserManagement({ branchId, refreshKey }: BranchUserManagem
                                 onClick={() => handleDelete(user)}
                                 disabled={!canDelete}
                                 className="h-8 w-8 p-0 hover:bg-destructive/10 hover:text-destructive"
+                                data-testid={`client-delete-user-button-${user.id}`}
                               >
                                 <Ban className="h-4 w-4" />
                                 <span className="sr-only">{t('deactivateUser')}</span>
@@ -293,12 +310,12 @@ export function BranchUserManagement({ branchId, refreshKey }: BranchUserManagem
 
       {/* Deactivated Users Section */}
       {deactivatedUsers.length > 0 && (
-        <div className="space-y-2">
+        <div className="space-y-2" data-testid="client-deactivated-users-section">
           <h4 className="text-sm font-medium text-muted-foreground">
             {t('deactivatedUsers') || 'Deactivated Users'}
           </h4>
           <div className="rounded-md border border-muted">
-            <Table>
+            <Table data-testid="client-deactivated-users-table">
               <TableHeader>
                 <TableRow>
                   <TableHead>{t('table.name')}</TableHead>
@@ -314,21 +331,40 @@ export function BranchUserManagement({ branchId, refreshKey }: BranchUserManagem
                   const canReactivate = hasPermissionInBranch(companyUser, branchId, 'updateUsers');
 
                   return (
-                    <TableRow key={user.id} className="opacity-60">
-                      <TableCell className="font-medium">{user.name || 'Unknown User'}</TableCell>
-                      <TableCell className="text-muted-foreground">{user.email}</TableCell>
-                      <TableCell>
-                        <Badge className={getUserRoleBadgeColor(role)} variant="secondary">
+                    <TableRow
+                      key={user.id}
+                      className="opacity-60"
+                      data-testid={`client-deactivated-user-row-${user.id}`}
+                    >
+                      <TableCell
+                        className="font-medium"
+                        data-testid={`client-deactivated-user-name-${user.id}`}
+                      >
+                        {user.name || 'Unknown User'}
+                      </TableCell>
+                      <TableCell
+                        className="text-muted-foreground"
+                        data-testid={`client-deactivated-user-email-${user.id}`}
+                      >
+                        {user.email}
+                      </TableCell>
+                      <TableCell data-testid={`client-deactivated-user-role-${user.id}`}>
+                        <Badge
+                          className={getUserRoleBadgeColor(role)}
+                          variant="secondary"
+                          data-testid={`client-deactivated-user-role-badge-${user.id}`}
+                        >
                           {t(`roles.${role}`)}
                         </Badge>
                       </TableCell>
-                      <TableCell>
+                      <TableCell data-testid={`client-deactivated-user-actions-${user.id}`}>
                         <Button
                           variant="ghost"
                           size="sm"
                           onClick={() => handleReactivate(user)}
                           disabled={!canReactivate}
                           className="h-8 w-8 p-0 hover:bg-green-50 hover:text-green-600"
+                          data-testid={`client-reactivate-user-button-${user.id}`}
                         >
                           <RotateCcw className="h-4 w-4" />
                           <span className="sr-only">{t('reactivateUser')}</span>

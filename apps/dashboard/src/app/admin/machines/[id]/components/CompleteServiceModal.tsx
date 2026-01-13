@@ -383,7 +383,7 @@ export function CompleteServiceModal({
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                 {t('form.cancel')}
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
+              <Button type="submit" disabled={isSubmitting} data-testid="complete-service-button">
                 {isSubmitting ? t('form.submit.loading') : t('form.submit.idle')}
               </Button>
             </div>
