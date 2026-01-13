@@ -178,7 +178,6 @@ export class TestSeeder {
         ...TEST_SEED_DATA.USERS.EMPLOYEE_NO_PERMISSIONS,
         password: hashedPassword,
         companyId: company.id,
-        isUsingDefaultPassword: true,
       },
     });
 
