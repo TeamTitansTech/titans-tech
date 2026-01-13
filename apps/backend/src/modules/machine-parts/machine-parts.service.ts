@@ -1,6 +1,12 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../shared/prisma.service';
 import { UploadService } from '../upload/upload.service';
+import { appEnv } from '../../config/env';
+import Anthropic from '@anthropic-ai/sdk';
 import {
   CreateSubsectionDto,
   UpdateSubsectionDto,
@@ -238,6 +244,7 @@ export class MachinePartsService {
         description: dto.description,
         diagramImageUrl: dto.diagramImageUrl,
         displayOrder: dto.displayOrder ?? nextOrder,
+        columnConfig: dto.columnConfig ?? undefined,
         parts: dto.parts
           ? {
               create: dto.parts.map((part, index) => ({
@@ -247,6 +254,7 @@ export class MachinePartsService {
                 unit: part.unit,
                 location: part.location,
                 notes: part.notes,
+                customFields: part.customFields ?? undefined,
                 displayOrder: part.displayOrder ?? index,
               })),
             }
@@ -285,6 +293,7 @@ export class MachinePartsService {
         figureReference: dto.figureReference,
         description: dto.description,
         displayOrder: dto.displayOrder,
+        columnConfig: dto.columnConfig,
       },
       include: { parts: { orderBy: { displayOrder: 'asc' } } },
     });
@@ -351,6 +360,7 @@ export class MachinePartsService {
           unit: part.unit,
           location: part.location,
           notes: part.notes,
+          customFields: part.customFields ?? undefined,
           displayOrder: part.displayOrder ?? index,
         })),
       });
@@ -450,6 +460,7 @@ export class MachinePartsService {
     description: string | null;
     diagramImageUrl: string | null;
     displayOrder: number;
+    columnConfig: unknown;
     createdAt: Date;
     updatedAt: Date;
     parts: Array<{
@@ -461,6 +472,7 @@ export class MachinePartsService {
       unit: string;
       location: string | null;
       notes: string | null;
+      customFields: unknown;
       displayOrder: number;
       createdAt: Date;
       updatedAt: Date;
@@ -476,6 +488,9 @@ export class MachinePartsService {
       description: subsection.description,
       diagramImageUrl: subsection.diagramImageUrl,
       displayOrder: subsection.displayOrder,
+      columnConfig:
+        (subsection.columnConfig as SubsectionResponseDto['columnConfig']) ??
+        null,
       createdAt: subsection.createdAt.toISOString(),
       updatedAt: subsection.updatedAt.toISOString(),
       parts: subsection.parts.map((p) => ({
@@ -487,10 +502,131 @@ export class MachinePartsService {
         unit: p.unit,
         location: p.location,
         notes: p.notes,
+        customFields: (p.customFields as Record<string, string>) ?? null,
         displayOrder: p.displayOrder,
         createdAt: p.createdAt.toISOString(),
         updatedAt: p.updatedAt.toISOString(),
       })),
     };
+  }
+
+  /**
+   * Parse table data from an image using Claude Vision API
+   */
+  async parseTableFromImage(file: Express.Multer.File): Promise<{
+    columns: string[];
+    rows: Record<string, string>[];
+  }> {
+    if (!file) {
+      throw new BadRequestException('No image file provided');
+    }
+
+    const validMimeTypes = [
+      'image/png',
+      'image/jpeg',
+      'image/gif',
+      'image/webp',
+    ];
+    if (!validMimeTypes.includes(file.mimetype)) {
+      throw new BadRequestException(
+        'Invalid file type. Supported formats: PNG, JPEG, GIF, WEBP',
+      );
+    }
+
+    const anthropicApiKey = appEnv.ANTHROPIC_API_KEY;
+    if (!anthropicApiKey) {
+      throw new BadRequestException(
+        'ANTHROPIC_API_KEY is not configured. Please set the environment variable.',
+      );
+    }
+
+    const anthropic = new Anthropic({
+      apiKey: anthropicApiKey,
+    });
+
+    const base64 = file.buffer.toString('base64');
+    const mimeType = file.mimetype as
+      | 'image/jpeg'
+      | 'image/png'
+      | 'image/gif'
+      | 'image/webp';
+
+    try {
+      const response = await anthropic.messages.create({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 4096,
+        messages: [
+          {
+            role: 'user',
+            content: [
+              {
+                type: 'image',
+                source: {
+                  type: 'base64',
+                  media_type: mimeType,
+                  data: base64,
+                },
+              },
+              {
+                type: 'text',
+                text: `Extract the table data from this image. Return JSON with:
+- "columns": array of column header names (strings)
+- "rows": array of objects where keys are column names and values are cell contents (strings)
+
+Rules:
+1. If there's no clear table structure, return {"columns": [], "rows": []}
+2. Preserve the exact text from each cell
+3. If a cell is empty, use an empty string ""
+4. Only return valid JSON, no explanation or markdown
+
+Example output format:
+{"columns": ["Part Number", "Description", "Qty"], "rows": [{"Part Number": "ABC-123", "Description": "Bearing", "Qty": "2"}]}`,
+              },
+            ],
+          },
+        ],
+      });
+
+      const textContent = response.content.find((c) => c.type === 'text');
+      if (!textContent || textContent.type !== 'text') {
+        throw new BadRequestException(
+          'Failed to get text response from Claude',
+        );
+      }
+
+      // Extract JSON from the response (Claude might wrap it in markdown code blocks)
+      let jsonStr = textContent.text.trim();
+      const jsonMatch = jsonStr.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
+      if (jsonMatch) {
+        jsonStr = jsonMatch[1].trim();
+      }
+
+      const parsed = JSON.parse(jsonStr);
+
+      // Validate the structure
+      if (!Array.isArray(parsed.columns) || !Array.isArray(parsed.rows)) {
+        throw new BadRequestException(
+          'Invalid response structure from Claude. Expected columns and rows arrays.',
+        );
+      }
+
+      return {
+        columns: parsed.columns,
+        rows: parsed.rows,
+      };
+    } catch (error) {
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+      if (error instanceof SyntaxError) {
+        throw new BadRequestException(
+          'Failed to parse Claude response as JSON',
+        );
+      }
+      console.error('Error parsing table from image:', error);
+      throw new BadRequestException(
+        'Failed to parse table from image. Please try with a clearer image.',
+      );
+    }
   }
 }

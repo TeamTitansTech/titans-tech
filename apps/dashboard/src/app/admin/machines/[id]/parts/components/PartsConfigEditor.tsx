@@ -187,6 +187,7 @@ export function PartsConfigEditor({
       unit: string;
       location?: string;
       notes?: string;
+      customFields?: Record<string, string>;
     }>,
   ) => {
     const response = await updateSubsectionParts(machineId, subsectionId, parts);
@@ -441,6 +442,7 @@ export function PartsConfigEditor({
           isOpen={!!editingParts}
           onClose={() => setEditingParts(null)}
           subsection={editingParts}
+          machineId={machineId}
           onSave={(parts) => handleUpdateParts(editingParts.id, parts)}
         />
       )}

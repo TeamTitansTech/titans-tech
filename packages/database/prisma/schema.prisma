@@ -2222,6 +2222,7 @@ model MachinePartsSubsection {
   description     String?
   diagramImageUrl String? // S3 URL or static path
   displayOrder    Int      @default(0)
+  columnConfig    Json? // Custom column definitions: [{ key, label, type }]
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
@@ -2242,6 +2243,7 @@ model MachinePartItem {
   unit         String
   location     String?
   notes        String?
+  customFields Json? // Additional custom field values: { "key": "value", ... }
   displayOrder Int      @default(0)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt

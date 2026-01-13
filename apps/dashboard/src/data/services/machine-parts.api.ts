@@ -7,6 +7,7 @@ import type {
   SectionPartsResponseDto,
   SubsectionResponseDto,
   MachinePartItemDto,
+  ColumnConfigDto,
 } from '@titans-tech/shared/backend-dtos';
 
 // Re-export types for convenience
@@ -16,6 +17,7 @@ export type {
   SubsectionResponseDto,
   PartItemResponseDto,
   MachinePartItemDto,
+  ColumnConfigDto,
 } from '@titans-tech/shared/backend-dtos';
 
 /**
@@ -75,6 +77,7 @@ export const createSubsection = async (
     description?: string;
     diagramImageUrl?: string;
     displayOrder?: number;
+    columnConfig?: ColumnConfigDto[];
     parts?: MachinePartItemDto[];
   },
 ) => {
@@ -104,6 +107,7 @@ export const updateSubsection = async (
     figureReference?: string | null;
     description?: string | null;
     displayOrder?: number;
+    columnConfig?: ColumnConfigDto[] | null;
   },
 ) => {
   const result = await responseHandler<SubsectionResponseDto>(
@@ -228,4 +232,49 @@ export const resetSectionToDefaults = async (machineId: string, sectionKey: stri
   }
 
   return result;
+};
+
+/**
+ * Parse table data from an image using AI vision
+ * Extracts columns and rows from a screenshot of Excel or similar table
+ */
+export const parseTableImage = async (
+  machineId: string,
+  formData: FormData,
+): Promise<{
+  data: { columns: string[]; rows: Record<string, string>[] } | null;
+  errors: string[] | null;
+  status: number;
+}> => {
+  const token = await getCookie('auth_token');
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/machines/${machineId}/parts/parse-table-image`, {
+      method: 'POST',
+      headers: {
+        ...(token && { Authorization: `Bearer ${token}` }),
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      return {
+        data: null,
+        errors: [errorData.message || 'Failed to parse table image'],
+        status: response.status,
+      };
+    }
+
+    const data = await response.json();
+    return { data, errors: null, status: response.status };
+  } catch (error) {
+    console.error('Error parsing table image:', error);
+    return {
+      data: null,
+      errors: ['Connection error'],
+      status: 0,
+    };
+  }
 };

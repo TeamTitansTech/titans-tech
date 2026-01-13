@@ -167,4 +167,17 @@ export class MachinePartsController {
       sectionKey,
     );
   }
+
+  /**
+   * Parse table data from an image using AI vision (SysAdmin only)
+   * Extracts columns and rows from a screenshot of Excel or similar table
+   */
+  @Admin()
+  @Post('parse-table-image')
+  @UseInterceptors(FileInterceptor('image'))
+  parseTableImage(
+    @UploadedFile() file: Express.Multer.File,
+  ): Promise<{ columns: string[]; rows: Record<string, string>[] }> {
+    return this.machinePartsService.parseTableFromImage(file);
+  }
 }

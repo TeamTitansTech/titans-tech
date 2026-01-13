@@ -1,5 +1,15 @@
 import { z } from 'zod';
 
+// Column configuration schema - defines custom columns for a subsection
+export const ColumnConfigSchema = z.object({
+  key: z.string().min(1, 'Column key is required'),
+  label: z.string().min(1, 'Column label is required'),
+  type: z.enum(['text', 'number']).default('text'),
+  required: z.boolean().default(false),
+});
+
+export type ColumnConfigDto = z.infer<typeof ColumnConfigSchema>;
+
 // Part item schema - used for creating/updating parts within a subsection
 export const MachinePartItemSchema = z.object({
   partNumber: z.string().min(1, 'Part number is required'),
@@ -8,6 +18,7 @@ export const MachinePartItemSchema = z.object({
   unit: z.string().min(1, 'Unit is required'),
   location: z.string().optional(),
   notes: z.string().optional(),
+  customFields: z.record(z.string(), z.string()).optional(), // { "key": "value", ... }
   displayOrder: z.number().optional(),
 });
 
@@ -21,6 +32,7 @@ export const CreateSubsectionSchema = z.object({
   description: z.string().optional(),
   diagramImageUrl: z.string().optional(), // URL to default diagram image (for copying from defaults)
   displayOrder: z.number().optional(),
+  columnConfig: z.array(ColumnConfigSchema).optional(), // Custom column definitions
   parts: z.array(MachinePartItemSchema).optional(),
 });
 
@@ -32,6 +44,7 @@ export const UpdateSubsectionSchema = z.object({
   figureReference: z.string().nullable().optional(),
   description: z.string().nullable().optional(),
   displayOrder: z.number().optional(),
+  columnConfig: z.array(ColumnConfigSchema).nullable().optional(), // Custom column definitions
 });
 
 export type UpdateSubsectionDto = z.infer<typeof UpdateSubsectionSchema>;
@@ -62,6 +75,7 @@ export interface SubsectionResponseDto {
   description: string | null;
   diagramImageUrl: string | null;
   displayOrder: number;
+  columnConfig: ColumnConfigDto[] | null; // Custom column definitions
   createdAt: string;
   updatedAt: string;
   parts: PartItemResponseDto[];
@@ -76,6 +90,7 @@ export interface PartItemResponseDto {
   unit: string;
   location: string | null;
   notes: string | null;
+  customFields: Record<string, string> | null; // Custom field values
   displayOrder: number;
   createdAt: string;
   updatedAt: string;

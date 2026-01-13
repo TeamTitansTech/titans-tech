@@ -16,6 +16,8 @@ export const EnvSchema = z.object({
   FRONTEND_URL: z.string().url().default('http://localhost:3000'),
   // Optional test emails to receive copies of all sent emails (comma-separated list)
   TEST_EMAILS: z.string().optional(),
+  // Anthropic API key for AI features (OCR)
+  ANTHROPIC_API_KEY: z.string().optional(),
 });
 
 // eslint-disable-next-line no-restricted-syntax
