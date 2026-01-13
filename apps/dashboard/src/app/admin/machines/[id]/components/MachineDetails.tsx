@@ -2,7 +2,7 @@
 
 import { Card, CardContent } from '@/components/ui/card';
 import { ConditionalTooltip } from '@/components/ui/conditional-tooltip';
-import { ArrowLeft, ClipboardCheck, Box, FileText } from 'lucide-react';
+import { ArrowLeft, ClipboardCheck, Box, FileText, Settings2 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useInternalRouter } from '@/hooks/useInternalRouter';
@@ -99,15 +99,18 @@ export function MachineDetails({
             </ConditionalTooltip>
           </div>
         </div>
-        <Button
-          onClick={handleOpenReport}
-          disabled={isLoadingReport}
-          className="shrink-0"
-          size="sm"
-        >
-          <FileText className="w-4 h-4 mr-2" />
-          {isLoadingReport ? 'Carregando...' : 'Ver Relatório'}
-        </Button>
+        <div className="flex gap-2 shrink-0">
+          <Link href={`/admin/machines/${machine.id}/parts`}>
+            <Button variant="outline" size="sm">
+              <Settings2 className="w-4 h-4 mr-2" />
+              {t('partsConfig.title')}
+            </Button>
+          </Link>
+          <Button onClick={handleOpenReport} disabled={isLoadingReport} size="sm">
+            <FileText className="w-4 h-4 mr-2" />
+            {isLoadingReport ? 'Carregando...' : 'Ver Relatório'}
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-[280px_1fr] lg:grid-cols-[350px_1fr] gap-4 lg:gap-6">

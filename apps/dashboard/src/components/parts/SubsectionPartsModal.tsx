@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
@@ -19,6 +19,7 @@ import {
   Trash2,
   Loader2,
 } from 'lucide-react';
+import { getMachineSectionParts } from '@/data/services/machine-parts.api';
 import { Button } from '@/components/ui/button';
 import { Typography } from '@/components/ui/typography';
 import {
@@ -58,6 +59,8 @@ interface SubsectionPartsModalProps {
   machineName?: string;
   machineSerial?: string;
   sectionName?: string;
+  /** Section key for fetching custom parts (e.g., 'CLUTCH', 'BEARING_CLEARANCE') */
+  sectionKey?: string;
 }
 
 export function SubsectionPartsModal({
@@ -69,16 +72,78 @@ export function SubsectionPartsModal({
   machineName = 'N/A',
   machineSerial = 'N/A',
   sectionName = 'Inspection',
+  sectionKey,
 }: SubsectionPartsModalProps) {
   const t = useTranslations('parts');
   const tSubsections = useTranslations('parts.subsections');
   const { companyUser } = useCompanyUser();
 
-  const [activeTab, setActiveTab] = useState(subsections[0]?.id || '');
+  // Custom parts state
+  const [customSubsections, setCustomSubsections] = useState<Subsection[] | null>(null);
+  const [loadingCustomParts, setLoadingCustomParts] = useState(false);
+
+  // Fetch custom parts when modal opens
+  useEffect(() => {
+    console.log('[SubsectionPartsModal] useEffect triggered:', { isOpen, machineId, sectionKey });
+    if (isOpen && machineId && sectionKey) {
+      setLoadingCustomParts(true);
+      setCustomSubsections(null); // Reset before fetching
+      console.log('[SubsectionPartsModal] Fetching custom parts for:', { machineId, sectionKey });
+      getMachineSectionParts(machineId, sectionKey)
+        .then((response) => {
+          console.log('[SubsectionPartsModal] API response:', response);
+          if (response.data?.hasCustomConfig && response.data.subsections.length > 0) {
+            // Convert API response to Subsection format
+            const converted: Subsection[] = response.data.subsections.map((s) => ({
+              id: s.subsectionId,
+              nameKey: s.name, // Use name directly instead of translation key
+              figureReference: s.figureReference || undefined,
+              description: s.description || undefined,
+              diagramImage: s.diagramImageUrl || undefined,
+              parts: s.parts.map((p) => ({
+                partNumber: p.partNumber,
+                description: p.description,
+                quantity: p.quantity,
+                unit: p.unit,
+                location: p.location || undefined,
+                notes: p.notes || undefined,
+              })),
+            }));
+            console.log('[SubsectionPartsModal] Setting custom subsections:', converted);
+            setCustomSubsections(converted);
+          } else {
+            console.log('[SubsectionPartsModal] No custom config, using defaults');
+            setCustomSubsections(null);
+          }
+        })
+        .catch((error) => {
+          console.error('[SubsectionPartsModal] Failed to fetch custom parts:', error);
+          setCustomSubsections(null);
+        })
+        .finally(() => {
+          setLoadingCustomParts(false);
+        });
+    } else if (!isOpen) {
+      // Reset state when modal closes
+      setCustomSubsections(null);
+    }
+  }, [isOpen, machineId, sectionKey]);
+
+  // Use custom subsections if available, otherwise use defaults
+  const effectiveSubsections = customSubsections ?? subsections;
+
+  const [activeTab, setActiveTab] = useState(effectiveSubsections[0]?.id || '');
   const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState('');
   const [isExporting, setIsExporting] = useState(false);
   const [imageError, setImageError] = useState<Record<string, boolean>>({});
+
+  // Update active tab when effective subsections change
+  useEffect(() => {
+    if (effectiveSubsections.length > 0 && !effectiveSubsections.find((s) => s.id === activeTab)) {
+      setActiveTab(effectiveSubsections[0].id);
+    }
+  }, [effectiveSubsections, activeTab]);
 
   // Email modal state
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
@@ -89,8 +154,8 @@ export function SubsectionPartsModal({
 
   // Get the active subsection
   const activeSubsection = useMemo(
-    () => subsections.find((s) => s.id === activeTab) || subsections[0],
-    [subsections, activeTab],
+    () => effectiveSubsections.find((s) => s.id === activeTab) || effectiveSubsections[0],
+    [effectiveSubsections, activeTab],
   );
 
   // Filter parts based on search query
@@ -160,7 +225,7 @@ export function SubsectionPartsModal({
   const getAllSelectedParts = useCallback((): { subsectionName: string; parts: Part[] }[] => {
     const result: { subsectionName: string; parts: Part[] }[] = [];
 
-    subsections.forEach((subsection) => {
+    effectiveSubsections.forEach((subsection) => {
       const selectedInSubsection = subsection.parts.filter((part) =>
         selectedKeys.has(`${subsection.id}:${part.partNumber}`),
       );
@@ -173,14 +238,18 @@ export function SubsectionPartsModal({
     });
 
     return result;
-  }, [subsections, selectedKeys]);
+  }, [effectiveSubsections, selectedKeys]);
 
   // Get subsection name from translation or fallback
   const getSubsectionName = useCallback(
     (subsectionId: string) => {
-      const subsection = subsections.find((s) => s.id === subsectionId);
+      const subsection = effectiveSubsections.find((s) => s.id === subsectionId);
       if (!subsection) return subsectionId;
       try {
+        // For custom parts, nameKey is the actual name, not a translation key
+        if (!subsection.nameKey.startsWith('subsections.')) {
+          return subsection.nameKey;
+        }
         // Extract the key after 'subsections.'
         const key = subsection.nameKey.replace('subsections.', '');
         return tSubsections(key);
@@ -188,18 +257,18 @@ export function SubsectionPartsModal({
         return subsection.nameKey;
       }
     },
-    [subsections, tSubsections],
+    [effectiveSubsections, tSubsections],
   );
 
   // Count selected parts in a subsection
   const getSelectedCountForSubsection = useCallback(
     (subsectionId: string) => {
-      const subsection = subsections.find((s) => s.id === subsectionId);
+      const subsection = effectiveSubsections.find((s) => s.id === subsectionId);
       if (!subsection) return 0;
       return subsection.parts.filter((p) => selectedKeys.has(`${subsectionId}:${p.partNumber}`))
         .length;
     },
-    [subsections, selectedKeys],
+    [effectiveSubsections, selectedKeys],
   );
 
   // Get selected parts for current subsection only
@@ -449,8 +518,24 @@ export function SubsectionPartsModal({
     t,
   ]);
 
-  if (subsections.length === 0) {
+  if (effectiveSubsections.length === 0) {
     return null;
+  }
+
+  // Show loading state while fetching custom parts
+  if (loadingCustomParts) {
+    return (
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent className="flex h-[300px] items-center justify-center">
+          <div className="flex flex-col items-center gap-4">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <Typography variant="p" className="text-muted-foreground">
+              {t('loadingParts')}
+            </Typography>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
   }
 
   return (
@@ -460,6 +545,11 @@ export function SubsectionPartsModal({
           <DialogTitle className="flex items-center gap-2">
             <Package className="h-5 w-5" />
             {title}
+            {customSubsections && (
+              <Badge variant="outline" className="ml-2 text-xs">
+                {t('customParts')}
+              </Badge>
+            )}
           </DialogTitle>
         </DialogHeader>
 
@@ -472,7 +562,7 @@ export function SubsectionPartsModal({
             {/* Tabs List - Left-aligned on mobile/tablet, centered on large screens */}
             <div className="flex shrink-0 justify-start overflow-x-auto pb-2 lg:justify-center">
               <div className="inline-flex gap-1 rounded-lg bg-muted p-1 sm:gap-2">
-                {subsections.map((subsection) => {
+                {effectiveSubsections.map((subsection) => {
                   const selectedCount = getSelectedCountForSubsection(subsection.id);
                   const fullName = getSubsectionName(subsection.id);
                   const isActive = activeTab === subsection.id;
@@ -508,7 +598,7 @@ export function SubsectionPartsModal({
             </div>
 
             {/* Tab Content */}
-            {subsections.map((subsection) => (
+            {effectiveSubsections.map((subsection) => (
               <TabsContent
                 key={subsection.id}
                 value={subsection.id}
