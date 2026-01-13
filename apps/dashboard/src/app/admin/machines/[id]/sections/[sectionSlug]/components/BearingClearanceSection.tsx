@@ -347,6 +347,7 @@ export function BearingClearanceSection({
           machineId,
           machineName,
           sectionName: 'Bearing Clearance',
+          sectionKey: 'BEARING_CLEARANCE',
         }}
       />
 

@@ -338,6 +338,7 @@ export function SlideDoubleHammerSection({
           machineId,
           machineName,
           sectionName: 'Slide',
+          sectionKey: 'SLIDE_DOUBLE_HAMMER',
         }}
       />
 

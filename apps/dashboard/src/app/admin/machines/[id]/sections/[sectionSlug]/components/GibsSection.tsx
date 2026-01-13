@@ -445,6 +445,7 @@ export function GibsSection({
           machineId,
           machineName,
           sectionName: 'Gibs',
+          sectionKey: 'GIBS',
         }}
       />
 

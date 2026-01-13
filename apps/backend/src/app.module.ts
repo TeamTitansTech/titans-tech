@@ -18,6 +18,7 @@ import { TasksModule } from './modules/tasks/tasks.module';
 import { ProductionLinesModule } from './modules/production-lines/production-lines.module';
 import { PermissionTemplatesModule } from './modules/permission-templates/permission-templates.module';
 import { ServiceRequestsModule } from './modules/service-requests/service-requests.module';
+import { MachinePartsModule } from './modules/machine-parts/machine-parts.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { ServiceRequestsModule } from './modules/service-requests/service-reques
     ProductionLinesModule,
     PermissionTemplatesModule,
     ServiceRequestsModule,
+    MachinePartsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

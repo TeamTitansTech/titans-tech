@@ -360,6 +360,7 @@ export function ClutchSection({
           machineName,
           machineSerial,
           sectionName: 'Clutch & Brake',
+          sectionKey: 'CLUTCH',
         }}
       />
 
