@@ -144,11 +144,11 @@ export function SectionStatusCard({
                 className={cn(
                   'gap-2',
                   status === 'ok' &&
-                    'border-green-400 text-green-700 hover:bg-green-100 dark:border-green-600 dark:text-green-300 dark:hover:bg-green-900/50',
+                    'border-green-400 text-green-700 hover:bg-green-100 hover:text-green-800 dark:border-green-600 dark:text-green-300 dark:hover:bg-green-900/50 dark:hover:text-green-200',
                   status === 'warning' &&
-                    'border-yellow-400 text-yellow-700 hover:bg-yellow-100 dark:border-yellow-600 dark:text-yellow-300 dark:hover:bg-yellow-900/50',
+                    'border-yellow-400 text-yellow-700 hover:bg-yellow-100 hover:text-yellow-800 dark:border-yellow-600 dark:text-yellow-300 dark:hover:bg-yellow-900/50 dark:hover:text-yellow-200',
                   status === 'alert' &&
-                    'border-red-400 text-red-700 hover:bg-red-100 dark:border-red-600 dark:text-red-300 dark:hover:bg-red-900/50',
+                    'border-red-400 text-red-700 hover:bg-red-100 hover:text-red-800 dark:border-red-600 dark:text-red-300 dark:hover:bg-red-900/50 dark:hover:text-red-200',
                 )}
               >
                 <Package className="h-4 w-4" />
