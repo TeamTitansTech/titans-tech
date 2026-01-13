@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import {
   Dialog,
@@ -43,17 +43,24 @@ export function PartsTableEditor({ isOpen, onClose, subsection, onSave }: PartsT
   const t = useTranslations('machines.partsConfig');
   const tParts = useTranslations('parts');
 
-  const [parts, setParts] = useState<PartItem[]>(() =>
-    subsection.parts.map((p) => ({
-      partNumber: p.partNumber,
-      description: p.description,
-      quantity: p.quantity,
-      unit: p.unit,
-      location: p.location || undefined,
-      notes: p.notes || undefined,
-    })),
-  );
+  const [parts, setParts] = useState<PartItem[]>([]);
   const [saving, setSaving] = useState(false);
+
+  // Reset parts when subsection changes or modal opens
+  useEffect(() => {
+    if (isOpen) {
+      setParts(
+        subsection.parts.map((p) => ({
+          partNumber: p.partNumber,
+          description: p.description,
+          quantity: p.quantity,
+          unit: p.unit,
+          location: p.location || undefined,
+          notes: p.notes || undefined,
+        })),
+      );
+    }
+  }, [isOpen, subsection]);
 
   const addPart = () => {
     setParts([

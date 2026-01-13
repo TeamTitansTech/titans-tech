@@ -1,6 +1,7 @@
 'use server';
 import { revalidatePath } from 'next/cache';
 import { responseHandler } from '@/data/helpers/responseHandler';
+import { getCookie } from '@/lib/cookies';
 import type {
   PartsConfigResponseDto,
   SectionPartsResponseDto,
@@ -171,14 +172,7 @@ export const uploadSubsectionDiagram = async (
 ) => {
   // For file uploads, we need to use fetch directly since responseHandler
   // doesn't support FormData
-  const token =
-    typeof window !== 'undefined'
-      ? document.cookie
-          .split('; ')
-          .find((row) => row.startsWith('auth_token='))
-          ?.split('=')[1]
-      : null;
-
+  const token = await getCookie('auth_token');
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
   try {
