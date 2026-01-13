@@ -84,10 +84,14 @@ export function SubsectionPartsModal({
 
   // Fetch custom parts when modal opens
   useEffect(() => {
+    console.log('[SubsectionPartsModal] useEffect triggered:', { isOpen, machineId, sectionKey });
     if (isOpen && machineId && sectionKey) {
       setLoadingCustomParts(true);
+      setCustomSubsections(null); // Reset before fetching
+      console.log('[SubsectionPartsModal] Fetching custom parts for:', { machineId, sectionKey });
       getMachineSectionParts(machineId, sectionKey)
         .then((response) => {
+          console.log('[SubsectionPartsModal] API response:', response);
           if (response.data?.hasCustomConfig && response.data.subsections.length > 0) {
             // Convert API response to Subsection format
             const converted: Subsection[] = response.data.subsections.map((s) => ({
@@ -105,18 +109,23 @@ export function SubsectionPartsModal({
                 notes: p.notes || undefined,
               })),
             }));
+            console.log('[SubsectionPartsModal] Setting custom subsections:', converted);
             setCustomSubsections(converted);
           } else {
+            console.log('[SubsectionPartsModal] No custom config, using defaults');
             setCustomSubsections(null);
           }
         })
         .catch((error) => {
-          console.error('Failed to fetch custom parts:', error);
+          console.error('[SubsectionPartsModal] Failed to fetch custom parts:', error);
           setCustomSubsections(null);
         })
         .finally(() => {
           setLoadingCustomParts(false);
         });
+    } else if (!isOpen) {
+      // Reset state when modal closes
+      setCustomSubsections(null);
     }
   }, [isOpen, machineId, sectionKey]);
 

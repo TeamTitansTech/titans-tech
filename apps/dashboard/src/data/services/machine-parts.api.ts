@@ -73,6 +73,7 @@ export const createSubsection = async (
     name: string;
     figureReference?: string;
     description?: string;
+    diagramImageUrl?: string;
     displayOrder?: number;
     parts?: MachinePartItemDto[];
   },

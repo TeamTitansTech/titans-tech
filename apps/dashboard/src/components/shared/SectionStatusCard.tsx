@@ -23,6 +23,8 @@ interface PartsConfigBase {
   machineName?: string;
   machineSerial?: string;
   sectionName?: string;
+  /** Section key for fetching custom parts (e.g., 'CLUTCH', 'BEARING_CLEARANCE') */
+  sectionKey?: string;
   /** Optional diagram image to display in the parts modal */
   diagramImage?: {
     src: string;
@@ -168,6 +170,7 @@ export function SectionStatusCard({
           machineName={partsConfig.machineName}
           machineSerial={partsConfig.machineSerial}
           sectionName={partsConfig.sectionName}
+          sectionKey={partsConfig.sectionKey}
         />
       ) : (
         <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>

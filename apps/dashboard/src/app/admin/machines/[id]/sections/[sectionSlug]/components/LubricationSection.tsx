@@ -391,6 +391,7 @@ export function LubricationSection({
           machineName,
           machineSerial,
           sectionName: 'Lubrication & Hydraulics',
+          sectionKey: 'LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER',
         }}
         alwaysShowPartsButton
       />

@@ -236,6 +236,7 @@ export class MachinePartsService {
         name: dto.name,
         figureReference: dto.figureReference,
         description: dto.description,
+        diagramImageUrl: dto.diagramImageUrl,
         displayOrder: dto.displayOrder ?? nextOrder,
         parts: dto.parts
           ? {

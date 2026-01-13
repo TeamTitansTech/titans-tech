@@ -344,9 +344,11 @@ export function ClutchCevolaniSection({
           onClose={() => setIsPartsModalOpen(false)}
           title={tParts('clutchCevolaniParts')}
           subsections={CLUTCH_CEVOLANI_SUBSECTIONS}
+          machineId={machineId}
           machineName={machineName}
           machineSerial={machineSerial}
           sectionName="Clutch - Cevolani"
+          sectionKey="CLUTCH_CEVOLANI"
         />
 
         <div className="flex justify-end">

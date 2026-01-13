@@ -58,11 +58,12 @@ interface PartsConfigEditorProps {
 
 export function PartsConfigEditor({
   machineId,
-  machineName,
+  machineName: _machineName,
   blueprintSections,
   initialPartsConfig,
 }: PartsConfigEditorProps) {
   const t = useTranslations('machines.partsConfig');
+  const tParts = useTranslations('parts');
 
   // Filter to only show sections that support parts and are in the blueprint
   const availableSections = blueprintSections.filter((section) =>
@@ -95,7 +96,7 @@ export function PartsConfigEditor({
   } | null>(null);
   const [resetConfirm, setResetConfirm] = useState<string | null>(null);
 
-  const loadSectionParts = useCallback(
+  const _loadSectionParts = useCallback(
     async (sectionKey: string) => {
       setLoading((prev) => ({ ...prev, [sectionKey]: true }));
       try {
@@ -200,6 +201,8 @@ export function PartsConfigEditor({
           s.id === subsectionId ? response.data! : s,
         ),
       }));
+      // Update editingParts to reflect the new data
+      setEditingParts(response.data);
       toast.success(t('partsUpdated'));
       return true;
     }
@@ -230,14 +233,18 @@ export function PartsConfigEditor({
   };
 
   const handleCopyDefaultToCustom = async (defaultSubsection: Subsection) => {
+    // Get the translated name (or use nameKey if not a translation key)
+    const displayName = defaultSubsection.nameKey.startsWith('subsections.')
+      ? tParts(defaultSubsection.nameKey)
+      : defaultSubsection.nameKey;
+
     // Create a new custom subsection from the default
     const data = {
       subsectionId: defaultSubsection.id,
-      name: defaultSubsection.nameKey.startsWith('subsections.')
-        ? defaultSubsection.nameKey.split('.').pop() || defaultSubsection.id
-        : defaultSubsection.nameKey,
+      name: displayName,
       figureReference: defaultSubsection.figureReference,
       description: defaultSubsection.description,
+      diagramImageUrl: defaultSubsection.diagramImage, // Keep the default diagram image
       parts: defaultSubsection.parts.map((p, idx) => ({
         partNumber: p.partNumber,
         description: p.description,

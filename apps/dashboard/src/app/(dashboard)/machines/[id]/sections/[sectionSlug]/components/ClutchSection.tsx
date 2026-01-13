@@ -465,9 +465,11 @@ export function ClutchSection({
           onClose={() => setIsPartsModalOpen(false)}
           title={tParts('clutchBrakeParts')}
           subsections={CLUTCH_BRAKE_SUBSECTIONS}
+          machineId={machineId}
           machineName={machineName}
           machineSerial={machineSerial}
           sectionName="Clutch & Brake"
+          sectionKey="CLUTCH"
         />
 
         <div className="flex justify-end">

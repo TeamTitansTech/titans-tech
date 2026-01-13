@@ -19,6 +19,7 @@ export const CreateSubsectionSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   figureReference: z.string().optional(),
   description: z.string().optional(),
+  diagramImageUrl: z.string().optional(), // URL to default diagram image (for copying from defaults)
   displayOrder: z.number().optional(),
   parts: z.array(MachinePartItemSchema).optional(),
 });

@@ -349,6 +349,7 @@ export function CounterbalanceSection({
           machineName,
           machineSerial,
           sectionName: 'Counterbalance & Airbag',
+          sectionKey: 'COUNTERBALANCE_CYLINDER_AIRBAG',
         }}
       />
 
