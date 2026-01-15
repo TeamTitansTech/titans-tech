@@ -233,6 +233,50 @@ export function PartsConfigEditor({
     }));
   };
 
+  const handleMoveSubsection = async (subsectionId: string, direction: 'up' | 'down') => {
+    const currentList = sectionSubsections[activeSection] || [];
+    const sortedList = [...currentList].sort((a, b) => a.displayOrder - b.displayOrder);
+    const currentIndex = sortedList.findIndex((s) => s.id === subsectionId);
+
+    if (currentIndex === -1) return;
+
+    const targetIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
+    if (targetIndex < 0 || targetIndex >= sortedList.length) return;
+
+    const currentItem = sortedList[currentIndex];
+    const targetItem = sortedList[targetIndex];
+
+    // Swap display orders
+    const currentOrder = currentItem.displayOrder;
+    const targetOrder = targetItem.displayOrder;
+
+    // Update both items in the backend
+    try {
+      const [result1, result2] = await Promise.all([
+        updateSubsection(machineId, currentItem.id, { displayOrder: targetOrder }),
+        updateSubsection(machineId, targetItem.id, { displayOrder: currentOrder }),
+      ]);
+
+      if (result1.errors || result2.errors) {
+        toast.error(t('reorderFailed'));
+        return;
+      }
+
+      // Update local state
+      setSectionSubsections((prev) => ({
+        ...prev,
+        [activeSection]: (prev[activeSection] || []).map((s) => {
+          if (s.id === currentItem.id) return { ...s, displayOrder: targetOrder };
+          if (s.id === targetItem.id) return { ...s, displayOrder: currentOrder };
+          return s;
+        }),
+      }));
+    } catch (error) {
+      console.error('Error reordering subsections:', error);
+      toast.error(t('reorderFailed'));
+    }
+  };
+
   const handleCopyDefaultToCustom = async (defaultSubsection: Subsection) => {
     // Get the translated name (or use nameKey if not a translation key)
     const displayName = defaultSubsection.nameKey.startsWith('subsections.')
@@ -359,22 +403,28 @@ export function PartsConfigEditor({
                           {t('customSubsections')}
                         </Typography>
                         <div className="grid gap-4 md:grid-cols-2">
-                          {currentSubsections.map((subsection) => (
-                            <SubsectionCard
-                              key={subsection.id}
-                              machineId={machineId}
-                              subsection={subsection}
-                              onEdit={() => setEditingSubsection(subsection)}
-                              onEditParts={() => setEditingParts(subsection)}
-                              onDelete={() =>
-                                setDeleteConfirm({
-                                  subsectionId: subsection.id,
-                                  name: subsection.name,
-                                })
-                              }
-                              onImageUploaded={handleImageUploaded}
-                            />
-                          ))}
+                          {[...currentSubsections]
+                            .sort((a, b) => a.displayOrder - b.displayOrder)
+                            .map((subsection, index, arr) => (
+                              <SubsectionCard
+                                key={subsection.id}
+                                machineId={machineId}
+                                subsection={subsection}
+                                onEdit={() => setEditingSubsection(subsection)}
+                                onEditParts={() => setEditingParts(subsection)}
+                                onDelete={() =>
+                                  setDeleteConfirm({
+                                    subsectionId: subsection.id,
+                                    name: subsection.name,
+                                  })
+                                }
+                                onImageUploaded={handleImageUploaded}
+                                onMoveUp={() => handleMoveSubsection(subsection.id, 'up')}
+                                onMoveDown={() => handleMoveSubsection(subsection.id, 'down')}
+                                isFirst={index === 0}
+                                isLast={index === arr.length - 1}
+                              />
+                            ))}
                         </div>
                       </div>
                     )}
@@ -444,6 +494,17 @@ export function PartsConfigEditor({
           subsection={editingParts}
           machineId={machineId}
           onSave={(parts) => handleUpdateParts(editingParts.id, parts)}
+          onColumnsChange={(columns) => {
+            // Update the editingParts state with new columns so they persist
+            setEditingParts((prev) => (prev ? { ...prev, columnConfig: columns } : null));
+            // Also update the section subsections state
+            setSectionSubsections((prev) => ({
+              ...prev,
+              [activeSection]: (prev[activeSection] || []).map((s) =>
+                s.id === editingParts.id ? { ...s, columnConfig: columns } : s,
+              ),
+            }));
+          }}
         />
       )}
 
