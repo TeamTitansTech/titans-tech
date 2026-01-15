@@ -1463,6 +1463,7 @@
       "subsectionDeleted": "Subsection deleted successfully",
       "partsUpdated": "Parts list updated successfully",
       "sectionReset": "Section reset to defaults",
+      "reorderFailed": "Failed to reorder subsections",
       "deleteSubsectionTitle": "Delete Subsection",
       "deleteSubsectionDescription": "Are you sure you want to delete \"{name}\"? This will also delete all parts in this subsection.",
       "resetSectionTitle": "Reset Section",

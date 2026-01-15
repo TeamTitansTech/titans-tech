@@ -4,7 +4,17 @@ import { useRef, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Typography } from '@/components/ui/typography';
-import { Edit, Trash2, List, Image as ImageIcon, Upload, Loader2 } from 'lucide-react';
+import {
+  Edit,
+  Trash2,
+  List,
+  Image as ImageIcon,
+  Upload,
+  Loader2,
+  ChevronUp,
+  ChevronDown,
+  GripVertical,
+} from 'lucide-react';
 import type { SubsectionResponseDto } from '@titans-tech/shared/backend-dtos';
 import Image from 'next/image';
 import { toast } from 'sonner';
@@ -17,6 +27,10 @@ interface SubsectionCardProps {
   onEditParts: () => void;
   onDelete: () => void;
   onImageUploaded: (updatedSubsection: SubsectionResponseDto) => void;
+  onMoveUp?: () => void;
+  onMoveDown?: () => void;
+  isFirst?: boolean;
+  isLast?: boolean;
 }
 
 export function SubsectionCard({
@@ -26,6 +40,10 @@ export function SubsectionCard({
   onEditParts,
   onDelete,
   onImageUploaded,
+  onMoveUp,
+  onMoveDown,
+  isFirst,
+  isLast,
 }: SubsectionCardProps) {
   const partsCount = subsection.parts.length;
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -79,6 +97,32 @@ export function SubsectionCard({
     <Card className="relative">
       <CardHeader className="pb-2">
         <div className="flex items-start justify-between">
+          {/* Order controls */}
+          {(onMoveUp || onMoveDown) && (
+            <div className="flex flex-col items-center gap-0.5 mr-2">
+              <GripVertical className="h-4 w-4 text-muted-foreground" />
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6"
+                onClick={onMoveUp}
+                disabled={isFirst}
+                title="Move up"
+              >
+                <ChevronUp className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6"
+                onClick={onMoveDown}
+                disabled={isLast}
+                title="Move down"
+              >
+                <ChevronDown className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
           <div className="flex-1 min-w-0">
             <CardTitle className="text-base truncate">{subsection.name}</CardTitle>
             {subsection.figureReference && (

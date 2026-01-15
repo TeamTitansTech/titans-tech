@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import {
   Dialog,
@@ -60,6 +60,7 @@ export function ColumnManagerModal({
   // All columns including default ones
   const [allColumns, setAllColumns] = useState<ColumnConfigDto[]>([]);
   const [saving, setSaving] = useState(false);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   // Reset columns when modal opens - merge default columns with custom ones
   useEffect(() => {
@@ -94,6 +95,13 @@ export function ColumnManagerModal({
         required: false,
       },
     ]);
+    // Scroll to the new column after state updates
+    setTimeout(() => {
+      scrollContainerRef.current?.scrollTo({
+        top: scrollContainerRef.current.scrollHeight,
+        behavior: 'smooth',
+      });
+    }, 50);
   };
 
   const removeColumn = (index: number) => {
@@ -158,7 +166,7 @@ export function ColumnManagerModal({
           <DialogDescription>{t('manageColumnsDescription')}</DialogDescription>
         </DialogHeader>
 
-        <div className="flex-1 overflow-auto min-h-0">
+        <div ref={scrollContainerRef} className="flex-1 overflow-auto min-h-0">
           <Table>
             <TableHeader>
               <TableRow>
@@ -213,7 +221,8 @@ export function ColumnManagerModal({
                             value={column.label}
                             onChange={(e) => updateColumn(index, 'label', e.target.value)}
                             placeholder={t('columnLabelPlaceholder')}
-                            className="h-8"
+                            className={`h-8 ${!column.label.trim() ? 'border-destructive focus-visible:ring-destructive' : ''}`}
+                            autoFocus={!column.label.trim()}
                           />
                         )}
                       </div>
