@@ -100,6 +100,12 @@ export function SubsectionPartsModal({
               figureReference: s.figureReference || undefined,
               description: s.description || undefined,
               diagramImage: s.diagramImageUrl || undefined,
+              columnConfig: s.columnConfig?.map((c) => ({
+                key: c.key,
+                label: c.label,
+                type: c.type as 'text' | 'number',
+                required: c.required,
+              })),
               parts: s.parts.map((p) => ({
                 partNumber: p.partNumber,
                 description: p.description,
@@ -107,6 +113,7 @@ export function SubsectionPartsModal({
                 unit: p.unit,
                 location: p.location || undefined,
                 notes: p.notes || undefined,
+                customFields: p.customFields || undefined,
               })),
             }));
             console.log('[SubsectionPartsModal] Setting custom subsections:', converted);
@@ -819,13 +826,40 @@ export function SubsectionPartsModal({
                                 <TableHead className="hidden text-center font-semibold sm:table-cell">
                                   {t('tableHeaders.unit')}
                                 </TableHead>
+                                {/* Custom column headers */}
+                                {activeSubsection?.columnConfig
+                                  ?.filter(
+                                    (col) =>
+                                      !['partNumber', 'description', 'quantity', 'unit'].includes(
+                                        col.key,
+                                      ),
+                                  )
+                                  .map((col) => (
+                                    <TableHead
+                                      key={col.key}
+                                      className="hidden font-semibold sm:table-cell"
+                                    >
+                                      {col.label}
+                                    </TableHead>
+                                  ))}
                               </TableRow>
                             </TableHeader>
                             <TableBody>
                               {filteredParts.length === 0 ? (
                                 <TableRow>
                                   <TableCell
-                                    colSpan={5}
+                                    colSpan={
+                                      5 +
+                                      (activeSubsection?.columnConfig?.filter(
+                                        (col) =>
+                                          ![
+                                            'partNumber',
+                                            'description',
+                                            'quantity',
+                                            'unit',
+                                          ].includes(col.key),
+                                      ).length || 0)
+                                    }
                                     className="h-24 text-center text-muted-foreground"
                                   >
                                     {searchQuery ? t('noResultsFound') : t('noPartsAvailable')}
@@ -883,6 +917,22 @@ export function SubsectionPartsModal({
                                       <TableCell className="hidden text-center sm:table-cell">
                                         {part.unit}
                                       </TableCell>
+                                      {/* Custom column values */}
+                                      {activeSubsection?.columnConfig
+                                        ?.filter(
+                                          (col) =>
+                                            ![
+                                              'partNumber',
+                                              'description',
+                                              'quantity',
+                                              'unit',
+                                            ].includes(col.key),
+                                        )
+                                        .map((col) => (
+                                          <TableCell key={col.key} className="hidden sm:table-cell">
+                                            {part.customFields?.[col.key] || '-'}
+                                          </TableCell>
+                                        ))}
                                     </TableRow>
                                   );
                                 })

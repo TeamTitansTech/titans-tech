@@ -12,6 +12,7 @@ export interface Part {
   unit: string;
   location?: string;
   notes?: string;
+  customFields?: Record<string, string>;
 }
 
 export interface SectionWithTabs {
