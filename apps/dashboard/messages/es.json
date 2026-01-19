@@ -1163,6 +1163,8 @@
       },
       "chartTitles": {
         "hydraulicClutchClearance": "Holgura del Embrague Hidráulico",
+        "hydClutchTotal": "Holgura Hid Total",
+        "hydClutchRear": "Holgura Hid Trasera",
         "pneumaticClutchClearance": "Holgura del Embrague Neumático",
         "brakeSpringMeasurements": "Mediciones del Resorte del Freno (F-B, F-TB, R-TB)",
         "slideMaxDeviation": "Desviación Máxima del Carro (Externo vs Interno)",
