@@ -315,6 +315,7 @@ export function ClutchCevolaniSection({
           machineName,
           machineSerial,
           sectionName: 'Clutch - Cevolani',
+          sectionKey: 'CLUTCH_CEVOLANI',
         }}
       />
 
