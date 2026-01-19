@@ -26,7 +26,6 @@ async function main() {
     create: {
       email: 'admin@admin.com',
       password: hashedPassword,
-      isUsingDefaultPassword: true,
     },
   });
 
@@ -127,7 +126,6 @@ async function main() {
       name: 'Admin User',
       companyId: company.id,
       isCompanyAdmin: true,
-      isUsingDefaultPassword: true,
     },
   });
 
@@ -143,7 +141,6 @@ async function main() {
       name: 'Manager User',
       companyId: company.id,
       isCompanyAdmin: false,
-      isUsingDefaultPassword: true,
     },
   });
 
@@ -159,7 +156,6 @@ async function main() {
       name: 'Normal User',
       companyId: company.id,
       isCompanyAdmin: false,
-      isUsingDefaultPassword: true,
     },
   });
 
@@ -229,7 +225,6 @@ async function main() {
       email: 'admin@acme-corp.com',
       password: hashedPassword,
       isCompanyAdmin: true,
-      isUsingDefaultPassword: true,
       companyId: acmeCompany.id,
     },
   });
@@ -244,7 +239,6 @@ async function main() {
       email: 'manager@acme-corp.com',
       password: hashedPassword,
       isCompanyAdmin: false,
-      isUsingDefaultPassword: true,
       companyId: acmeCompany.id,
     },
   });
@@ -259,7 +253,6 @@ async function main() {
       email: 'user@acme-corp.com',
       password: hashedPassword,
       isCompanyAdmin: false,
-      isUsingDefaultPassword: true,
       companyId: acmeCompany.id,
     },
   });
@@ -407,7 +400,6 @@ async function main() {
       email: 'test@acme-corp.com',
       password: hashedPassword,
       isCompanyAdmin: false,
-      isUsingDefaultPassword: true,
       companyId: acmeCompany.id,
     },
   });

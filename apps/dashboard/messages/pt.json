@@ -516,6 +516,9 @@
       "mainBranch": "Matriz (Filial Principal)",
       "users": "usuários"
     },
+    "userManagement": {
+      "addUser": "Adicionar Usuário"
+    },
     "createCompany": {
       "title": "Criar Empresa",
       "description": "Adicionar uma nova empresa à plataforma",
@@ -3075,6 +3078,52 @@
       }
     },
     "viewParts": "Ver Lista de Peças"
+  },
+  "setPassword": {
+    "title": "Defina Sua Senha",
+    "description": "Crie uma senha segura para ativar sua conta",
+    "form": {
+      "password": {
+        "label": "Senha",
+        "placeholder": "Digite sua senha",
+        "requirements": "8-20 caracteres, maiúscula, minúscula, número, caractere especial (!@#$%^&*)"
+      },
+      "confirmPassword": {
+        "label": "Confirmar Senha",
+        "placeholder": "Confirme sua senha"
+      },
+      "submit": "Definir Senha",
+      "submitting": "Definindo senha..."
+    },
+    "errors": {
+      "passwordMismatch": "As senhas não coincidem"
+    },
+    "invalidLink": {
+      "title": "Link Inválido",
+      "message": "Este link de ativação é inválido ou expirou."
+    },
+    "invalidToken": {
+      "title": "Token Inválido ou Expirado",
+      "backToLogin": "Voltar ao Login"
+    }
+  },
+  "forgotPassword": {
+    "title": "Esqueceu a Senha",
+    "description": "Digite seu e-mail para receber um link de redefinição de senha",
+    "form": {
+      "email": {
+        "label": "E-mail",
+        "placeholder": "seu@email.com"
+      },
+      "submit": "Enviar Link de Redefinição",
+      "submitting": "Enviando..."
+    },
+    "backToLogin": "Voltar ao Login",
+    "success": {
+      "title": "Verifique Seu E-mail",
+      "message": "Se existir uma conta com esse e-mail, enviamos as instruções de redefinição de senha.",
+      "backToLogin": "Voltar ao Login"
+    }
   },
   "inspectionForm": {
     "placeholders": {
