@@ -335,6 +335,7 @@ export function BearingClearanceSingleHammerSection({
           machineId,
           machineName,
           sectionName: 'Bearing Clearance Single Hammer',
+          sectionKey: 'BEARING_CLEARANCE_SINGLE_HAMMER',
         }}
       />
 

@@ -856,6 +856,7 @@ model Machine {
   serviceRequests ServiceRequest[]
   emails          Email[]
   productionLines MachineProductionLine[]
+  partsConfig     MachinePartsConfig?
 
   @@map("machines")
 }
@@ -2195,4 +2196,62 @@ model ServiceRequest {
   @@index([status])
   @@index([createdAt])
   @@map("service_requests")
+}
+
+// =============================================================================
+// Machine Parts Configuration (Customizable parts per machine)
+// =============================================================================
+
+model MachinePartsConfig {
+  id        String   @id @default(cuid())
+  machineId String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  machine     Machine                  @relation(fields: [machineId], references: [id], onDelete: Cascade)
+  subsections MachinePartsSubsection[]
+
+  @@map("machine_parts_configs")
+}
+
+model MachinePartsSubsection {
+  id              String   @id @default(cuid())
+  configId        String
+  sectionKey      String // ServiceSection enum value (CLUTCH, BEARING_CLEARANCE, etc.)
+  subsectionId    String // Unique identifier for this subsection within the section
+  name            String // Custom subsection name
+  figureReference String? // e.g., "FIGURE 336B"
+  description     String?
+  diagramImageUrl String? // S3 URL or static path
+  displayOrder    Int      @default(0)
+  columnConfig    Json? // Custom column definitions: [{ key, label, type }]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  config MachinePartsConfig @relation(fields: [configId], references: [id], onDelete: Cascade)
+  parts  MachinePartItem[]
+
+  @@unique([configId, sectionKey, subsectionId])
+  @@index([configId, sectionKey])
+  @@map("machine_parts_subsections")
+}
+
+model MachinePartItem {
+  id           String   @id @default(cuid())
+  subsectionId String
+  partNumber   String
+  description  String
+  quantity     String // String to support "AR" (As Required)
+  unit         String
+  location     String?
+  notes        String?
+  customFields Json? // Additional custom field values: { "key": "value", ... }
+  displayOrder Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  subsection MachinePartsSubsection @relation(fields: [subsectionId], references: [id], onDelete: Cascade)
+
+  @@index([subsectionId])
+  @@map("machine_part_items")
 }

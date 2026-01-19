@@ -26,6 +26,16 @@ import {
 import { CLUTCH_CEVOLANI_PARTS } from './clutch-cevolani-parts';
 
 /**
+ * Column configuration for custom columns in parts table
+ */
+export interface ColumnConfig {
+  key: string;
+  label: string;
+  type: 'text' | 'number';
+  required: boolean;
+}
+
+/**
  * Subsection definition with parts and optional diagram
  */
 export interface Subsection {
@@ -36,6 +46,8 @@ export interface Subsection {
   parts: Part[];
   /** Path to diagram image in public folder */
   diagramImage?: string;
+  /** Custom column configuration for this subsection */
+  columnConfig?: ColumnConfig[];
 }
 
 /**

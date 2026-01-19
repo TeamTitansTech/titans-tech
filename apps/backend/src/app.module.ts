@@ -19,6 +19,7 @@ import { ProductionLinesModule } from './modules/production-lines/production-lin
 import { PermissionTemplatesModule } from './modules/permission-templates/permission-templates.module';
 import { ServiceRequestsModule } from './modules/service-requests/service-requests.module';
 import { PasswordResetModule } from './modules/password-reset/password-reset.module';
+import { MachinePartsModule } from './modules/machine-parts/machine-parts.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { PasswordResetModule } from './modules/password-reset/password-reset.mod
     ProductionLinesModule,
     PermissionTemplatesModule,
     ServiceRequestsModule,
+    MachinePartsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
