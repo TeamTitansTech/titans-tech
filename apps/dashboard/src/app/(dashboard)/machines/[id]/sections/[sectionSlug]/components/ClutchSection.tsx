@@ -374,7 +374,7 @@ export function ClutchSection({
 
             <div className="space-y-6">
               <MultiLineThresholdChart
-                title="Hydraulic Clutch Clearance"
+                title="Hyd Clutch Total"
                 data={hydClearanceChartDataConverted}
                 lines={[
                   {
@@ -383,6 +383,17 @@ export function ClutchSection({
                     color: '#8884d8',
                     threshold: hydTotalThresholdConverted ?? undefined,
                   },
+                ]}
+                sharedThreshold={hydTotalThresholdConverted}
+                valueUnit={lengthUnit === 'mm' ? 'mm' : 'in'}
+                allowToggle={true}
+                height={250}
+              />
+
+              <MultiLineThresholdChart
+                title="Hyd Clutch Rear"
+                data={hydClearanceChartDataConverted}
+                lines={[
                   {
                     dataKey: 'hydClutchClearanceRear',
                     label: 'Hyd Rear',
@@ -390,10 +401,10 @@ export function ClutchSection({
                     threshold: hydRearThresholdConverted ?? undefined,
                   },
                 ]}
-                sharedThreshold={hydTotalThresholdConverted}
+                sharedThreshold={hydRearThresholdConverted}
                 valueUnit={lengthUnit === 'mm' ? 'mm' : 'in'}
                 allowToggle={true}
-                height={300}
+                height={250}
               />
 
               <MultiLineThresholdChart
