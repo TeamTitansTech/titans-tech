@@ -438,7 +438,7 @@ export function ClutchSection({
 
           <div className="space-y-6">
             <MultiLineThresholdChart
-              title={t('chartTitles.hydraulicClutchClearance')}
+              title={t('chartTitles.hydClutchTotal')}
               data={hydClearanceChartDataConverted}
               lines={[
                 {
@@ -447,6 +447,18 @@ export function ClutchSection({
                   color: '#8884d8',
                   threshold: hydTotalThresholdConverted ?? undefined,
                 },
+              ]}
+              sharedThreshold={hydTotalThresholdConverted}
+              valueUnit={getLengthUnitLabel()}
+              allowToggle={true}
+              hideThresholdValues={hideThresholdValues}
+              height={250}
+            />
+
+            <MultiLineThresholdChart
+              title={t('chartTitles.hydClutchRear')}
+              data={hydClearanceChartDataConverted}
+              lines={[
                 {
                   dataKey: 'hydClutchClearanceRear',
                   label: 'Hyd Rear',
@@ -454,11 +466,11 @@ export function ClutchSection({
                   threshold: hydRearThresholdConverted ?? undefined,
                 },
               ]}
-              sharedThreshold={hydTotalThresholdConverted}
+              sharedThreshold={hydRearThresholdConverted}
               valueUnit={getLengthUnitLabel()}
               allowToggle={true}
               hideThresholdValues={hideThresholdValues}
-              height={300}
+              height={250}
             />
 
             <MultiLineThresholdChart

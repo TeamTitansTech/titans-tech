@@ -1158,6 +1158,8 @@
       },
       "chartTitles": {
         "hydraulicClutchClearance": "Folga da Embreagem Hidráulica",
+        "hydClutchTotal": "Folga Hid Total",
+        "hydClutchRear": "Folga Hid Traseira",
         "pneumaticClutchClearance": "Folga da Embreagem Pneumática",
         "brakeSpringMeasurements": "Medições da Mola do Freio (F-B, F-TB, R-TB)",
         "slideMaxDeviation": "Desvio Máximo do Martelo (Externo vs Interno)",

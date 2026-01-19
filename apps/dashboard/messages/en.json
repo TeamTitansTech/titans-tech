@@ -1158,6 +1158,8 @@
       },
       "chartTitles": {
         "hydraulicClutchClearance": "Hydraulic Clutch Clearance",
+        "hydClutchTotal": "Hyd Clutch Total",
+        "hydClutchRear": "Hyd Clutch Rear",
         "pneumaticClutchClearance": "Pneumatic Clutch Clearance",
         "brakeSpringMeasurements": "Brake Spring Measurements (F-B, F-TB, R-TB)",
         "slideMaxDeviation": "Slide Max Deviation (Outer vs Inner)",
