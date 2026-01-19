@@ -112,6 +112,26 @@
         "requestDate": "Data da Solicitação",
         "totalParts": "Total de Peças"
       }
+    },
+    "passwordActivation": {
+      "subject": "🔑 Ative Sua Conta - {companyName}",
+      "badge": "ATIVAÇÃO DE CONTA",
+      "title": "Ative Sua Conta",
+      "greeting": "Olá {userName},",
+      "intro": "Bem-vindo à {companyName}! Sua conta foi criada. Por favor, clique no botão abaixo para definir sua senha e ativar sua conta.",
+      "button": "Definir Senha e Ativar Conta",
+      "expiryNote": "Este link de ativação expirará em 7 dias.",
+      "noRequestNote": "Se você não solicitou esta conta, por favor ignore este e-mail ou entre em contato com o suporte."
+    },
+    "passwordReset": {
+      "subject": "🔒 Redefinição de Senha - {companyName}",
+      "badge": "REDEFINIÇÃO DE SENHA",
+      "title": "Redefina Sua Senha",
+      "greeting": "Olá {userName},",
+      "intro": "Recebemos uma solicitação para redefinir sua senha. Clique no botão abaixo para escolher uma nova senha.",
+      "button": "Redefinir Senha",
+      "expiryNote": "Este link de redefinição expirará em 1 hora.",
+      "noRequestNote": "Se você não solicitou esta redefinição de senha, por favor ignore este e-mail. Sua senha permanecerá inalterada."
     }
   }
 }

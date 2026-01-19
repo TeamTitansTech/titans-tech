@@ -112,6 +112,26 @@
         "requestDate": "Fecha de Solicitud",
         "totalParts": "Total de Piezas"
       }
+    },
+    "passwordActivation": {
+      "subject": "🔑 Active Su Cuenta - {companyName}",
+      "badge": "ACTIVACIÓN DE CUENTA",
+      "title": "Active Su Cuenta",
+      "greeting": "Hola {userName},",
+      "intro": "¡Bienvenido a {companyName}! Su cuenta ha sido creada. Por favor, haga clic en el botón a continuación para establecer su contraseña y activar su cuenta.",
+      "button": "Establecer Contraseña y Activar Cuenta",
+      "expiryNote": "Este enlace de activación expirará en 7 días.",
+      "noRequestNote": "Si no solicitó esta cuenta, por favor ignore este correo o contacte al soporte."
+    },
+    "passwordReset": {
+      "subject": "🔒 Restablecimiento de Contraseña - {companyName}",
+      "badge": "RESTABLECIMIENTO DE CONTRASEÑA",
+      "title": "Restablezca Su Contraseña",
+      "greeting": "Hola {userName},",
+      "intro": "Recibimos una solicitud para restablecer su contraseña. Haga clic en el botón a continuación para elegir una nueva contraseña.",
+      "button": "Restablecer Contraseña",
+      "expiryNote": "Este enlace de restablecimiento expirará en 1 hora.",
+      "noRequestNote": "Si no solicitó este restablecimiento de contraseña, por favor ignore este correo. Su contraseña permanecerá sin cambios."
     }
   }
 }

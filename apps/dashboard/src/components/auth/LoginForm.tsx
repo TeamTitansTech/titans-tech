@@ -3,6 +3,7 @@ import { FormEvent, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { LucideIcon } from 'lucide-react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -213,13 +214,24 @@ export function LoginForm({
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="password">{t('form.password.label')}</Label>
-                <a
-                  href="#"
-                  className="text-sm text-primary hover:underline"
-                  data-testid="forgot-password-link"
-                >
-                  {t('form.forgotPassword')}
-                </a>
+                {loginType === 'admin' ? (
+                  <Link
+                    href="/admin/forgot-password"
+                    className="text-sm text-primary hover:underline"
+                  >
+                    {t('form.forgotPassword')}
+                  </Link>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      window.location.href = '/forgot-password';
+                    }}
+                    className="text-sm text-primary hover:underline"
+                  >
+                    {t('form.forgotPassword')}
+                  </button>
+                )}
               </div>
               <div className="relative">
                 <Input

@@ -18,12 +18,14 @@ import { TasksModule } from './modules/tasks/tasks.module';
 import { ProductionLinesModule } from './modules/production-lines/production-lines.module';
 import { PermissionTemplatesModule } from './modules/permission-templates/permission-templates.module';
 import { ServiceRequestsModule } from './modules/service-requests/service-requests.module';
+import { PasswordResetModule } from './modules/password-reset/password-reset.module';
 import { MachinePartsModule } from './modules/machine-parts/machine-parts.module';
 
 @Module({
   imports: [
     SharedModule,
     AuthModule,
+    PasswordResetModule,
     SysAdminModule,
     CompaniesModule,
     CompanyBranchesModule,

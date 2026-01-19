@@ -14,8 +14,6 @@ import { SysAdminJwtPayload } from '../../types/request';
 import * as bcrypt from 'bcrypt';
 import { NotificationsService } from '../notifications/notifications.service';
 
-const DEFAULT_PASSWORD = 'password';
-
 @Injectable()
 export class SysAdminService {
   constructor(
@@ -88,7 +86,7 @@ export class SysAdminService {
     }
 
     const isCurrentPasswordValid = await bcrypt.compare(
-      sysAdmin.isUsingDefaultPassword ? DEFAULT_PASSWORD : data.currentPassword,
+      data.currentPassword,
       sysAdmin.password,
     );
 
@@ -100,7 +98,7 @@ export class SysAdminService {
 
     const updatedSysAdmin = await this.prisma.sysAdmin.update({
       where: { id: userId },
-      data: { password: hashedPassword, isUsingDefaultPassword: false },
+      data: { password: hashedPassword },
     });
 
     return new SysAdminResponseDto(updatedSysAdmin);

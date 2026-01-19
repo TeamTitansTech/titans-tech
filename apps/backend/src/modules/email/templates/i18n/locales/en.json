@@ -112,6 +112,26 @@
         "requestDate": "Request Date",
         "totalParts": "Total Parts"
       }
+    },
+    "passwordActivation": {
+      "subject": "🔑 Activate Your Account - {companyName}",
+      "badge": "ACCOUNT ACTIVATION",
+      "title": "Activate Your Account",
+      "greeting": "Hello {userName},",
+      "intro": "Welcome to {companyName}! Your account has been created. Please click the button below to set your password and activate your account.",
+      "button": "Set Password & Activate Account",
+      "expiryNote": "This activation link will expire in 7 days.",
+      "noRequestNote": "If you didn't request this account, please ignore this email or contact support."
+    },
+    "passwordReset": {
+      "subject": "🔒 Password Reset Request - {companyName}",
+      "badge": "PASSWORD RESET",
+      "title": "Reset Your Password",
+      "greeting": "Hello {userName},",
+      "intro": "We received a request to reset your password. Click the button below to choose a new password.",
+      "button": "Reset Password",
+      "expiryNote": "This reset link will expire in 1 hour.",
+      "noRequestNote": "If you didn't request this password reset, please ignore this email. Your password will remain unchanged."
     }
   }
 }

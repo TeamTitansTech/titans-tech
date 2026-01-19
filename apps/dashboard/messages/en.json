@@ -516,6 +516,9 @@
       "mainBranch": "Main Branch",
       "users": "users"
     },
+    "userManagement": {
+      "addUser": "Add User"
+    },
     "createCompany": {
       "title": "Create Company",
       "description": "Add a new company to the platform",
@@ -1158,6 +1161,8 @@
       },
       "chartTitles": {
         "hydraulicClutchClearance": "Hydraulic Clutch Clearance",
+        "hydClutchTotal": "Hyd Clutch Total",
+        "hydClutchRear": "Hyd Clutch Rear",
         "pneumaticClutchClearance": "Pneumatic Clutch Clearance",
         "brakeSpringMeasurements": "Brake Spring Measurements (F-B, F-TB, R-TB)",
         "slideMaxDeviation": "Slide Max Deviation (Outer vs Inner)",
@@ -3073,6 +3078,52 @@
       }
     },
     "viewParts": "View Parts List"
+  },
+  "setPassword": {
+    "title": "Set Your Password",
+    "description": "Create a secure password to activate your account",
+    "form": {
+      "password": {
+        "label": "Password",
+        "placeholder": "Enter your password",
+        "requirements": "8-20 characters, uppercase, lowercase, number, special character (!@#$%^&*)"
+      },
+      "confirmPassword": {
+        "label": "Confirm Password",
+        "placeholder": "Confirm your password"
+      },
+      "submit": "Set Password",
+      "submitting": "Setting password..."
+    },
+    "errors": {
+      "passwordMismatch": "Passwords do not match"
+    },
+    "invalidLink": {
+      "title": "Invalid Link",
+      "message": "This activation link is invalid or has expired."
+    },
+    "invalidToken": {
+      "title": "Invalid or Expired Token",
+      "backToLogin": "Back to Login"
+    }
+  },
+  "forgotPassword": {
+    "title": "Forgot Password",
+    "description": "Enter your email to receive a password reset link",
+    "form": {
+      "email": {
+        "label": "Email",
+        "placeholder": "your@email.com"
+      },
+      "submit": "Send Reset Link",
+      "submitting": "Sending..."
+    },
+    "backToLogin": "Back to Login",
+    "success": {
+      "title": "Check Your Email",
+      "message": "If an account exists with that email, we've sent password reset instructions.",
+      "backToLogin": "Back to Login"
+    }
   },
   "inspectionForm": {
     "placeholders": {

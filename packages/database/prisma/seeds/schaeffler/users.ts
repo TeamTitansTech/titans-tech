@@ -66,7 +66,6 @@ export async function seedSchaefflerUsers(
       email: 'admin@dev-schaeffler.com',
       password: hashedPassword,
       isCompanyAdmin: true,
-      isUsingDefaultPassword: true,
       companyId: company.id,
     },
   });
@@ -90,7 +89,6 @@ export async function seedSchaefflerUsers(
       email: 'user@dev-schaeffler.com',
       password: hashedPassword,
       isCompanyAdmin: false,
-      isUsingDefaultPassword: true,
       companyId: company.id,
     },
   });

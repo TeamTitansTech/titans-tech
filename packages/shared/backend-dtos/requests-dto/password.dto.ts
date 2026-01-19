@@ -25,8 +25,7 @@ export const PasswordSchema = z
 
 export const UpdatePasswordSchema = z
   .object({
-    /* Optional to allow user to set a new password if isUsingDefaultPassword is true */
-    currentPassword: z.string().optional(),
+    currentPassword: z.string().min(1, 'Current password is required'),
     password: PasswordSchema,
     confirmPassword: z.string(),
   })
