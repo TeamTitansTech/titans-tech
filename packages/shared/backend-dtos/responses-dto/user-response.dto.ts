@@ -71,12 +71,12 @@ export class UserResponseDto {
   name: string | null;
   email: string;
   isCompanyAdmin: boolean;
-  isUsingDefaultPassword: boolean;
   companyId: string;
   createdAt: Date;
   updatedAt: Date;
   deletedAt?: Date | null;
   unreadNotifications?: number;
+  pendingActivation?: boolean;
 
   @Exclude()
   password?: string;

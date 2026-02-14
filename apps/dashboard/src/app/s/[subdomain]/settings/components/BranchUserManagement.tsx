@@ -2,11 +2,12 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
-import { Users, Pencil, Ban, RotateCcw } from 'lucide-react';
+import { Users, Pencil, Ban, RotateCcw, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { getAllUsers } from '@/data/services/users.api';
 import { getBranch } from '@/data/services/company-branches.api';
+import { resendActivation } from '@/data/services/password-reset.api';
 import { toast } from 'sonner';
 import {
   Table,
@@ -107,6 +108,15 @@ export function BranchUserManagement({ branchId, refreshKey }: BranchUserManagem
 
   const handleReactivateUserSuccess = () => {
     loadUsers();
+  };
+
+  const handleResendActivation = async (userId: string) => {
+    try {
+      await resendActivation(userId);
+      toast.success(t('activationEmailSent') || 'Activation email sent successfully');
+    } catch {
+      toast.error(t('activationEmailFailed') || 'Failed to send activation email');
+    }
   };
 
   if (isLoading) {
@@ -232,38 +242,61 @@ export function BranchUserManagement({ branchId, refreshKey }: BranchUserManagem
                         {user.email}
                       </TableCell>
                       <TableCell data-testid={`client-user-role-${user.id}`}>
-                        <Badge
-                          className={getUserRoleBadgeColor(role)}
-                          variant="secondary"
-                          data-testid={`client-user-role-badge-${user.id}`}
-                        >
-                          {t(`roles.${role}`)}
-                        </Badge>
+                        <div className="flex items-center gap-2">
+                          <Badge
+                            className={getUserRoleBadgeColor(role)}
+                            variant="secondary"
+                            data-testid={`client-user-role-badge-${user.id}`}
+                          >
+                            {t(`roles.${role}`)}
+                          </Badge>
+                          {user.pendingActivation && (
+                            <Badge variant="outline" className="border-orange-500 text-orange-700">
+                              {t('pendingActivation') || 'Pendente'}
+                            </Badge>
+                          )}
+                        </div>
                       </TableCell>
                       <TableCell data-testid={`client-user-actions-${user.id}`}>
                         <div className="flex items-center gap-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleEdit(user)}
-                            disabled={!canEdit}
-                            className="h-8 w-8 p-0"
-                            data-testid={`client-edit-user-button-${user.id}`}
-                          >
-                            <Pencil className="h-4 w-4" />
-                            <span className="sr-only">{t('editUser')}</span>
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleDelete(user)}
-                            disabled={!canDelete}
-                            className="h-8 w-8 p-0 hover:bg-destructive/10 hover:text-destructive"
-                            data-testid={`client-delete-user-button-${user.id}`}
-                          >
-                            <Ban className="h-4 w-4" />
-                            <span className="sr-only">{t('deactivateUser')}</span>
-                          </Button>
+                          {user.pendingActivation ? (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleResendActivation(user.id)}
+                              className="h-8 w-8 p-0 hover:bg-blue-50 hover:text-blue-600"
+                              title={t('resendActivationEmail')}
+                              data-testid={`client-resend-activation-button-${user.id}`}
+                            >
+                              <Mail className="h-4 w-4" />
+                              <span className="sr-only">{t('resendActivationEmail')}</span>
+                            </Button>
+                          ) : (
+                            <>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleEdit(user)}
+                                disabled={!canEdit}
+                                className="h-8 w-8 p-0"
+                                data-testid={`client-edit-user-button-${user.id}`}
+                              >
+                                <Pencil className="h-4 w-4" />
+                                <span className="sr-only">{t('editUser')}</span>
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleDelete(user)}
+                                disabled={!canDelete}
+                                className="h-8 w-8 p-0 hover:bg-destructive/10 hover:text-destructive"
+                                data-testid={`client-delete-user-button-${user.id}`}
+                              >
+                                <Ban className="h-4 w-4" />
+                                <span className="sr-only">{t('deactivateUser')}</span>
+                              </Button>
+                            </>
+                          )}
                         </div>
                       </TableCell>
                     </TableRow>

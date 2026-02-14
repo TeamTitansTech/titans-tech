@@ -7,6 +7,8 @@ import {
   ClientReminder,
   PublicServiceRequest,
   PartsRequest,
+  PasswordActivation,
+  PasswordReset,
 } from '../templates/react';
 import { getEmailSubject, type Locale } from '../templates/i18n';
 import type {
@@ -15,6 +17,8 @@ import type {
   ClientReminderTemplateData,
   PublicServiceRequestTemplateData,
   PartsRequestTemplateData,
+  PasswordActivationTemplateData,
+  PasswordResetTemplateData,
 } from '../templates/types';
 
 export interface RenderedEmail {
@@ -132,6 +136,44 @@ export class TemplateRendererService {
     const subject = getEmailSubject('partsRequest', locale, {
       machineName: data.machineName,
       machineSerial: data.machineSerial,
+    });
+
+    return { subject, html, text };
+  }
+
+  async renderPasswordActivation(
+    data: PasswordActivationTemplateData,
+    locale: Locale = 'en',
+  ): Promise<RenderedEmail> {
+    const component = React.createElement(PasswordActivation, {
+      data,
+      locale,
+    });
+
+    const html = await render(component, { pretty: false });
+    const text = await render(component, { plainText: true });
+
+    const subject = getEmailSubject('passwordActivation', locale, {
+      companyName: data.companyName,
+    });
+
+    return { subject, html, text };
+  }
+
+  async renderPasswordReset(
+    data: PasswordResetTemplateData,
+    locale: Locale = 'en',
+  ): Promise<RenderedEmail> {
+    const component = React.createElement(PasswordReset, {
+      data,
+      locale,
+    });
+
+    const html = await render(component, { pretty: false });
+    const text = await render(component, { plainText: true });
+
+    const subject = getEmailSubject('passwordReset', locale, {
+      companyName: data.companyName,
     });
 
     return { subject, html, text };

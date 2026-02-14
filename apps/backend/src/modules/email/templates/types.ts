@@ -100,3 +100,15 @@ export interface PartsRequestTemplateData {
   partsGroups: PartsGroup[];
   totalParts: number;
 }
+
+export interface PasswordActivationTemplateData {
+  userName: string;
+  companyName: string;
+  activationUrl: string;
+}
+
+export interface PasswordResetTemplateData {
+  userName: string;
+  companyName: string;
+  resetUrl: string;
+}

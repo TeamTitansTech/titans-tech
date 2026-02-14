@@ -516,6 +516,9 @@
       "mainBranch": "Sucursal Principal",
       "users": "usuarios"
     },
+    "userManagement": {
+      "addUser": "Agregar Usuario"
+    },
     "createCompany": {
       "title": "Crear Empresa",
       "description": "Agregar una nueva empresa a la plataforma",
@@ -1163,6 +1166,8 @@
       },
       "chartTitles": {
         "hydraulicClutchClearance": "Holgura del Embrague Hidráulico",
+        "hydClutchTotal": "Holgura Hid Total",
+        "hydClutchRear": "Holgura Hid Trasera",
         "pneumaticClutchClearance": "Holgura del Embrague Neumático",
         "brakeSpringMeasurements": "Mediciones del Resorte del Freno (F-B, F-TB, R-TB)",
         "slideMaxDeviation": "Desviación Máxima del Carro (Externo vs Interno)",
@@ -3017,6 +3022,52 @@
       }
     },
     "viewParts": "Ver Lista de Piezas"
+  },
+  "setPassword": {
+    "title": "Establezca Su Contraseña",
+    "description": "Cree una contraseña segura para activar su cuenta",
+    "form": {
+      "password": {
+        "label": "Contraseña",
+        "placeholder": "Ingrese su contraseña",
+        "requirements": "8-20 caracteres, mayúscula, minúscula, número, carácter especial (!@#$%^&*)"
+      },
+      "confirmPassword": {
+        "label": "Confirmar Contraseña",
+        "placeholder": "Confirme su contraseña"
+      },
+      "submit": "Establecer Contraseña",
+      "submitting": "Estableciendo contraseña..."
+    },
+    "errors": {
+      "passwordMismatch": "Las contraseñas no coinciden"
+    },
+    "invalidLink": {
+      "title": "Enlace Inválido",
+      "message": "Este enlace de activación es inválido o ha expirado."
+    },
+    "invalidToken": {
+      "title": "Token Inválido o Expirado",
+      "backToLogin": "Volver al Inicio de Sesión"
+    }
+  },
+  "forgotPassword": {
+    "title": "Olvidó la Contraseña",
+    "description": "Ingrese su correo electrónico para recibir un enlace de restablecimiento de contraseña",
+    "form": {
+      "email": {
+        "label": "Correo Electrónico",
+        "placeholder": "su@correo.com"
+      },
+      "submit": "Enviar Enlace de Restablecimiento",
+      "submitting": "Enviando..."
+    },
+    "backToLogin": "Volver al Inicio de Sesión",
+    "success": {
+      "title": "Verifique Su Correo",
+      "message": "Si existe una cuenta con ese correo, hemos enviado las instrucciones de restablecimiento de contraseña.",
+      "backToLogin": "Volver al Inicio de Sesión"
+    }
   },
   "inspectionForm": {
     "placeholders": {

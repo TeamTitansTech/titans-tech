@@ -423,12 +423,12 @@ enum CounterbalanceAlertField {
 }
 
 model SysAdmin {
-  id                     String   @id @default(cuid())
-  email                  String   @unique
-  password               String
-  isUsingDefaultPassword Boolean  @default(true)
-  createdAt              DateTime @default(now())
-  updatedAt              DateTime @updatedAt
+  id                            String   @id @default(cuid())
+  email                         String   @unique
+  password                      String
+  ephemeralResetPasswordTokenId String?
+  createdAt                     DateTime @default(now())
+  updatedAt                     DateTime @updatedAt
 
   @@map("sys_admins")
 }
@@ -498,12 +498,12 @@ model CompanyBranch {
 }
 
 model User {
-  id                     String  @id @default(cuid())
-  name                   String?
-  email                  String
-  password               String
-  isCompanyAdmin         Boolean @default(false)
-  isUsingDefaultPassword Boolean @default(true)
+  id                            String  @id @default(cuid())
+  name                          String?
+  email                         String
+  password                      String
+  isCompanyAdmin                Boolean @default(false)
+  ephemeralResetPasswordTokenId String?
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -1796,6 +1796,8 @@ enum NotificationType {
   SERVICE_COMPLETED
   INSPECTION_ALERT
   PARTS_REQUEST
+  PASSWORD_ACTIVATION
+  PASSWORD_RESET
 }
 
 enum EmailStatus {
