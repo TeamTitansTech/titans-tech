@@ -149,6 +149,7 @@ interface MachineCardOverlayProps {
   isDragging: boolean;
   isMovable: boolean;
   canViewDetails: boolean;
+  isEditMode: boolean; // When true, disable navigation to machine page
   onDragStart: () => void;
   onDrag: (dx: number, dy: number) => void;
   onDragEnd: () => void;
@@ -164,6 +165,7 @@ function MachineCardOverlay({
   isDragging,
   isMovable,
   canViewDetails,
+  isEditMode,
   onDragStart,
   onDrag,
   onDragEnd,
@@ -224,7 +226,8 @@ function MachineCardOverlay({
 
   const handleClick = () => {
     if (isDragging) return;
-    if (canViewDetails && !isMovable) {
+    // Only navigate if viewing details is allowed AND we're not in edit mode
+    if (canViewDetails && !isMovable && !isEditMode) {
       onClick();
     }
   };
@@ -237,7 +240,7 @@ function MachineCardOverlay({
         top: screenY,
         transform: `scale(${scale})`,
         transformOrigin: 'top left',
-        cursor: isMovable ? 'move' : canViewDetails ? 'pointer' : 'default',
+        cursor: isMovable ? 'move' : canViewDetails && !isEditMode ? 'pointer' : 'default',
         zIndex: isDragging ? 1000 : 1,
       }}
       onMouseDown={handleMouseDown}
@@ -245,7 +248,9 @@ function MachineCardOverlay({
     >
       <Card
         className={`w-[200px] shrink-0 transition-shadow ${
-          canViewDetails && !isMovable ? 'hover:border-primary/50 hover:shadow-lg' : ''
+          canViewDetails && !isMovable && !isEditMode
+            ? 'hover:border-primary/50 hover:shadow-lg'
+            : ''
         } ${isMovable ? 'hover:ring-2 hover:ring-blue-500' : ''}`}
       >
         <CardContent className="p-0">
@@ -1005,7 +1010,7 @@ export function ProductionLineKonvaCanvas({
     <div className="w-full h-[600px] lg:h-[700px] border rounded-lg overflow-hidden bg-muted/30 relative">
       {/* Drawing Toolbar - only show in edit mode */}
       {canEdit && (
-        <div className="absolute top-4 left-4 z-20 flex gap-1 flex-wrap bg-background/95 backdrop-blur-sm rounded-lg p-2 shadow-md border">
+        <div className="absolute top-4 left-4 z-20 flex gap-1 flex-wrap bg-background/95 backdrop-blur-sm rounded-lg p-2 shadow-md border max-w-[calc(100%-200px)]">
           {toolButtons.map(({ tool, icon, label }) => (
             <TooltipProvider key={tool}>
               <Tooltip>
@@ -1099,7 +1104,7 @@ export function ProductionLineKonvaCanvas({
 
       {/* Save/Reset buttons */}
       {canEdit && (
-        <div className="absolute top-4 right-4 z-20 flex gap-2 bg-background/95 backdrop-blur-sm rounded-lg p-2 shadow-md border">
+        <div className="absolute top-4 right-4 z-20 flex gap-2 bg-background/95 backdrop-blur-sm rounded-lg p-2 shadow-md border flex-shrink-0">
           <Button variant="outline" size="sm" onClick={handleReset} disabled={isSaving}>
             <RotateCcw className="w-4 h-4 mr-2" />
             {t('resetLayout')}
@@ -1238,6 +1243,7 @@ export function ProductionLineKonvaCanvas({
                 isDragging={draggingMachineId === pm.machineId}
                 isMovable={canEdit && activeTool === 'move'}
                 canViewDetails={canViewMachineDetails}
+                isEditMode={canEdit}
                 onDragStart={() => setDraggingMachineId(pm.machineId)}
                 onDrag={(dx, dy) => handleMachinePositionChange(pm.machineId, dx, dy)}
                 onDragEnd={() => setDraggingMachineId(null)}

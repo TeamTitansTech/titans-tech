@@ -11,7 +11,6 @@ import {
   CreateProductionLineDto,
   UpdateProductionLineDto,
   UpdateNodePositionsDto,
-  UpdateEdgesDto,
   UpdateCanvasShapesDto,
 } from '@titans-tech/shared/backend-dtos';
 
@@ -20,7 +19,6 @@ import {
  */
 const PRODUCTION_LINE_FULL_INCLUDE = {
   branch: true,
-  edges: true,
   machines: {
     include: {
       machine: {
@@ -409,7 +407,7 @@ export class ProductionLinesService {
     });
   }
 
-  // React Flow position and edge methods
+  // Canvas layout methods (Admin only)
 
   async updateNodePositions(
     id: string,
@@ -443,103 +441,6 @@ export class ProductionLinesService {
     return this.findOneForSysAdmin(id);
   }
 
-  async updateNodePositionsForUser(
-    userId: string,
-    id: string,
-    updateNodePositionsDto: UpdateNodePositionsDto,
-  ) {
-    const productionLine = await this.prisma.productionLine.findUnique({
-      where: { id },
-    });
-
-    if (!productionLine) {
-      throw new NotFoundException(`Production line with ID ${id} not found`);
-    }
-
-    await this.validateUserBranchAccess(userId, productionLine.branchId);
-
-    await this.prisma.$transaction(
-      updateNodePositionsDto.positions.map((pos) =>
-        this.prisma.machineProductionLine.update({
-          where: {
-            machineId_productionLineId: {
-              machineId: pos.machineId,
-              productionLineId: id,
-            },
-          },
-          data: {
-            positionX: pos.positionX,
-            positionY: pos.positionY,
-          },
-        }),
-      ),
-    );
-
-    return this.findOne(userId, id);
-  }
-
-  async updateEdges(id: string, updateEdgesDto: UpdateEdgesDto) {
-    const productionLine = await this.prisma.productionLine.findUnique({
-      where: { id },
-    });
-
-    if (!productionLine) {
-      throw new NotFoundException(`Production line with ID ${id} not found`);
-    }
-
-    await this.prisma.$transaction([
-      // Delete all existing edges
-      this.prisma.productionLineEdge.deleteMany({
-        where: { productionLineId: id },
-      }),
-      // Create new edges
-      this.prisma.productionLineEdge.createMany({
-        data: updateEdgesDto.edges.map((edge) => ({
-          productionLineId: id,
-          sourceNodeId: edge.sourceNodeId,
-          targetNodeId: edge.targetNodeId,
-        })),
-      }),
-    ]);
-
-    return this.findOneForSysAdmin(id);
-  }
-
-  async updateEdgesForUser(
-    userId: string,
-    id: string,
-    updateEdgesDto: UpdateEdgesDto,
-  ) {
-    const productionLine = await this.prisma.productionLine.findUnique({
-      where: { id },
-    });
-
-    if (!productionLine) {
-      throw new NotFoundException(`Production line with ID ${id} not found`);
-    }
-
-    await this.validateUserBranchAccess(userId, productionLine.branchId);
-
-    await this.prisma.$transaction([
-      // Delete all existing edges
-      this.prisma.productionLineEdge.deleteMany({
-        where: { productionLineId: id },
-      }),
-      // Create new edges
-      this.prisma.productionLineEdge.createMany({
-        data: updateEdgesDto.edges.map((edge) => ({
-          productionLineId: id,
-          sourceNodeId: edge.sourceNodeId,
-          targetNodeId: edge.targetNodeId,
-        })),
-      }),
-    ]);
-
-    return this.findOne(userId, id);
-  }
-
-  // Canvas shapes methods
-
   async updateCanvasShapes(
     id: string,
     updateCanvasShapesDto: UpdateCanvasShapesDto,
@@ -560,30 +461,5 @@ export class ProductionLinesService {
     });
 
     return this.findOneForSysAdmin(id);
-  }
-
-  async updateCanvasShapesForUser(
-    userId: string,
-    id: string,
-    updateCanvasShapesDto: UpdateCanvasShapesDto,
-  ) {
-    const productionLine = await this.prisma.productionLine.findUnique({
-      where: { id },
-    });
-
-    if (!productionLine) {
-      throw new NotFoundException(`Production line with ID ${id} not found`);
-    }
-
-    await this.validateUserBranchAccess(userId, productionLine.branchId);
-
-    await this.prisma.productionLine.update({
-      where: { id },
-      data: {
-        canvasShapes: updateCanvasShapesDto.shapes,
-      },
-    });
-
-    return this.findOne(userId, id);
   }
 }

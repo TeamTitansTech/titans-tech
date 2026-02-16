@@ -6,7 +6,6 @@ import type {
   CreateProductionLineDto,
   UpdateProductionLineDto,
   UpdateNodePositionsDto,
-  UpdateEdgesDto,
   UpdateCanvasShapesDto,
 } from '../types/production-lines.types';
 
@@ -67,7 +66,7 @@ export const deleteProductionLine = async (id: string) => {
 };
 
 /**
- * Update node positions for React Flow canvas
+ * Update node positions for canvas layout (Admin only)
  */
 export const updateNodePositions = async (id: string, data: UpdateNodePositionsDto) => {
   return await responseHandler<ProductionLine>(`/production-lines/${id}/positions`, {
@@ -77,17 +76,7 @@ export const updateNodePositions = async (id: string, data: UpdateNodePositionsD
 };
 
 /**
- * Update edges for React Flow canvas (bulk replace)
- */
-export const updateEdges = async (id: string, data: UpdateEdgesDto) => {
-  return await responseHandler<ProductionLine>(`/production-lines/${id}/edges`, {
-    method: 'PATCH',
-    body: data,
-  });
-};
-
-/**
- * Update canvas shapes for Konva drawing canvas
+ * Update canvas shapes for Konva drawing canvas (Admin only)
  */
 export const updateCanvasShapes = async (id: string, data: UpdateCanvasShapesDto) => {
   return await responseHandler<ProductionLine>(`/production-lines/${id}/canvas-shapes`, {

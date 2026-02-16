@@ -37,20 +37,6 @@ export const updateNodePositionsSchema = z.object({
 
 export type UpdateNodePositionsDto = z.infer<typeof updateNodePositionsSchema>;
 
-// React Flow edge updates
-export const productionLineEdgeSchema = z.object({
-  sourceNodeId: z.string(),
-  targetNodeId: z.string(),
-});
-
-export type ProductionLineEdgeDto = z.infer<typeof productionLineEdgeSchema>;
-
-export const updateEdgesSchema = z.object({
-  edges: z.array(productionLineEdgeSchema),
-});
-
-export type UpdateEdgesDto = z.infer<typeof updateEdgesSchema>;
-
 // Canvas shapes for Konva drawing
 export const canvasShapeSchema = z.object({
   id: z.string(),

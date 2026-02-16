@@ -17,13 +17,12 @@ import {
   updateProductionLineSchema,
   UpdateNodePositionsDto,
   updateNodePositionsSchema,
-  UpdateEdgesDto,
-  updateEdgesSchema,
   UpdateCanvasShapesDto,
   updateCanvasShapesSchema,
 } from '@titans-tech/shared/backend-dtos';
 import { ZodValidationPipe } from '../../errors/zod-validation.pipe';
 import {
+  Admin,
   Authenticated,
   BranchPermission,
   ResourcePermission,
@@ -154,82 +153,36 @@ export class ProductionLinesController {
   }
 
   /**
-   * Update node positions for React Flow canvas
-   * Requires updateProductionLines permission
+   * Update node positions for canvas layout
+   * Admin only
    */
-  @ResourcePermission('productionLine', 'updateProductionLines')
+  @Admin()
   @Patch(':id/positions')
   updatePositions(
-    @Request() req: ReqWithAuthUser,
     @Param('id') id: string,
     @Body(new ZodValidationPipe(updateNodePositionsSchema))
     updateNodePositionsDto: UpdateNodePositionsDto,
   ) {
-    return this.dispatchByUserType(
-      req.user,
-      () =>
-        this.productionLinesService.updateNodePositions(
-          id,
-          updateNodePositionsDto,
-        ),
-      (userId) =>
-        this.productionLinesService.updateNodePositionsForUser(
-          userId,
-          id,
-          updateNodePositionsDto,
-        ),
-    );
-  }
-
-  /**
-   * Update edges for React Flow canvas (bulk replace)
-   * Requires updateProductionLines permission
-   */
-  @ResourcePermission('productionLine', 'updateProductionLines')
-  @Patch(':id/edges')
-  updateEdges(
-    @Request() req: ReqWithAuthUser,
-    @Param('id') id: string,
-    @Body(new ZodValidationPipe(updateEdgesSchema))
-    updateEdgesDto: UpdateEdgesDto,
-  ) {
-    return this.dispatchByUserType(
-      req.user,
-      () => this.productionLinesService.updateEdges(id, updateEdgesDto),
-      (userId) =>
-        this.productionLinesService.updateEdgesForUser(
-          userId,
-          id,
-          updateEdgesDto,
-        ),
+    return this.productionLinesService.updateNodePositions(
+      id,
+      updateNodePositionsDto,
     );
   }
 
   /**
    * Update canvas shapes for Konva drawing canvas
-   * Requires updateProductionLines permission
+   * Admin only
    */
-  @ResourcePermission('productionLine', 'updateProductionLines')
+  @Admin()
   @Patch(':id/canvas-shapes')
   updateCanvasShapes(
-    @Request() req: ReqWithAuthUser,
     @Param('id') id: string,
     @Body(new ZodValidationPipe(updateCanvasShapesSchema))
     updateCanvasShapesDto: UpdateCanvasShapesDto,
   ) {
-    return this.dispatchByUserType(
-      req.user,
-      () =>
-        this.productionLinesService.updateCanvasShapes(
-          id,
-          updateCanvasShapesDto,
-        ),
-      (userId) =>
-        this.productionLinesService.updateCanvasShapesForUser(
-          userId,
-          id,
-          updateCanvasShapesDto,
-        ),
+    return this.productionLinesService.updateCanvasShapes(
+      id,
+      updateCanvasShapesDto,
     );
   }
 }

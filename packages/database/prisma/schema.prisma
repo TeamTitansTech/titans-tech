@@ -1991,7 +1991,6 @@ model ProductionLine {
 
   branch   CompanyBranch           @relation(fields: [branchId], references: [id], onDelete: Restrict)
   machines MachineProductionLine[]
-  edges    ProductionLineEdge[]
 
   @@map("production_lines")
 }
@@ -2010,20 +2009,6 @@ model MachineProductionLine {
 
   @@id([machineId, productionLineId])
   @@map("machine_production_lines")
-}
-
-model ProductionLineEdge {
-  id               String   @id @default(cuid())
-  productionLineId String
-  sourceNodeId     String
-  targetNodeId     String
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-
-  productionLine ProductionLine @relation(fields: [productionLineId], references: [id], onDelete: Cascade)
-
-  @@unique([productionLineId, sourceNodeId, targetNodeId])
-  @@map("production_line_edges")
 }
 
 // SHIM_THICKNESS Section

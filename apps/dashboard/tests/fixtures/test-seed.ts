@@ -327,7 +327,11 @@ export class TestSeeder {
 
   async cleanup() {
     // Delete in correct order due to foreign key constraints
-    // 1. Delete all machine-related data first (most dependent)
+    // 1. Delete production line relations first (depend on machines and production lines)
+    await this.db.machineProductionLine.deleteMany({});
+    await this.db.productionLine.deleteMany({});
+
+    // 2. Delete all machine-related data (most dependent)
     await this.db.machineService.deleteMany({});
     await this.db.machineField.deleteMany({});
     await this.db.machine.deleteMany({});

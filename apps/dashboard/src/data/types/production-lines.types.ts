@@ -1,16 +1,6 @@
 import type { Machine } from './machines.types';
-import type { Node, Edge } from '@xyflow/react';
 
 export type ProductionLineDirection = 'LEFT_TO_RIGHT' | 'RIGHT_TO_LEFT';
-
-export interface ProductionLineEdge {
-  id: string;
-  productionLineId: string;
-  sourceNodeId: string;
-  targetNodeId: string;
-  createdAt: string;
-  updatedAt: string;
-}
 
 // Canvas shape types for Konva drawing
 export interface CanvasShape {
@@ -46,7 +36,6 @@ export interface ProductionLine {
     companyId: string;
   };
   machines?: ProductionLineMachine[];
-  edges?: ProductionLineEdge[];
   _count?: {
     machines: number;
   };
@@ -82,35 +71,12 @@ export interface UpdateProductionLineDto {
   direction?: ProductionLineDirection;
 }
 
-// React Flow node data type
-export interface MachineNodeData extends Record<string, unknown> {
-  machine: MachineWithStatus;
-  canViewDetails: boolean;
-  sections: string[];
-  connectMode?: boolean;
-  isConnectedToBackbone?: boolean;
-  onToggleBackboneConnection?: (machineId: string, positionX: number, positionY: number) => void;
-}
-
-// Type for React Flow nodes
-export type MachineNode = Node<MachineNodeData, 'machine'>;
-
-// Type for React Flow edges
-export type ProductionLineFlowEdge = Edge;
-
-// DTOs for updating positions and edges
+// DTOs for updating positions and canvas shapes
 export interface UpdateNodePositionsDto {
   positions: Array<{
     machineId: string;
     positionX: number;
     positionY: number;
-  }>;
-}
-
-export interface UpdateEdgesDto {
-  edges: Array<{
-    sourceNodeId: string;
-    targetNodeId: string;
   }>;
 }
 
