@@ -36,7 +36,10 @@ export function ProductionLinesPage({ productionLines, allBranches }: Production
   const { companyUser } = useCompanyUser();
   const { sysAdminUser } = useSysAdmin();
   const isSysAdmin = !!sysAdminUser;
-  const { canCreateProductionLine, getLimitCheck } = useCompanyLimits(companyUser?.companyId ?? '');
+  const { canCreateProductionLine: canCreateProductionLineLimit, getLimitCheck } = useCompanyLimits(
+    companyUser?.companyId ?? '',
+  );
+  const canCreateProductionLine = isSysAdmin || canCreateProductionLineLimit;
   const [optimisticLines, addOptimisticLine] = useOptimistic(
     productionLines,
     (state, newLine: ProductionLine) => [...state, newLine],
