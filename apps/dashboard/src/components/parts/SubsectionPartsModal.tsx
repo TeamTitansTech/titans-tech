@@ -44,7 +44,8 @@ import {
 } from '@/components/ui/table';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
-import type { Subsection } from '@/data/parts/section-subsections';
+
+import type { Subsection, ColumnConfig } from '@/data/parts/section-subsections';
 import type { Part } from '@/data/parts/dac-parts';
 import { useCompanyUser } from '@/contexts/CompanyUserContext';
 import { Label } from '@/components/ui/label';
@@ -229,8 +230,12 @@ export function SubsectionPartsModal({
   }, [activeTab, activeSubsection]);
 
   // Get all selected parts across all subsections
-  const getAllSelectedParts = useCallback((): { subsectionName: string; parts: Part[] }[] => {
-    const result: { subsectionName: string; parts: Part[] }[] = [];
+  const getAllSelectedParts = useCallback((): {
+    subsectionName: string;
+    parts: Part[];
+    columnConfig?: ColumnConfig[];
+  }[] => {
+    const result: { subsectionName: string; parts: Part[]; columnConfig?: ColumnConfig[] }[] = [];
 
     effectiveSubsections.forEach((subsection) => {
       const selectedInSubsection = subsection.parts.filter((part) =>
@@ -240,6 +245,7 @@ export function SubsectionPartsModal({
         result.push({
           subsectionName: getSubsectionName(subsection.id),
           parts: selectedInSubsection,
+          columnConfig: subsection.columnConfig,
         });
       }
     });
@@ -282,6 +288,7 @@ export function SubsectionPartsModal({
   const getCurrentSubsectionSelectedParts = useCallback((): {
     subsectionName: string;
     parts: Part[];
+    columnConfig?: ColumnConfig[];
   }[] => {
     if (!activeSubsection) return [];
     const selectedInSubsection = activeSubsection.parts.filter((part) =>
@@ -292,6 +299,7 @@ export function SubsectionPartsModal({
       {
         subsectionName: getSubsectionName(activeTab),
         parts: selectedInSubsection,
+        columnConfig: activeSubsection.columnConfig,
       },
     ];
   }, [activeSubsection, activeTab, selectedKeys, getSubsectionName]);
@@ -335,16 +343,7 @@ export function SubsectionPartsModal({
         const totalParts = partsToExport.reduce((sum, group) => sum + group.parts.length, 0);
         doc.text(`${t('totalParts')}: ${totalParts}`, 14, 58);
 
-        const tableHeaders = [
-          [
-            t('tableHeaders.partNumber'),
-            t('tableHeaders.description'),
-            t('tableHeaders.quantity'),
-            t('tableHeaders.unit'),
-          ],
-        ];
-
-        const tableStyles = {
+        const baseTableStyles = {
           theme: 'striped' as const,
           headStyles: {
             fillColor: [50, 50, 50] as [number, number, number],
@@ -358,12 +357,6 @@ export function SubsectionPartsModal({
             fontSize: 10,
             cellPadding: 4,
           },
-          columnStyles: {
-            0: { cellWidth: 35 },
-            1: { cellWidth: 'auto' as const },
-            2: { cellWidth: 25, halign: 'right' as const },
-            3: { cellWidth: 20, halign: 'center' as const },
-          },
         };
 
         let currentY = 65;
@@ -375,6 +368,33 @@ export function SubsectionPartsModal({
             doc.addPage();
             currentY = 20;
           }
+
+          // Get custom columns for this subsection (exclude default columns)
+          const customColumns = (group.columnConfig || []).filter(
+            (col) => !['partNumber', 'description', 'quantity', 'unit'].includes(col.key),
+          );
+
+          // Build headers dynamically
+          const tableHeaders = [
+            [
+              t('tableHeaders.partNumber'),
+              t('tableHeaders.description'),
+              t('tableHeaders.quantity'),
+              t('tableHeaders.unit'),
+              ...customColumns.map((col) => col.label),
+            ],
+          ];
+
+          // Build column styles dynamically
+          const columnStyles: Record<
+            number,
+            { cellWidth?: number | 'auto'; halign?: 'right' | 'center' | 'left' }
+          > = {
+            0: { cellWidth: 35 },
+            1: { cellWidth: 'auto' as const },
+            2: { cellWidth: 25, halign: 'right' as const },
+            3: { cellWidth: 20, halign: 'center' as const },
+          };
 
           doc.setFontSize(14);
           doc.setFont('helvetica', 'bold');
@@ -389,8 +409,10 @@ export function SubsectionPartsModal({
               part.description,
               typeof part.quantity === 'number' ? part.quantity.toString() : part.quantity,
               part.unit,
+              ...customColumns.map((col) => part.customFields?.[col.key] || '-'),
             ]),
-            ...tableStyles,
+            ...baseTableStyles,
+            columnStyles,
           });
 
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
