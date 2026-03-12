@@ -271,10 +271,7 @@ export function EditUserDialog({
             <DialogDescription>{t('description')}</DialogDescription>
           </DialogHeader>
           <div className="py-4">
-            <p className="text-sm text-gray-600">
-              Company Administrators cannot be edited. Please contact system support to modify admin
-              accounts.
-            </p>
+            <p className="text-sm text-gray-600">{t('cannotEditAdmin')}</p>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={handleClose}>
@@ -433,9 +430,7 @@ export function EditUserDialog({
             {/* Show message if user has no permissions to edit anything */}
             {!canUpdateUserInfo && !canManagePermissions && !canAssignToBranches && (
               <div className="rounded-md border border-yellow-200 bg-yellow-50 p-4 text-center">
-                <p className="text-sm text-yellow-800">
-                  {t('noPermissionToEdit') || 'Você não tem permissão para editar este usuário.'}
-                </p>
+                <p className="text-sm text-yellow-800">{t('noPermissionToEdit')}</p>
               </div>
             )}
           </DialogBody>

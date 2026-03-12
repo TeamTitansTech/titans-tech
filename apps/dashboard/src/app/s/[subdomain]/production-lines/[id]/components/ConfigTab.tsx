@@ -64,11 +64,11 @@ export function ConfigTab({ productionLine, onSuccess }: ConfigTabProps) {
           setAllMachines(response.data as MachineWithBranch[]);
         } else if (response.errors) {
           console.error('Error loading machines:', response.errors);
-          toast.error('Erro ao carregar máquinas');
+          toast.error(t('errorLoadingMachines'));
         }
       } catch (error) {
         console.error('Error loading machines:', error);
-        toast.error('Erro ao carregar máquinas');
+        toast.error(t('errorLoadingMachines'));
       } finally {
         setIsLoadingMachines(false);
       }
@@ -136,7 +136,7 @@ export function ConfigTab({ productionLine, onSuccess }: ConfigTabProps) {
         </CardHeader>
         <CardContent className="space-y-4">
           {isLoadingMachines ? (
-            <p className="text-muted-foreground">Carregando máquinas...</p>
+            <p className="text-muted-foreground">{t('loadingMachines')}</p>
           ) : availableMachines.length === 0 ? (
             <p className="text-muted-foreground">{t('noMachinesAvailable')}</p>
           ) : (
