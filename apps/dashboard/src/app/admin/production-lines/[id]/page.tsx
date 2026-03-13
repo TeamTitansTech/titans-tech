@@ -43,6 +43,7 @@ export default async function AdminProductionLineDetailPage({
       canViewMachineDetails={true}
       canEditProductionLine={true}
       canDeleteProductionLine={true}
+      canEditCanvas={true}
     />
   );
 }

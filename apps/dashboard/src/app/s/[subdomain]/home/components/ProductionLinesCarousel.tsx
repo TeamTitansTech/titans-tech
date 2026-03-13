@@ -1,16 +1,9 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-  type CarouselApi,
-} from '@/components/ui/carousel';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Factory, ArrowRight } from 'lucide-react';
 import { useInternalRouter } from '@/hooks/useInternalRouter';
 import { getProductionLines } from '@/data/services/production-lines.api';
@@ -25,8 +18,7 @@ export function ProductionLinesCarousel() {
   const router = useInternalRouter();
   const [productionLines, setProductionLines] = useState<ProductionLine[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [api, setApi] = useState<CarouselApi>();
-  const [current, setCurrent] = useState(0);
+  const [activeTab, setActiveTab] = useState<string>('');
 
   useEffect(() => {
     async function loadProductionLines() {
@@ -35,6 +27,10 @@ export function ProductionLinesCarousel() {
         const response = await getProductionLines();
         if (response.data) {
           setProductionLines(response.data);
+          // Set first production line as active by default
+          if (response.data.length > 0) {
+            setActiveTab(response.data[0].id);
+          }
         }
       } catch (error) {
         console.error('Error loading production lines:', error);
@@ -45,25 +41,6 @@ export function ProductionLinesCarousel() {
 
     loadProductionLines();
   }, []);
-
-  useEffect(() => {
-    if (!api) {
-      return;
-    }
-
-    setCurrent(api.selectedScrollSnap());
-
-    api.on('select', () => {
-      setCurrent(api.selectedScrollSnap());
-    });
-  }, [api]);
-
-  const scrollTo = useCallback(
-    (index: number) => {
-      api?.scrollTo(index);
-    },
-    [api],
-  );
 
   if (isLoading) {
     return null;
@@ -76,6 +53,9 @@ export function ProductionLinesCarousel() {
   const handleCardClick = (lineId: string) => {
     router.push(`/production-lines/${lineId}`);
   };
+
+  // Get current production line
+  const currentLine = productionLines.find((line) => line.id === activeTab);
 
   return (
     <TooltipProvider>
@@ -96,15 +76,28 @@ export function ProductionLinesCarousel() {
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          <Carousel
-            setApi={setApi}
-            opts={{
-              align: 'start',
-              loop: false,
-            }}
-            className="w-full"
-          >
-            <CarouselContent className="-ml-2 md:-ml-4">
+          {productionLines.length > 1 ? (
+            <Tabs value={activeTab} onValueChange={setActiveTab}>
+              <TabsList className="w-full flex-wrap h-auto gap-1 bg-muted/50 p-1">
+                {productionLines.map((line) => {
+                  const machines = line.machines || [];
+                  const filteredMachines = machines.filter((pm) => pm.machine);
+                  const machinesWithStatus = filteredMachines.map((pm) => pm.machine!);
+                  const lineStatus = getProductionLineStatus(machinesWithStatus);
+
+                  return (
+                    <TabsTrigger
+                      key={line.id}
+                      value={line.id}
+                      className="flex items-center gap-2 data-[state=active]:bg-background data-[state=active]:text-foreground"
+                    >
+                      <div className={`w-2 h-2 rounded-full ${statusColors[lineStatus]}`} />
+                      <span className="truncate max-w-[150px]">{line.name}</span>
+                    </TabsTrigger>
+                  );
+                })}
+              </TabsList>
+
               {productionLines.map((line) => {
                 const machines = line.machines || [];
                 const filteredMachines = machines.filter((pm) => pm.machine);
@@ -113,7 +106,7 @@ export function ProductionLinesCarousel() {
                 const lineStatus = getProductionLineStatus(machinesWithStatus);
 
                 return (
-                  <CarouselItem key={line.id} className="pl-2 md:pl-4 basis-full min-w-0">
+                  <TabsContent key={line.id} value={line.id} className="mt-4">
                     <Card
                       className="relative cursor-pointer hover:border-primary/50 hover:shadow-md transition-all overflow-hidden"
                       onClick={() => handleCardClick(line.id)}
@@ -153,33 +146,67 @@ export function ProductionLinesCarousel() {
                         </div>
                       </CardContent>
                     </Card>
-                  </CarouselItem>
+                  </TabsContent>
                 );
               })}
-            </CarouselContent>
-            <CarouselPrevious className="hidden md:flex" />
-            <CarouselNext className="hidden md:flex" />
-          </Carousel>
+            </Tabs>
+          ) : (
+            // Single production line - no tabs needed
+            currentLine && (
+              <Card
+                className="relative cursor-pointer hover:border-primary/50 hover:shadow-md transition-all overflow-hidden"
+                onClick={() => handleCardClick(currentLine.id)}
+              >
+                {/* Production Line Status Indicator */}
+                {(() => {
+                  const machines = currentLine.machines || [];
+                  const filteredMachines = machines.filter((pm) => pm.machine);
+                  const machineCount = filteredMachines.length;
+                  const machinesWithStatus = filteredMachines.map((pm) => pm.machine!);
+                  const lineStatus = getProductionLineStatus(machinesWithStatus);
 
-          {/* Pagination Dots */}
-          {productionLines.length > 1 && (
-            <div className="flex justify-center gap-2 py-2">
-              {productionLines.map((_, index) => (
-                <button
-                  key={index}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    scrollTo(index);
-                  }}
-                  className={`h-2 w-2 rounded-full transition-all ${
-                    index === current
-                      ? 'bg-primary w-6'
-                      : 'bg-muted-foreground/30 hover:bg-muted-foreground/50'
-                  }`}
-                  aria-label={`Go to slide ${index + 1}`}
-                />
-              ))}
-            </div>
+                  return (
+                    <>
+                      <div
+                        className={`absolute top-4 right-4 w-3 h-3 rounded-full ${statusColors[lineStatus]} z-10`}
+                      />
+
+                      <CardContent className="p-6">
+                        <div className="flex flex-col gap-4">
+                          {/* Header */}
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1 pr-6">
+                              <h3 className="font-semibold text-lg line-clamp-1">
+                                {currentLine.name}
+                              </h3>
+                              <p className="text-sm text-muted-foreground mt-1">
+                                {currentLine.branch?.name || tProdLines('noBlueprintAssigned')}
+                              </p>
+                            </div>
+                            <div className="flex items-center gap-4">
+                              <div className="flex flex-col items-end">
+                                <span className="text-2xl font-bold">{machineCount}</span>
+                                <span className="text-xs text-muted-foreground">
+                                  {tProdLines('machineCount')}
+                                </span>
+                              </div>
+                              <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-primary/10 shrink-0">
+                                <Factory className="w-6 h-6 text-primary" />
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Production Line Visualization */}
+                          <div onClick={(e) => e.stopPropagation()}>
+                            <ViewTab productionLine={currentLine} canViewMachineDetails={true} />
+                          </div>
+                        </div>
+                      </CardContent>
+                    </>
+                  );
+                })()}
+              </Card>
+            )
           )}
         </CardContent>
       </Card>

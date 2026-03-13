@@ -591,7 +591,8 @@ export function MachineCreationModal({
                     {/* Serial Number */}
                     <div className="space-y-2">
                       <Label htmlFor="serialNumber">
-                        {t('form.specifications.serialNumber.label')}
+                        {t('form.specifications.serialNumber.label')}{' '}
+                        <span className="text-destructive">*</span>
                       </Label>
                       <Input
                         id="serialNumber"
@@ -599,6 +600,7 @@ export function MachineCreationModal({
                         value={serialNumber}
                         onChange={(e) => setSerialNumber(e.target.value)}
                         placeholder={t('form.specifications.serialNumber.placeholder')}
+                        required
                       />
                     </div>
 

@@ -15,9 +15,14 @@ import {
   createProductionLineSchema,
   UpdateProductionLineDto,
   updateProductionLineSchema,
+  UpdateNodePositionsDto,
+  updateNodePositionsSchema,
+  UpdateCanvasShapesDto,
+  updateCanvasShapesSchema,
 } from '@titans-tech/shared/backend-dtos';
 import { ZodValidationPipe } from '../../errors/zod-validation.pipe';
 import {
+  Admin,
   Authenticated,
   BranchPermission,
   ResourcePermission,
@@ -144,6 +149,40 @@ export class ProductionLinesController {
       req.user,
       () => this.productionLinesService.removeForSysAdmin(id),
       (userId) => this.productionLinesService.remove(userId, id),
+    );
+  }
+
+  /**
+   * Update node positions for canvas layout
+   * Admin only
+   */
+  @Admin()
+  @Patch(':id/positions')
+  updatePositions(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(updateNodePositionsSchema))
+    updateNodePositionsDto: UpdateNodePositionsDto,
+  ) {
+    return this.productionLinesService.updateNodePositions(
+      id,
+      updateNodePositionsDto,
+    );
+  }
+
+  /**
+   * Update canvas shapes for Konva drawing canvas
+   * Admin only
+   */
+  @Admin()
+  @Patch(':id/canvas-shapes')
+  updateCanvasShapes(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(updateCanvasShapesSchema))
+    updateCanvasShapesDto: UpdateCanvasShapesDto,
+  ) {
+    return this.productionLinesService.updateCanvasShapes(
+      id,
+      updateCanvasShapesDto,
     );
   }
 }

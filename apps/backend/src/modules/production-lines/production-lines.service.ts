@@ -10,6 +10,8 @@ import { companyLimitsService } from '@titans-tech/shared/services';
 import {
   CreateProductionLineDto,
   UpdateProductionLineDto,
+  UpdateNodePositionsDto,
+  UpdateCanvasShapesDto,
 } from '@titans-tech/shared/backend-dtos';
 
 /**
@@ -403,5 +405,61 @@ export class ProductionLinesService {
     await this.prisma.productionLine.delete({
       where: { id },
     });
+  }
+
+  // Canvas layout methods (Admin only)
+
+  async updateNodePositions(
+    id: string,
+    updateNodePositionsDto: UpdateNodePositionsDto,
+  ) {
+    const productionLine = await this.prisma.productionLine.findUnique({
+      where: { id },
+    });
+
+    if (!productionLine) {
+      throw new NotFoundException(`Production line with ID ${id} not found`);
+    }
+
+    await this.prisma.$transaction(
+      updateNodePositionsDto.positions.map((pos) =>
+        this.prisma.machineProductionLine.update({
+          where: {
+            machineId_productionLineId: {
+              machineId: pos.machineId,
+              productionLineId: id,
+            },
+          },
+          data: {
+            positionX: pos.positionX,
+            positionY: pos.positionY,
+          },
+        }),
+      ),
+    );
+
+    return this.findOneForSysAdmin(id);
+  }
+
+  async updateCanvasShapes(
+    id: string,
+    updateCanvasShapesDto: UpdateCanvasShapesDto,
+  ) {
+    const productionLine = await this.prisma.productionLine.findUnique({
+      where: { id },
+    });
+
+    if (!productionLine) {
+      throw new NotFoundException(`Production line with ID ${id} not found`);
+    }
+
+    await this.prisma.productionLine.update({
+      where: { id },
+      data: {
+        canvasShapes: updateCanvasShapesDto.shapes,
+      },
+    });
+
+    return this.findOneForSysAdmin(id);
   }
 }

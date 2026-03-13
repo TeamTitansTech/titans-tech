@@ -21,3 +21,48 @@ export const updateProductionLineSchema = z.object({
 });
 
 export type UpdateProductionLineDto = z.infer<typeof updateProductionLineSchema>;
+
+// React Flow position updates
+export const nodePositionSchema = z.object({
+  machineId: z.string(),
+  positionX: z.number(),
+  positionY: z.number(),
+});
+
+export type NodePosition = z.infer<typeof nodePositionSchema>;
+
+export const updateNodePositionsSchema = z.object({
+  positions: z.array(nodePositionSchema),
+});
+
+export type UpdateNodePositionsDto = z.infer<typeof updateNodePositionsSchema>;
+
+// Canvas shapes for Konva drawing
+export const canvasShapeSchema = z.object({
+  id: z.string(),
+  type: z.enum(['line', 'rectangle', 'circle', 'arrow', 'text']),
+  x: z.number(),
+  y: z.number(),
+  stroke: z.string(),
+  strokeWidth: z.number(),
+  // Line and arrow specific
+  points: z.array(z.number()).optional(),
+  // Rectangle specific
+  width: z.number().optional(),
+  height: z.number().optional(),
+  // Circle specific
+  radius: z.number().optional(),
+  // Text specific
+  text: z.string().optional(),
+  fontSize: z.number().optional(),
+  // Optional fill
+  fill: z.string().optional(),
+});
+
+export type CanvasShape = z.infer<typeof canvasShapeSchema>;
+
+export const updateCanvasShapesSchema = z.object({
+  shapes: z.array(canvasShapeSchema),
+});
+
+export type UpdateCanvasShapesDto = z.infer<typeof updateCanvasShapesSchema>;
