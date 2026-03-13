@@ -169,7 +169,7 @@ export function ProductionLinesPage({ productionLines, allBranches }: Production
             </Select>
             {hasCreateProductionLinesPermission && (
               <Tooltip>
-                <TooltipTrigger>
+                <TooltipTrigger asChild>
                   <Button
                     onClick={() => setIsCreateDialogOpen(true)}
                     disabled={!canCreateProductionLine}

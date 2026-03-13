@@ -253,7 +253,10 @@ function SlideDataFields({
 }: {
   type: 'outer' | 'inner';
   data: SlideFormData;
-  handleFieldUpdate: (field: keyof SlideFormData, value: any) => void;
+  handleFieldUpdate: (
+    field: keyof SlideFormData,
+    value: SlideFormData[keyof SlideFormData],
+  ) => void;
   errors: Record<string, string>;
   handleBlur: (field: keyof SlideFormData) => void;
 }) {
@@ -441,7 +444,7 @@ export function SlideDoubleHammerForm({
   const handleFieldUpdate = (
     side: 'outerData' | 'innerData',
     field: keyof SlideFormData,
-    value: any,
+    value: SlideFormData[keyof SlideFormData],
   ) => {
     const newData = { ...data[side], [field]: value };
     updateFn(side, newData);

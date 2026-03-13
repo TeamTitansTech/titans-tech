@@ -7,11 +7,88 @@ import { format } from 'date-fns';
 import type { MeasurementDataPoint, MultiLineMeasurementData, ThresholdConfig } from './types';
 import type { BearingClearanceData, ClutchData } from '@titans-tech/shared/types/services';
 
+/** Inspection record containing bearing clearance check data (Prisma relation array) */
+interface BearingClearanceInspection {
+  date: string;
+  bearingClearance: Array<{
+    outerData?: BearingClearanceData | null;
+  }>;
+}
+
+/**
+ * Prisma returns `null` for empty optional fields, while Zod's `.optional()` yields `undefined`.
+ * This utility type bridges that gap so callers with Prisma-shaped data are compatible.
+ */
+type Nullable<T> = { [K in keyof T]: T[K] | null };
+
+/** Inspection record containing clutch check data (Prisma relation array) */
+interface ClutchInspection {
+  date: string;
+  clutch: Array<{
+    data: Nullable<ClutchData> | null;
+  }>;
+}
+
+/** Slide position measurements as accessed by transformers (position1..5) */
+interface SlidePositionData {
+  position1: number | null;
+  position2: number | null;
+  position3: number | null;
+  position4: number | null;
+  position5: number | null;
+}
+
+/** Inspection record containing slide double hammer check data (Prisma relation array) */
+interface SlideDoubleHammerInspection {
+  date: string;
+  slideDoubleHammer: Array<{
+    outerData?: SlidePositionData | null;
+    innerData?: SlidePositionData | null;
+  }>;
+}
+
+/** Inspection record containing slide single hammer check data (Prisma relation array) */
+interface SlideSingleHammerInspection {
+  date: string;
+  slideSingleHammer: Array<{
+    data?: SlidePositionData | null;
+  }>;
+}
+
+/** Gibs stage point measurements as accessed by transformers (point1..16) */
+interface GibsPointData {
+  point1?: number | null;
+  point2?: number | null;
+  point3?: number | null;
+  point4?: number | null;
+  point5?: number | null;
+  point6?: number | null;
+  point7?: number | null;
+  point8?: number | null;
+  point9?: number | null;
+  point10?: number | null;
+  point11?: number | null;
+  point12?: number | null;
+  point13?: number | null;
+  point14?: number | null;
+  point15?: number | null;
+  point16?: number | null;
+}
+
+/** Inspection record containing gibs check data (Prisma relation array) */
+interface GibsInspection {
+  date: string;
+  gibs: Array<{
+    outerData?: GibsPointData | null;
+    innerData?: GibsPointData | null;
+  }>;
+}
+
 /**
  * Transform bearing clearance inspection data to single-line chart format
  */
 export function transformBearingClearanceToChartData(
-  inspections: any[], // InspectionData type
+  inspections: BearingClearanceInspection[],
   measurementField: keyof BearingClearanceData,
 ): MeasurementDataPoint[] {
   return inspections
@@ -28,7 +105,7 @@ export function transformBearingClearanceToChartData(
  * Transform bearing clearance inspection data to multi-line chart format (RH vs LH)
  */
 export function transformBearingClearanceToMultiLineData(
-  inspections: any[],
+  inspections: BearingClearanceInspection[],
   baseFieldName: string, // e.g., 'totalClearance', 'mainBearings'
 ): MultiLineMeasurementData[] {
   return inspections
@@ -49,7 +126,7 @@ export function transformBearingClearanceToMultiLineData(
  * Shows |RH - LH| over time for each measurement type
  */
 export function transformBearingClearanceToDifferentialData(
-  inspections: any[],
+  inspections: BearingClearanceInspection[],
 ): MultiLineMeasurementData[] {
   return inspections
     .filter((inspection) => inspection.bearingClearance?.[0]?.outerData)
@@ -76,7 +153,7 @@ export function transformBearingClearanceToDifferentialData(
  * Transform clutch inspection data to single-line chart format
  */
 export function transformClutchToChartData(
-  inspections: any[],
+  inspections: ClutchInspection[],
   measurementField: keyof ClutchData,
 ): MeasurementDataPoint[] {
   return inspections
@@ -95,7 +172,7 @@ export function transformClutchToChartData(
  * @param measurementFields - Array of field names to include in the chart
  */
 export function transformClutchToMultiLineData(
-  inspections: any[],
+  inspections: ClutchInspection[],
   measurementFields: (keyof ClutchData)[],
 ): MultiLineMeasurementData[] {
   return inspections
@@ -121,7 +198,7 @@ export function transformClutchToMultiLineData(
  * Calculates max deviation from position measurements
  */
 export function transformSlideToChartData(
-  inspections: any[],
+  inspections: SlideDoubleHammerInspection[],
   type: 'outer' | 'inner' = 'outer',
 ): MeasurementDataPoint[] {
   return inspections
@@ -163,7 +240,7 @@ export function transformSlideToChartData(
  * Transform slide position data to multi-line chart format
  */
 export function transformSlidePositionsToMultiLineData(
-  inspections: any[],
+  inspections: SlideDoubleHammerInspection[],
   type: 'outer' | 'inner' = 'outer',
 ): MultiLineMeasurementData[] {
   return inspections
@@ -197,7 +274,7 @@ export function transformSlidePositionsToMultiLineData(
  * Calculates max deviation (max - min) from all 5 position measurements
  */
 export function transformSlideMaxDeviationToMultiLineData(
-  inspections: any[],
+  inspections: SlideDoubleHammerInspection[],
 ): MultiLineMeasurementData[] {
   return inspections
     .filter(
@@ -255,12 +332,12 @@ export function transformSlideMaxDeviationToMultiLineData(
  * Note: slideSingleHammer is an array from Prisma, access [0]
  */
 export function transformSlideSingleHammerPositionsToMultiLineData(
-  inspections: any[],
+  inspections: SlideSingleHammerInspection[],
 ): MultiLineMeasurementData[] {
   return inspections
     .filter((inspection) => inspection.slideSingleHammer?.[0]?.data)
     .map((inspection) => {
-      const slideData = inspection.slideSingleHammer[0].data;
+      const slideData = inspection.slideSingleHammer[0].data!;
 
       return {
         date: format(new Date(inspection.date), 'dd/MM/yyyy'),
@@ -280,12 +357,12 @@ export function transformSlideSingleHammerPositionsToMultiLineData(
  * Note: slideSingleHammer is an array from Prisma, access [0]
  */
 export function transformSlideSingleHammerMaxDeviationToMultiLineData(
-  inspections: any[],
+  inspections: SlideSingleHammerInspection[],
 ): MultiLineMeasurementData[] {
   return inspections
     .filter((inspection) => inspection.slideSingleHammer?.[0]?.data)
     .map((inspection) => {
-      const slideData = inspection.slideSingleHammer[0].data;
+      const slideData = inspection.slideSingleHammer[0].data!;
 
       // Calculate max deviation
       let outerMaxDeviation = 0;
@@ -316,20 +393,18 @@ export function transformSlideSingleHammerMaxDeviationToMultiLineData(
  * Calculate usable value from gibs stage data
  * Usable = min(left side points) + min(right side points)
  */
-function calculateGibsUsable(stageData: any): number | null {
+function calculateGibsUsable(stageData: GibsPointData | null | undefined): number | null {
   if (!stageData) return null;
 
-  // Convert to number, handling Prisma Decimal strings
-  const toNum = (val: any) => {
+  // Convert to number, handling optional/nullable fields
+  const toNum = (val: number | null | undefined): number => {
     if (val === null || val === undefined) return 0;
-    const num = Number(val);
-    return isNaN(num) ? 0 : num;
+    return isNaN(val) ? 0 : val;
   };
-  // Check if value is a valid number (including string numbers from Prisma Decimal)
-  const isNum = (val: any): boolean => {
+  // Check if value is a valid number
+  const isNum = (val: number | null | undefined): boolean => {
     if (val === null || val === undefined) return false;
-    const num = Number(val);
-    return !isNaN(num);
+    return !isNaN(val);
   };
 
   const topPointsCount = [
@@ -377,7 +452,7 @@ function calculateGibsUsable(stageData: any): number | null {
  * Transform gibs inspection data to chart format for usable value
  */
 export function transformGibsUsableToChartData(
-  inspections: any[],
+  inspections: GibsInspection[],
   stageType: 'outerData' | 'innerData' = 'innerData',
 ): MeasurementDataPoint[] {
   return inspections
@@ -400,14 +475,14 @@ export function transformGibsUsableToChartData(
  * Shows calculated directional sums over time
  */
 export function transformGibsToMultiLineData(
-  inspections: any[],
+  inspections: GibsInspection[],
   stageType: 'outerData' | 'innerData' = 'innerData',
 ): MultiLineMeasurementData[] {
   return inspections
     .filter((inspection) => inspection.gibs?.[0]?.[stageType])
     .map((inspection) => {
       const stageData = inspection.gibs[0][stageType]!;
-      const toNum = (val: any) => (typeof val === 'number' ? val : 0);
+      const toNum = (val: number | null | undefined): number => (typeof val === 'number' ? val : 0);
 
       // Calculate directional sums
       const leftTop = toNum(stageData.point9) + toNum(stageData.point13);
@@ -432,7 +507,7 @@ export function transformGibsToMultiLineData(
  * Extract threshold configuration from API response
  */
 export function extractThresholdConfig(
-  thresholdResponse: any,
+  thresholdResponse: Record<string, number | string | null | undefined>,
   fieldPrefix: string,
 ): ThresholdConfig {
   return {

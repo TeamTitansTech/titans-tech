@@ -67,7 +67,7 @@ export function BranchesSection({
             <div className="flex gap-2">
               <TooltipProvider>
                 <Tooltip>
-                  <TooltipTrigger>
+                  <TooltipTrigger asChild>
                     <Button
                       variant="outline"
                       size="sm"
@@ -94,7 +94,7 @@ export function BranchesSection({
               </TooltipProvider>
               <TooltipProvider>
                 <Tooltip>
-                  <TooltipTrigger>
+                  <TooltipTrigger asChild>
                     <Button
                       size="sm"
                       onClick={() => setIsCreateDialogOpen(true)}
@@ -149,7 +149,7 @@ export function BranchesSection({
           <div className="flex gap-2">
             <TooltipProvider>
               <Tooltip>
-                <TooltipTrigger>
+                <TooltipTrigger asChild>
                   <Button
                     variant="outline"
                     size="sm"
@@ -176,7 +176,7 @@ export function BranchesSection({
             </TooltipProvider>
             <TooltipProvider>
               <Tooltip>
-                <TooltipTrigger>
+                <TooltipTrigger asChild>
                   <Button
                     size="sm"
                     onClick={() => setIsCreateDialogOpen(true)}

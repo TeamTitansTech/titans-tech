@@ -169,6 +169,26 @@ export function PartsListSelector({
 
   const hasActiveSearch = searchQuery !== '';
 
+  // Helper to extract parts from selection keys
+  const getSelectedPartsFromKeys = useCallback(
+    (keys: Set<string>): Part[] => {
+      const result: Part[] = [];
+      keys.forEach((key) => {
+        if (hasTabs && tabs) {
+          const [tab, partNumber] = key.split(':');
+          const tabParts = tab === 'outer' ? tabs.outer : tabs.inner;
+          const part = tabParts.find((p) => p.partNumber === partNumber);
+          if (part) result.push(part);
+        } else {
+          const part = (parts || []).find((p) => p.partNumber === key);
+          if (part) result.push(part);
+        }
+      });
+      return result;
+    },
+    [hasTabs, tabs, parts],
+  );
+
   const handleTogglePart = useCallback(
     (partNumber: string) => {
       setSelectedKeys((prev) => {
@@ -189,27 +209,7 @@ export function PartsListSelector({
         return newSet;
       });
     },
-    [getSelectionKey, onSelectionChange],
-  );
-
-  // Helper to extract parts from selection keys
-  const getSelectedPartsFromKeys = useCallback(
-    (keys: Set<string>): Part[] => {
-      const result: Part[] = [];
-      keys.forEach((key) => {
-        if (hasTabs && tabs) {
-          const [tab, partNumber] = key.split(':');
-          const tabParts = tab === 'outer' ? tabs.outer : tabs.inner;
-          const part = tabParts.find((p) => p.partNumber === partNumber);
-          if (part) result.push(part);
-        } else {
-          const part = (parts || []).find((p) => p.partNumber === key);
-          if (part) result.push(part);
-        }
-      });
-      return result;
-    },
-    [hasTabs, tabs, parts],
+    [getSelectionKey, getSelectedPartsFromKeys, onSelectionChange],
   );
 
   const selectedParts = useMemo(() => {

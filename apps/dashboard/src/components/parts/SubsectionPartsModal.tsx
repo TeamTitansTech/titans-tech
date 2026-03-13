@@ -229,6 +229,26 @@ export function SubsectionPartsModal({
     });
   }, [activeTab, activeSubsection]);
 
+  // Get subsection name from translation or fallback
+  const getSubsectionName = useCallback(
+    (subsectionId: string) => {
+      const subsection = effectiveSubsections.find((s) => s.id === subsectionId);
+      if (!subsection) return subsectionId;
+      try {
+        // For custom parts, nameKey is the actual name, not a translation key
+        if (!subsection.nameKey.startsWith('subsections.')) {
+          return subsection.nameKey;
+        }
+        // Extract the key after 'subsections.'
+        const key = subsection.nameKey.replace('subsections.', '');
+        return tSubsections(key);
+      } catch {
+        return subsection.nameKey;
+      }
+    },
+    [effectiveSubsections, tSubsections],
+  );
+
   // Get all selected parts across all subsections
   const getAllSelectedParts = useCallback((): {
     subsectionName: string;
@@ -251,27 +271,7 @@ export function SubsectionPartsModal({
     });
 
     return result;
-  }, [effectiveSubsections, selectedKeys]);
-
-  // Get subsection name from translation or fallback
-  const getSubsectionName = useCallback(
-    (subsectionId: string) => {
-      const subsection = effectiveSubsections.find((s) => s.id === subsectionId);
-      if (!subsection) return subsectionId;
-      try {
-        // For custom parts, nameKey is the actual name, not a translation key
-        if (!subsection.nameKey.startsWith('subsections.')) {
-          return subsection.nameKey;
-        }
-        // Extract the key after 'subsections.'
-        const key = subsection.nameKey.replace('subsections.', '');
-        return tSubsections(key);
-      } catch {
-        return subsection.nameKey;
-      }
-    },
-    [effectiveSubsections, tSubsections],
-  );
+  }, [effectiveSubsections, selectedKeys, getSubsectionName]);
 
   // Count selected parts in a subsection
   const getSelectedCountForSubsection = useCallback(

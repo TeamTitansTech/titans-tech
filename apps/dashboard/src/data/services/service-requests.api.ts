@@ -1,5 +1,3 @@
-'use server';
-
 import { responseHandler } from '@/data/helpers/responseHandler';
 
 export type ServiceRequestStatus = 'OPEN' | 'CLOSED';

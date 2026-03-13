@@ -1,13 +1,5 @@
-'use server';
-import { revalidateTag, revalidatePath } from 'next/cache';
 import { responseHandler } from '@/data/helpers/responseHandler';
-import type {
-  CreateServicePayload,
-  UpdateServicePayload,
-  Service,
-  LatestReport,
-  CounterbalanceAlert,
-} from '@/data/types/services.types';
+import type { Service, LatestReport, CounterbalanceAlert } from '@/data/types/services.types';
 import type { AlertsSummaryResponseDto } from '@titans-tech/shared/backend-dtos';
 import type { LengthUnitFromEnum } from '@/contexts/UnitManagerContext';
 
@@ -19,22 +11,6 @@ export interface ServiceWithMachineRelations extends Service {
     };
   };
 }
-
-export const createService = async (payload: CreateServicePayload) => {
-  const response = await responseHandler<Service>('/services', {
-    method: 'POST',
-    body: payload,
-  });
-
-  if (!response.errors) {
-    revalidateTag(`services-${payload.machineId}`, 'max');
-    revalidateTag(`inspections-${payload.machineId}`, 'max');
-    revalidateTag(`latest-report-${payload.machineId}`, 'max');
-    revalidatePath(`/machines/${payload.machineId}`);
-  }
-
-  return response;
-};
 
 export const getServices = async () => {
   return await responseHandler<Service[]>('/services', {
@@ -62,137 +38,11 @@ export const getServicesByMachine = async (machineId: string) => {
   return await responseHandler<Service[]>(`/services/machine/${machineId}`, options);
 };
 
-export const updateService = async (
-  id: string,
-  payload: UpdateServicePayload,
-  machineId?: string,
-) => {
-  const response = await responseHandler<Service>(`/services/${id}`, {
-    method: 'PUT',
-    body: payload,
-  });
-
-  if (!response.errors && machineId) {
-    revalidateTag(`services-${machineId}`, 'max');
-    revalidateTag(`inspections-${machineId}`, 'max');
-    revalidateTag(`latest-report-${machineId}`, 'max');
-    revalidatePath(`/machines/${machineId}`);
-  }
-
-  return response;
-};
-
 export const getLatestReport = async (machineId: string) => {
   return await responseHandler<LatestReport>(`/services/machines/${machineId}/latest-report`, {
     method: 'GET',
     tags: [`latest-report-${machineId}`, 'latest-reports'],
   });
-};
-
-/**
- * Update a specific section of a service
- * @param sectionData - Section-specific data (type varies by section)
- */
-export const updateServiceSection = async (
-  serviceId: string,
-  sectionKey: string,
-  sectionData:
-    | UpdateServicePayload['bearingClearance']
-    | UpdateServicePayload['slideSingleHammer']
-    | UpdateServicePayload['slideDoubleHammer']
-    | UpdateServicePayload['gibs']
-    | UpdateServicePayload['lubricationHydraulics']
-    | UpdateServicePayload['clutch']
-    | UpdateServicePayload['counterbalanceCylinder']
-    | UpdateServicePayload['tramming']
-    | UpdateServicePayload['pistons'],
-  machineId?: string,
-) => {
-  // Map section keys to backend endpoint paths
-  const sectionEndpointMap: Record<string, string> = {
-    BEARING_CLEARANCE: 'bearing-clearance',
-    BEARING_CLEARANCE_SINGLE_HAMMER: 'bearing-clearance-single-hammer',
-    SLIDE_SINGLE_HAMMER: 'slide-single-hammer',
-    SLIDE_DOUBLE_HAMMER: 'slide-double-hammer',
-    GIBS: 'gibs',
-    LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER: 'lubrication-hydraulics',
-    CLUTCH: 'clutch',
-    CLUTCH_CEVOLANI: 'clutch-cevolani',
-    COUNTERBALANCE_CYLINDER_AIRBAG: 'counterbalance-cylinder',
-    TRAMMING: 'tramming',
-    PISTONS: 'pistons',
-    SHIM_THICKNESS: 'shim-thickness',
-    DIE_CUSHION: 'die-cushion',
-    ELECTRICAL_CONTROL: 'electrical-control',
-    PERPENDICULARITY: 'perpendicularity',
-    ANGULARITY: 'angularity',
-  };
-
-  const endpoint = sectionEndpointMap[sectionKey];
-  if (!endpoint) {
-    return {
-      data: null,
-      errors: [`Invalid section key: ${sectionKey}`],
-      rawErrors: { error: 'Invalid section key' },
-    };
-  }
-
-  const response = await responseHandler<Service>(`/services/${serviceId}/sections/${endpoint}`, {
-    method: 'PATCH',
-    body: sectionData,
-  });
-
-  if (!response.errors && machineId) {
-    revalidateTag(`services-${machineId}`, 'max');
-    revalidateTag(`inspections-${machineId}`, 'max');
-    revalidateTag(`latest-report-${machineId}`, 'max');
-    revalidatePath(`/machines/${machineId}`);
-    revalidatePath(`/machines/${machineId}/sections/bearing_clearance`);
-    revalidatePath(`/machines/${machineId}/sections/slide_single_hammer`);
-  }
-
-  return response;
-};
-
-/**
- * Mark a service as completed
- */
-export const completeService = async (
-  serviceId: string,
-  performedBy: string,
-  machineId?: string,
-) => {
-  const response = await responseHandler<Service>(`/services/${serviceId}/complete`, {
-    method: 'PATCH',
-    body: { completedBy: performedBy },
-  });
-
-  if (!response.errors && machineId) {
-    revalidateTag(`services-${machineId}`, 'max');
-    revalidateTag(`inspections-${machineId}`, 'max');
-    revalidateTag(`latest-report-${machineId}`, 'max');
-    revalidatePath(`/machines/${machineId}`);
-  }
-
-  return response;
-};
-
-/**
- * Delete a service
- */
-export const deleteService = async (serviceId: string, machineId?: string) => {
-  const response = await responseHandler<void>(`/services/${serviceId}`, {
-    method: 'DELETE',
-  });
-
-  if (!response.errors && machineId) {
-    revalidateTag(`services-${machineId}`, 'max');
-    revalidateTag(`inspections-${machineId}`, 'max');
-    revalidateTag(`latest-report-${machineId}`, 'max');
-    revalidatePath(`/machines/${machineId}`);
-  }
-
-  return response;
 };
 
 /**
@@ -215,3 +65,11 @@ export const getAlertsSummary = async (serviceId: string) => {
     method: 'GET',
   });
 };
+
+export {
+  createService,
+  updateService,
+  updateServiceSection,
+  completeService,
+  deleteService,
+} from './services.actions';
