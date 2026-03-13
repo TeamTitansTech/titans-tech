@@ -1,6 +1,7 @@
 import { test, expect, TEST_SEED_DATA } from '../fixtures';
 import { PageHelpers } from '../fixtures/page';
 import { grantPermissionsToTestEmployee } from '../utils/permissions';
+import { getTestTranslation } from '../fixtures/translations';
 
 const TEST_MACHINE_NAME = 'Existing P2H Machine';
 const UPDATED_MACHINE_DATA = {
@@ -79,7 +80,9 @@ test.describe('updateMachines Permission Flow', () => {
 
     // Verify edit modal opens
     await expect(page.getByRole('dialog')).toBeVisible();
-    await expect(page.getByText('Edit Machine')).toBeVisible();
+    await expect(page.getByRole('dialog')).toContainText(
+      getTestTranslation('machines.editModal.title'),
+    );
 
     // Update machine details
     await page.locator('#name').fill(UPDATED_MACHINE_DATA.name);
