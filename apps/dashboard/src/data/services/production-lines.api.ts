@@ -1,11 +1,5 @@
-'use server';
-import { revalidateTag } from 'next/cache';
 import { responseHandler } from '@/data/helpers/responseHandler';
-import type {
-  ProductionLine,
-  CreateProductionLineDto,
-  UpdateProductionLineDto,
-} from '../types/production-lines.types';
+import type { ProductionLine, CreateProductionLineDto } from '../types/production-lines.types';
 
 /**
  * Busca todas as linhas de produção
@@ -38,23 +32,6 @@ export const createProductionLine = async (data: CreateProductionLineDto) => {
 };
 
 /**
- * Atualiza uma linha de produção existente
- */
-export const updateProductionLine = async (id: string, data: UpdateProductionLineDto) => {
-  const result = await responseHandler<ProductionLine>(`/production-lines/${id}`, {
-    method: 'PATCH',
-    body: data,
-  });
-
-  if (!result.errors) {
-    revalidateTag('production-lines', 'max');
-    revalidateTag(`production-line-${id}`, 'max');
-  }
-
-  return result;
-};
-
-/**
  * Deleta uma linha de produção
  */
 export const deleteProductionLine = async (id: string) => {
@@ -62,3 +39,5 @@ export const deleteProductionLine = async (id: string) => {
     method: 'DELETE',
   });
 };
+
+export { updateProductionLine } from './production-lines.actions';

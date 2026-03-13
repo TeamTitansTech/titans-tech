@@ -65,7 +65,7 @@ export function CompanySettings({ initialBranches }: CompanySettingsProps) {
         </div>
         {canCreateUsers && companyUser?.companyId && (
           <Tooltip>
-            <TooltipTrigger>
+            <TooltipTrigger asChild>
               <Button
                 onClick={() => setIsAddUserDialogOpen(true)}
                 data-testid="client-add-user-button"

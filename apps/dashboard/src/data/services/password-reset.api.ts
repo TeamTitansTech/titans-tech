@@ -1,4 +1,3 @@
-'use server';
 import { responseHandler } from '@/data/helpers/responseHandler';
 
 export interface ForgotPasswordRequest {

@@ -389,7 +389,7 @@ export function MachinesPageClient() {
                 {hasCreateMachinesPermission && (
                   <TooltipProvider>
                     <Tooltip>
-                      <TooltipTrigger>
+                      <TooltipTrigger asChild>
                         <Button
                           onClick={() => setIsModalOpen(true)}
                           data-testid="new-machine-button"

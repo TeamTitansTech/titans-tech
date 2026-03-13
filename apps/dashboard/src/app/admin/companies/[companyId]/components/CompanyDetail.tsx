@@ -48,7 +48,7 @@ export function CompanyDetail({ company, branches }: CompanyDetailProps) {
         </div>
         <TooltipProvider>
           <Tooltip>
-            <TooltipTrigger>
+            <TooltipTrigger asChild>
               <Button
                 onClick={() => setIsCreateDialogOpen(true)}
                 disabled={!canCreateBranch}

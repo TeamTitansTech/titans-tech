@@ -1,4 +1,3 @@
-'use server';
 import { responseHandler } from '@/data/helpers/responseHandler';
 import type { Field, Blueprint as BlueprintBase } from '@/app/admin/blueprints/components/types';
 import { BearingClearanceThresholdsData } from '@/components/alerts/BearingClearanceThresholds';
