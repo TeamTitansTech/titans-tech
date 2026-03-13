@@ -55,6 +55,6 @@ test.describe('readMachines Permission Flow', () => {
     await expect(page.getByTestId('machines-branch-filter')).toBeVisible();
 
     // Verify page title content
-    await expect(page.getByText('Machines')).toBeVisible();
+    await expect(page.getByTestId('machines-page-title')).toBeVisible();
   });
 });

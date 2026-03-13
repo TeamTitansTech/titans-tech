@@ -1,4 +1,3 @@
-import { deleteCookie, getCookie } from '@/lib/cookies';
 import { BackendErrorResponse, formatErrors } from './errorFormatter';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -17,7 +16,6 @@ export async function responseHandler<T>(
   | { data: null; errors: string[]; rawErrors: BackendErrorResponse; status: number }
 > {
   try {
-    const token = await getCookie('auth_token');
     const {
       body: requestBody,
       headers: customHeaders,
@@ -26,27 +24,51 @@ export async function responseHandler<T>(
       cache,
     } = options || {};
 
+    const isServer = typeof window === 'undefined';
+
     const headers: Record<string, string> = {
       ...customHeaders,
     };
 
-    // Add Content-Type for requests with body
     if (requestBody && method !== 'GET') {
       headers['Content-Type'] = 'application/json';
     }
 
-    // Add Authorization header if token is provided
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
+    let url: string;
+
+    if (isServer) {
+      // Server-side: call backend directly with auth token from cookies
+      const { cookies } = await import('next/headers');
+      const cookieStore = await cookies();
+      const token = cookieStore.get('auth_token')?.value;
+
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
+      url = `${API_BASE_URL}${path}`;
+    } else {
+      // Client-side: route through /api/proxy (handles auth cookie)
+      url = `/api/proxy${path}`;
     }
 
-    const response = await fetch(`${API_BASE_URL}${path}`, {
+    const fetchOptions: RequestInit = {
       method,
       headers,
       body: requestBody ? JSON.stringify(requestBody) : undefined,
-      next: tags ? { tags } : undefined,
-      cache,
-    });
+    };
+
+    // Next.js cache options only work on the server
+    if (isServer) {
+      if (tags) {
+        (fetchOptions as RequestInit & { next?: { tags: string[] } }).next = { tags };
+      }
+      if (cache) {
+        fetchOptions.cache = cache;
+      }
+    }
+
+    const response = await fetch(url, fetchOptions);
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
@@ -57,12 +79,13 @@ export async function responseHandler<T>(
         });
       }
 
-      // Handle 401 Unauthorized - Redirect to logout
-      if (response.status === 401) {
-        await deleteCookie('auth_token');
+      // Handle 401 Unauthorized
+      if (response.status === 401 && isServer) {
+        const { cookies } = await import('next/headers');
+        const cookieStore = await cookies();
+        cookieStore.delete('auth_token');
       }
 
-      // Format errors using the error formatter
       const formattedErrors = formatErrors(errorData);
 
       if (formattedErrors.length > 0) {
@@ -74,7 +97,6 @@ export async function responseHandler<T>(
         };
       }
 
-      // Fallback error if no formatted errors
       return {
         data: null,
         errors: [`Error ${response.status}: ${response.statusText}`],
@@ -83,7 +105,6 @@ export async function responseHandler<T>(
       };
     }
 
-    // trata a resposta em caso de 204
     let data: T;
     const contentType = response.headers.get('content-type');
     if (response.status === 204 || !contentType?.includes('application/json')) {

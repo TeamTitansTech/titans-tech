@@ -151,6 +151,122 @@ export interface AlertCounterbalance {
   updatedAt: string;
 }
 
+// Alert Bearing Clearance Single Hammer
+export interface AlertBearingClearanceSingleHammer {
+  id: string;
+  machineServiceId: string;
+  totalClearance_differential: number;
+  totalClearance_severity: AlertSeverity;
+  mainBearings_differential: number;
+  mainBearings_severity: AlertSeverity;
+  upperConnectionBearings_differential: number;
+  upperConnectionBearings_severity: AlertSeverity;
+  wristPinToMatingPart_differential: number;
+  wristPinToMatingPart_severity: AlertSeverity;
+  wristPinToBushing_differential: number;
+  wristPinToBushing_severity: AlertSeverity;
+  slideAdjNutToScrewSleeve_differential: number;
+  slideAdjNutToScrewSleeve_severity: AlertSeverity;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Alert Clutch Cevolani
+export interface AlertClutchCevolani {
+  id: string;
+  machineServiceId: string;
+  pneumaticClutchClearanceTotal_value: number;
+  pneumaticClutchClearanceTotal_severity: AlertSeverity;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Alert Slide Single Hammer
+export interface AlertSlideSingleHammer {
+  id: string;
+  machineServiceId: string;
+  maxDeviation_differential: number;
+  maxDeviation_severity: AlertSeverity;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Alert Slide Double Hammer
+export interface AlertSlideDoubleHammer {
+  id: string;
+  machineServiceId: string;
+  maxDeviationOuter_differential: number;
+  maxDeviationOuter_severity: AlertSeverity;
+  maxDeviationInner_differential: number;
+  maxDeviationInner_severity: AlertSeverity;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Alert Pistons
+export interface AlertPistons {
+  id: string;
+  machineServiceId: string;
+  outer_lhLeftRight_diff: number | null;
+  outer_lhLeftRight_severity: AlertSeverity;
+  outer_lhTopBottom_diff: number | null;
+  outer_lhTopBottom_severity: AlertSeverity;
+  outer_rhLeftRight_diff: number | null;
+  outer_rhLeftRight_severity: AlertSeverity;
+  outer_rhTopBottom_diff: number | null;
+  outer_rhTopBottom_severity: AlertSeverity;
+  inner_lhLeftRight_diff: number | null;
+  inner_lhLeftRight_severity: AlertSeverity;
+  inner_lhTopBottom_diff: number | null;
+  inner_lhTopBottom_severity: AlertSeverity;
+  inner_rhLeftRight_diff: number | null;
+  inner_rhLeftRight_severity: AlertSeverity;
+  inner_rhTopBottom_diff: number | null;
+  inner_rhTopBottom_severity: AlertSeverity;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Alert Tramming
+export interface AlertTramming {
+  id: string;
+  machineServiceId: string;
+  outer_top_verticalSum: number;
+  outer_top_verticalSeverity: AlertSeverity;
+  outer_top_horizontalSum: number;
+  outer_top_horizontalSeverity: AlertSeverity;
+  outer_bottom_verticalSum: number;
+  outer_bottom_verticalSeverity: AlertSeverity;
+  outer_bottom_horizontalSum: number;
+  outer_bottom_horizontalSeverity: AlertSeverity;
+  outer_left_verticalSum: number;
+  outer_left_verticalSeverity: AlertSeverity;
+  outer_left_horizontalSum: number;
+  outer_left_horizontalSeverity: AlertSeverity;
+  outer_right_verticalSum: number;
+  outer_right_verticalSeverity: AlertSeverity;
+  outer_right_horizontalSum: number;
+  outer_right_horizontalSeverity: AlertSeverity;
+  inner_top_verticalSum: number;
+  inner_top_verticalSeverity: AlertSeverity;
+  inner_top_horizontalSum: number;
+  inner_top_horizontalSeverity: AlertSeverity;
+  inner_bottom_verticalSum: number;
+  inner_bottom_verticalSeverity: AlertSeverity;
+  inner_bottom_horizontalSum: number;
+  inner_bottom_horizontalSeverity: AlertSeverity;
+  inner_left_verticalSum: number;
+  inner_left_verticalSeverity: AlertSeverity;
+  inner_left_horizontalSum: number;
+  inner_left_horizontalSeverity: AlertSeverity;
+  inner_right_verticalSum: number;
+  inner_right_verticalSeverity: AlertSeverity;
+  inner_right_horizontalSum: number;
+  inner_right_horizontalSeverity: AlertSeverity;
+  createdAt: string;
+  updatedAt: string;
+}
+
 // Basic Service Info (for machine response)
 export interface MachineService {
   id: string;
@@ -159,9 +275,15 @@ export interface MachineService {
   performedBy: string;
   // Alerts are arrays as per Prisma schema (one-to-many relationships)
   alertBearingClearance?: AlertBearingClearance[];
+  alertBearingClearanceSingleHammer?: AlertBearingClearanceSingleHammer[];
   alertClutch?: AlertClutch[];
+  alertClutchCevolani?: AlertClutchCevolani[];
   alertSlide?: AlertSlide[];
+  alertSlideSingleHammer?: AlertSlideSingleHammer[];
+  alertSlideDoubleHammer?: AlertSlideDoubleHammer[];
   alertGibs?: AlertGibs[];
+  alertPistons?: AlertPistons[];
+  alertTramming?: AlertTramming[];
   alertCounterbalanceCylinderAirbag?: AlertCounterbalance[];
 }
 

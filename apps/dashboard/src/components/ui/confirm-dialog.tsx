@@ -10,6 +10,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { useTranslations } from 'next-intl';
 
 interface ConfirmDialogProps {
   open: boolean;
@@ -28,10 +29,11 @@ export function ConfirmDialog({
   onConfirm,
   title,
   description,
-  confirmText = 'Continuar',
-  cancelText = 'Cancelar',
+  confirmText,
+  cancelText,
   variant = 'destructive',
 }: ConfirmDialogProps) {
+  const t = useTranslations('actions');
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
@@ -40,7 +42,7 @@ export function ConfirmDialog({
           <AlertDialogDescription>{description}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>{cancelText}</AlertDialogCancel>
+          <AlertDialogCancel>{cancelText || t('cancel')}</AlertDialogCancel>
           <AlertDialogAction
             onClick={onConfirm}
             className={
@@ -49,7 +51,7 @@ export function ConfirmDialog({
                 : ''
             }
           >
-            {confirmText}
+            {confirmText || t('continue')}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

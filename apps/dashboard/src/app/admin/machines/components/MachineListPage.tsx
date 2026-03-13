@@ -226,7 +226,7 @@ export function MachineListPage({ machines }: MachineListPageProps) {
           <div className="relative flex-1 min-w-[200px] max-w-[300px]">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder={t('searchPlaceholder') || 'Search machines...'}
+              placeholder={t('searchPlaceholder')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-9"
@@ -237,10 +237,10 @@ export function MachineListPage({ machines }: MachineListPageProps) {
           <Select value={companyFilter} onValueChange={setCompanyFilter}>
             <SelectTrigger className="w-[210px]">
               <Building2 className="w-4 h-4 shrink-0" />
-              <SelectValue placeholder={t('filterByCompany') || 'All Companies'} />
+              <SelectValue placeholder={t('filterByCompany')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">{t('allCompanies') || 'All Companies'}</SelectItem>
+              <SelectItem value="all">{t('allCompanies')}</SelectItem>
               {companyOptions.map((company) => (
                 <SelectItem key={company.id} value={company.id}>
                   {company.name}
@@ -253,10 +253,10 @@ export function MachineListPage({ machines }: MachineListPageProps) {
           <Select value={blueprintFilter} onValueChange={setBlueprintFilter}>
             <SelectTrigger className="w-[200px]">
               <Cog className="w-4 h-4 shrink-0" />
-              <SelectValue placeholder={t('filterByBlueprint') || 'All Models'} />
+              <SelectValue placeholder={t('filterByBlueprint')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">{t('allModels') || 'All Models'}</SelectItem>
+              <SelectItem value="all">{t('allModels')}</SelectItem>
               {blueprintOptions.map((bp) => (
                 <SelectItem key={bp.id} value={bp.id}>
                   {bp.name}
@@ -269,28 +269,26 @@ export function MachineListPage({ machines }: MachineListPageProps) {
           <Select value={statusFilter} onValueChange={setStatusFilter}>
             <SelectTrigger className="w-[190px]">
               <Activity className="w-4 h-4 shrink-0" />
-              <SelectValue placeholder={t('filterByStatus') || 'All Status'} />
+              <SelectValue placeholder={t('filterByStatus')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">{t('allStatus') || 'All Status'}</SelectItem>
-              <SelectItem value="operational">{t('statusOperational') || 'Operational'}</SelectItem>
-              <SelectItem value="maintenance">{t('statusMaintenance') || 'Warning'}</SelectItem>
-              <SelectItem value="offline">{t('statusOffline') || 'Critical'}</SelectItem>
+              <SelectItem value="all">{t('allStatus')}</SelectItem>
+              <SelectItem value="operational">{t('statusOperational')}</SelectItem>
+              <SelectItem value="maintenance">{t('statusMaintenance')}</SelectItem>
+              <SelectItem value="offline">{t('statusOffline')}</SelectItem>
             </SelectContent>
           </Select>
 
           {/* Results count */}
           <div className="flex items-center text-sm text-muted-foreground ml-auto">
-            {filteredMachines.length} of {machines.length} machines
+            {t('resultsCount', { filtered: filteredMachines.length, total: machines.length })}
           </div>
         </div>
 
         {filteredMachines.length === 0 ? (
           <div className="text-center py-12">
             <Typography variant="muted">
-              {machines.length === 0
-                ? t('emptyState')
-                : t('noResults') || 'No machines match your filters'}
+              {machines.length === 0 ? t('emptyState') : t('noResults')}
             </Typography>
           </div>
         ) : (

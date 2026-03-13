@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useOptimistic } from 'react';
+import { useState, useOptimistic, startTransition } from 'react';
 import { useInternalRouter } from '@/hooks/useInternalRouter';
 import { useTranslations } from 'next-intl';
 import { ArrowLeft, Plus } from 'lucide-react';
@@ -30,10 +30,12 @@ export function CompanyDetail({ company, branches }: CompanyDetailProps) {
   );
 
   const handleSuccess = (newBranch?: CompanyBranch) => {
-    if (newBranch) {
-      addOptimisticBranch(newBranch);
-    }
-    router.refresh();
+    startTransition(() => {
+      if (newBranch) {
+        addOptimisticBranch(newBranch);
+      }
+      router.refresh();
+    });
   };
 
   return (
@@ -48,7 +50,7 @@ export function CompanyDetail({ company, branches }: CompanyDetailProps) {
         </div>
         <TooltipProvider>
           <Tooltip>
-            <TooltipTrigger>
+            <TooltipTrigger asChild>
               <Button
                 onClick={() => setIsCreateDialogOpen(true)}
                 disabled={!canCreateBranch}

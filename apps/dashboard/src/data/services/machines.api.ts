@@ -1,5 +1,3 @@
-'use server';
-import { revalidatePath, revalidateTag } from 'next/cache';
 import { responseHandler } from '@/data/helpers/responseHandler';
 import {
   FoundationType,
@@ -15,43 +13,6 @@ import {
 interface MachineField {
   fieldSlug: string;
   value: string | number;
-}
-
-interface CreateMachinePayload {
-  blueprintId: string;
-  branchId: string;
-  name: string;
-  fields: MachineField[];
-  // Machine specifications
-  imageUrl?: string;
-  manufacturer?: string;
-  sizeTonnage?: string;
-  serialNumber: string;
-  stroke?: string;
-  foundationType?: FoundationType;
-  frameType?: FrameType;
-  clutchType?: MachineClutchType;
-  pneumaticSystem?: PneumaticSystemType;
-  pressMounting?: PressMountingType;
-  features?: MachineFeaturesType;
-}
-
-interface UpdateMachinePayload {
-  blueprintId?: string;
-  name?: string;
-  fields?: MachineField[];
-  // Machine specifications
-  imageUrl?: string;
-  manufacturer?: string;
-  sizeTonnage?: string;
-  serialNumber?: string;
-  stroke?: string;
-  foundationType?: FoundationType;
-  frameType?: FrameType;
-  clutchType?: MachineClutchType;
-  pneumaticSystem?: PneumaticSystemType;
-  pressMounting?: PressMountingType;
-  features?: MachineFeaturesType;
 }
 
 export interface Machine {
@@ -130,47 +91,6 @@ export const getMachineById = async (id: string) => {
   });
 };
 
-export const createMachine = async (payload: CreateMachinePayload) => {
-  const result = await responseHandler<Machine>(`/company-branches/${payload.branchId}/machines`, {
-    method: 'POST',
-    body: payload,
-  });
-
-  if (!result.errors) {
-    revalidateTag('machines', 'max');
-    revalidatePath('/admin/machines');
-  }
-
-  return result;
-};
-
-export const updateMachine = async (id: string, payload: UpdateMachinePayload) => {
-  const result = await responseHandler<Machine>(`/machines/${id}`, {
-    method: 'PUT',
-    body: payload,
-  });
-
-  if (!result.errors) {
-    revalidateTag('machines', 'max');
-    revalidatePath('/admin/machines');
-  }
-
-  return result;
-};
-
-export const deleteMachine = async (id: string) => {
-  const result = await responseHandler<void>(`/machines/${id}`, {
-    method: 'DELETE',
-  });
-
-  if (!result.errors) {
-    revalidateTag('machines', 'max');
-    revalidatePath('/admin/machines');
-  }
-
-  return result;
-};
-
 export interface PartItem {
   partNumber: string;
   description: string;
@@ -203,3 +123,5 @@ export const sendPartsEmail = async (payload: SendPartsEmailPayload) => {
     body: payload,
   });
 };
+
+export { createMachine, updateMachine, deleteMachine } from './machines.actions';

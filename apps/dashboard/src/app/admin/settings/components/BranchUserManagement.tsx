@@ -31,12 +31,16 @@ interface User {
 }
 
 // Transform UserResponseDto to UI User format
-function transformUserToUI(user: UserResponseDto, branchId: string): User {
+function transformUserToUI(
+  user: UserResponseDto,
+  branchId: string,
+  unknownUserLabel: string,
+): User {
   // Company-level roles take precedence
   if (user.isCompanyAdmin) {
     return {
       id: user.id,
-      name: user.name || 'Unknown User',
+      name: user.name || unknownUserLabel,
       email: user.email,
       role: 'companyAdmin',
     };
@@ -88,7 +92,7 @@ function transformUserToUI(user: UserResponseDto, branchId: string): User {
 
   return {
     id: user.id,
-    name: user.name || 'Unknown User',
+    name: user.name || unknownUserLabel,
     email: user.email,
     role,
   };
@@ -100,6 +104,7 @@ interface BranchUserManagementProps {
 
 export function BranchUserManagement({ branchId }: BranchUserManagementProps) {
   const t = useTranslations('settings.userManagement');
+  const tActions = useTranslations('actions');
   const [users, setUsers] = useState<User[]>([]);
   const [usersData, setUsersData] = useState<UserResponseDto[]>([]);
   const [branch, setBranch] = useState<CompanyBranch | null>(null);
@@ -140,7 +145,9 @@ export function BranchUserManagement({ branchId }: BranchUserManagementProps) {
 
             setUsersData(filteredUsers);
 
-            const transformedUsers = filteredUsers.map((user) => transformUserToUI(user, branchId));
+            const transformedUsers = filteredUsers.map((user) =>
+              transformUserToUI(user, branchId, t('unknownUser')),
+            );
             setUsers(transformedUsers);
           }
         }
@@ -232,14 +239,16 @@ export function BranchUserManagement({ branchId }: BranchUserManagementProps) {
           <Users className="h-4 w-4" />
           {t('title')} - {branchName}
           {isRefreshing && (
-            <span className="ml-2 text-xs text-muted-foreground animate-pulse">Updating...</span>
+            <span className="ml-2 text-xs text-muted-foreground animate-pulse">
+              {tActions('updating')}
+            </span>
           )}
         </h3>
       </div>
 
       {/* Active Users Section */}
       <div className="space-y-2" data-testid="active-users-section">
-        <h4 className="text-sm font-medium">{t('activeUsers') || 'Active Users'}</h4>
+        <h4 className="text-sm font-medium">{t('activeUsers')}</h4>
         <div
           className={`rounded-md border transition-opacity ${isRefreshing ? 'opacity-60' : 'opacity-100'}`}
         >
@@ -312,9 +321,7 @@ export function BranchUserManagement({ branchId }: BranchUserManagementProps) {
       {/* Deactivated Users Section */}
       {deactivatedUsers.length > 0 && (
         <div className="space-y-2" data-testid="deactivated-users-section">
-          <h4 className="text-sm font-medium text-muted-foreground">
-            {t('deactivatedUsers') || 'Deactivated Users'}
-          </h4>
+          <h4 className="text-sm font-medium text-muted-foreground">{t('deactivatedUsers')}</h4>
           <div className="rounded-md border border-muted">
             <Table data-testid="deactivated-users-table">
               <TableHeader>

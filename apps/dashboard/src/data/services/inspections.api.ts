@@ -1,28 +1,5 @@
-'use server';
-import { revalidateTag, revalidatePath } from 'next/cache';
 import { responseHandler } from '@/data/helpers/responseHandler';
-import type { Service, CreateServicePayload } from '@/data/types/services.types';
-
-/**
- * Create an inspection (service with type='INSPECTION')
- */
-export const createInspection = async (payload: CreateServicePayload) => {
-  const response = await responseHandler<Service>('/services', {
-    method: 'POST',
-    body: {
-      ...payload,
-      type: 'INSPECTION', // Force type to INSPECTION
-    },
-  });
-
-  if (!response.errors) {
-    revalidateTag(`inspections-${payload.machineId}`, 'max');
-    revalidatePath(`/machines/${payload.machineId}`);
-    revalidatePath(`/machines/${payload.machineId}/sections/bearing_clearance`);
-  }
-
-  return response;
-};
+import type { Service } from '@/data/types/services.types';
 
 /**
  * Get all inspections (services filtered by type='INSPECTION')
@@ -70,3 +47,5 @@ export const getInspectionsByMachine = async (machineId: string) => {
   // Don't filter by type - section pages need data from both INSPECTION and MAINTENANCE services
   return response;
 };
+
+export { createInspection } from './inspections.actions';

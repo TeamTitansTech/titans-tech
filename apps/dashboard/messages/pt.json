@@ -68,7 +68,9 @@
       "pdfOrCsvMax": "PDF ou CSV (máx. 20MB)",
       "maxFilesReached": "Número máximo de arquivos atingido ({max})",
       "maxFilesExceeded": "Apenas {max} arquivos permitidos. Alguns arquivos não foram enviados."
-    }
+    },
+    "selectBranch": "Selecionar filial",
+    "loadingUserInfo": "Carregando informações do usuário..."
   },
   "validation": {
     "required": "Este campo é obrigatório",
@@ -264,7 +266,12 @@
         "companyAdmin": "Admin da Empresa",
         "companyManager": "Gerente",
         "branchManager": "Ger. Filial"
-      }
+      },
+      "pendingActivation": "Pendente",
+      "resendActivationEmail": "Reenviar E-mail de Ativação",
+      "activationEmailSent": "E-mail de ativação enviado com sucesso",
+      "activationEmailFailed": "Falha ao enviar e-mail de ativação",
+      "unknownUser": "Usuário Desconhecido"
     },
     "addUserDialog": {
       "title": "Adicionar Usuário",
@@ -341,7 +348,9 @@
       "submit": "Salvar Alterações",
       "submitting": "Salvando...",
       "success": "Usuário atualizado com sucesso",
-      "error": "Falha ao atualizar usuário"
+      "error": "Falha ao atualizar usuário",
+      "cannotEditAdmin": "Administradores da empresa não podem ser editados. Entre em contato com o suporte do sistema para modificar contas de administrador.",
+      "noPermissionToEdit": "Você não tem permissão para editar este usuário."
     },
     "deleteUserDialog": {
       "title": "Desativar Usuário",
@@ -695,7 +704,8 @@
         "operating": "em operação",
         "services": "Serviços",
         "pending": "pendentes",
-        "thisMonth": "este mês"
+        "thisMonth": "este mês",
+        "blueprints": "modelos"
       },
       "companiesOverview": {
         "title": "Empresas Cadastradas",
@@ -714,7 +724,9 @@
         "maintenance": "Manutenção",
         "completed": "Concluído",
         "pending": "Pendente",
-        "viewAll": "Ver todos"
+        "viewAll": "Ver todos",
+        "unknownMachine": "Máquina Desconhecida",
+        "unknown": "Desconhecido"
       },
       "serviceTrends": {
         "title": "Tendências de Serviços",
@@ -974,6 +986,7 @@
     "statusOperational": "Operacional",
     "statusMaintenance": "Alerta",
     "statusOffline": "Crítico",
+    "resultsCount": "{filtered} de {total} máquinas",
     "noBlueprint": "Sem modelo",
     "noBlueprintAssigned": "Nenhum modelo atribuído",
     "errorLoading": "Erro ao carregar máquinas",
@@ -1047,6 +1060,7 @@
     "deleteServiceTitle": "Excluir Serviço",
     "deleteServiceDescription": "Tem certeza que deseja excluir este serviço? Esta ação não pode ser desfeita.",
     "noImageAvailable": "Sem Imagem Disponível",
+    "viewReport": "Ver Relatório",
     "inspectionSections": "Seções de Inspeção",
     "noSectionsAvailable": "Nenhuma seção de inspeção disponível para este tipo de máquina.",
     "statusBar": {
@@ -1253,7 +1267,7 @@
         "leftTop": "Esquerda-Superior",
         "leftBottom": "Esquerda-Inferior",
         "leftLeft": "Esquerda-Esquerda",
-        "leftRight": "Esquerda-Direita",
+        "leftRight": "Esquerda-Direita (L-R)",
         "rightTop": "Direita-Superior",
         "rightBottom": "Direita-Inferior",
         "rightLeft": "Direita-Esquerda",
@@ -1261,7 +1275,6 @@
         "beforeAdjustment": "Antes do Ajuste",
         "afterAdjustment": "Após o Ajuste",
         "frontRear": "Frente-Trás (F-R)",
-        "leftRight": "Esquerda-Direita (L-R)",
         "hasBeenAdjusted": "Foi Ajustado",
         "yes": "Sim",
         "no": "Não",
@@ -1294,6 +1307,32 @@
       "exportSuccess": "PDF exportado com sucesso!",
       "updatedAt": "Atualizado em",
       "problems": "Problema(s)",
+      "downloadPDF": "Baixar PDF",
+      "outer": "Outer",
+      "inner": "Inner",
+      "measurement": "Medição",
+      "status": "Status",
+      "differential": "Diferencial",
+      "value": "Valor",
+      "sum": "Soma",
+      "position": "Posição",
+      "verticalSum": "Soma Vertical",
+      "horizontalSum": "Soma Horizontal",
+      "bearingClearanceCP2": "Bearing Clearance - CP 2",
+      "bearingClearanceSingleHammer": "Bearing Clearance - Single Hammer",
+      "gibsOuterAfterAdjustment": "GIBS - Outer After Adjustment",
+      "measurementPoints": "Pontos de Medição",
+      "leftToRightMeasurements": "Medições da Esquerda para a Direita",
+      "afterAdjustment": "Após Ajuste",
+      "shimThickness": "Espessura do Calço",
+      "outerLH": "Outer LH",
+      "outerRH": "Outer RH",
+      "innerLH": "Inner LH",
+      "innerRH": "Inner RH",
+      "top": "Topo",
+      "bottom": "Base",
+      "left": "Esquerda",
+      "right": "Direita",
       "severity": {
         "critical": "Crítico",
         "warning": "Atenção",
@@ -1527,6 +1566,45 @@
       "mappingRequiredPartNumber": "A coluna Numero da Peca deve ser mapeada",
       "mappingRequiredDescription": "A coluna Descricao deve ser mapeada",
       "importRows": "Importar {count} linhas"
+    },
+    "editModal": {
+      "title": "Editar Máquina",
+      "description": "Atualizar detalhes e especificações da máquina",
+      "labels": {
+        "model": "Modelo",
+        "machineName": "Nome da Máquina *",
+        "manufacturer": "Fabricante",
+        "sizeTonnage": "Tamanho/Tonelagem",
+        "serialNumber": "Número de Série",
+        "stroke": "Curso",
+        "foundationType": "Tipo de Fundação",
+        "frameType": "Tipo de Estrutura",
+        "clutchType": "Tipo de Embreagem",
+        "pneumaticSystem": "Sistema Pneumático",
+        "pressMounting": "Montagem da Prensa",
+        "features": "Características"
+      },
+      "placeholders": {
+        "machineName": "Digite o nome da máquina",
+        "manufacturer": "Digite o fabricante",
+        "sizeTonnage": "Digite o tamanho/tonelagem",
+        "serialNumber": "Digite o número de série",
+        "stroke": "Digite o curso",
+        "foundationType": "Selecione o tipo de fundação",
+        "frameType": "Selecione o tipo de estrutura",
+        "clutchType": "Selecione o tipo de embreagem",
+        "pneumaticSystem": "Selecione o sistema pneumático",
+        "pressMounting": "Selecione a montagem da prensa",
+        "features": "Selecione as características"
+      },
+      "noModel": "Sem modelo",
+      "modelCannotBeChanged": "O modelo não pode ser alterado após a criação",
+      "machineSpecifications": "Especificações da Máquina",
+      "allFieldsOptional": "Todos os campos são opcionais",
+      "updateSuccess": "Máquina atualizada com sucesso",
+      "cancel": "Cancelar",
+      "updating": "Atualizando...",
+      "updateMachine": "Atualizar Máquina"
     }
   },
   "inspections": {
@@ -2372,6 +2450,11 @@
     "updateBranches": "Editar Filiais"
   },
   "services": {
+    "loadingServiceData": "Carregando dados do serviço...",
+    "areaSelected": "área selecionada",
+    "areasSelected": "áreas selecionadas",
+    "completeInspection": "Concluir Inspeção",
+    "completeMaintenance": "Concluir Manutenção",
     "createNewService": "Criar Novo Serviço",
     "createServiceDescription": "Preencha os detalhes do serviço abaixo",
     "serviceDate": "Data do Serviço",
@@ -2501,7 +2584,8 @@
       "upcoming": "Agendados",
       "history": "Histórico",
       "all": "Todos os Serviços"
-    }
+    },
+    "pickDate": "Escolha uma data"
   },
   "table": {
     "field": "Campo",
@@ -2749,6 +2833,14 @@
     "error": "Erro"
   },
   "productionLines": {
+    "createError": "Erro ao criar linha de produção",
+    "createSuccess": "Linha de produção criada com sucesso!",
+    "addMachinesAfterCreation": "Você poderá adicionar máquinas à linha após a criação, na aba de configuração.",
+    "creating": "Criando...",
+    "machine": "máquina",
+    "machines": "máquinas",
+    "errorLoadingMachines": "Erro ao carregar máquinas",
+    "loadingMachines": "Carregando máquinas...",
     "pageTitle": "Linhas de Produção",
     "pageDescription": "Gerencie e visualize suas linhas de produção",
     "newButton": "Nova Linha",
@@ -2949,7 +3041,9 @@
       "userNotBelongToCompany": "Usuário não pertence a esta empresa",
       "connectionError": "Erro de conexão",
       "unknownError": "Ocorreu um erro desconhecido"
-    }
+    },
+    "unexpectedError": "Ocorreu um erro inesperado",
+    "userNotAuthenticated": "Usuário não autenticado. Por favor, faça login novamente."
   },
   "parts": {
     "title": "Lista de Peças para Substituição",

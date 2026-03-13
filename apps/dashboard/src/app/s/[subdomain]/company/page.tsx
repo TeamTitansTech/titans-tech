@@ -2,6 +2,7 @@ import { getCompanyPublicInfo } from '@/data/services/companies.api';
 import { getAllBranches } from '@/data/services/company-branches.api';
 import { getMachinesByBranch } from '@/data/services/machines.api';
 import { CompanyViewWrapper } from './components/CompanyViewWrapper';
+import { getTranslations } from 'next-intl/server';
 
 interface PageProps {
   params: Promise<{ subdomain: string }>;
@@ -14,9 +15,10 @@ export default async function CompanyPage({ params }: PageProps) {
   const companyResult = await getCompanyPublicInfo({ companySlug: subdomain });
 
   if (!companyResult.data) {
+    const t = await getTranslations('companies');
     return (
       <div className="container mx-auto p-6">
-        <div className="text-center text-muted-foreground">Empresa não encontrada</div>
+        <div className="text-center text-muted-foreground">{t('companyNotFound')}</div>
       </div>
     );
   }

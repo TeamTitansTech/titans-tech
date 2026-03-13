@@ -289,7 +289,42 @@ export interface LatestTramming {
     outerData?: TrammingDataType;
     innerData?: TrammingDataType;
   };
-  alert?: any; // AlertTrammingResponseDto
+  alert?: {
+    // Outer alerts - 4 positions x 2 directions (sum + severity)
+    outer_top_verticalSum: number;
+    outer_top_verticalSeverity: AlertSeverity;
+    outer_top_horizontalSum: number;
+    outer_top_horizontalSeverity: AlertSeverity;
+    outer_bottom_verticalSum: number;
+    outer_bottom_verticalSeverity: AlertSeverity;
+    outer_bottom_horizontalSum: number;
+    outer_bottom_horizontalSeverity: AlertSeverity;
+    outer_left_verticalSum: number;
+    outer_left_verticalSeverity: AlertSeverity;
+    outer_left_horizontalSum: number;
+    outer_left_horizontalSeverity: AlertSeverity;
+    outer_right_verticalSum: number;
+    outer_right_verticalSeverity: AlertSeverity;
+    outer_right_horizontalSum: number;
+    outer_right_horizontalSeverity: AlertSeverity;
+    // Inner alerts - 4 positions x 2 directions (sum + severity)
+    inner_top_verticalSum: number;
+    inner_top_verticalSeverity: AlertSeverity;
+    inner_top_horizontalSum: number;
+    inner_top_horizontalSeverity: AlertSeverity;
+    inner_bottom_verticalSum: number;
+    inner_bottom_verticalSeverity: AlertSeverity;
+    inner_bottom_horizontalSum: number;
+    inner_bottom_horizontalSeverity: AlertSeverity;
+    inner_left_verticalSum: number;
+    inner_left_verticalSeverity: AlertSeverity;
+    inner_left_horizontalSum: number;
+    inner_left_horizontalSeverity: AlertSeverity;
+    inner_right_verticalSum: number;
+    inner_right_verticalSeverity: AlertSeverity;
+    inner_right_horizontalSum: number;
+    inner_right_horizontalSeverity: AlertSeverity;
+  };
 }
 
 export interface LatestBearingClearanceSingleHammer {

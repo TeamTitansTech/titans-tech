@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -81,7 +81,7 @@ export function CompanyUsageStats({ company }: CompanyUsageStatsProps) {
     contractMaxProductionLines: company.contractMaxProductionLines,
   });
 
-  const fetchUsageStats = async () => {
+  const fetchUsageStats = useCallback(async () => {
     try {
       const response = await getCompanyUsageStats({ companyId: company.id });
       if (response.data) {
@@ -93,7 +93,7 @@ export function CompanyUsageStats({ company }: CompanyUsageStatsProps) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [company.id, t]);
 
   const handleUpdateLimits = async () => {
     setIsUpdating(true);
@@ -121,7 +121,7 @@ export function CompanyUsageStats({ company }: CompanyUsageStatsProps) {
 
   useEffect(() => {
     fetchUsageStats();
-  }, [company.id]);
+  }, [fetchUsageStats]);
 
   if (loading) {
     return (

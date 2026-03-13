@@ -30,6 +30,7 @@ export function MachineDetailsClient({
   initialLatestReport,
 }: MachineDetailsClientProps) {
   const t = useTranslations('machines');
+  const tActions = useTranslations('actions');
   const router = useInternalRouter();
   const [isUrgentServiceModalOpen, setIsUrgentServiceModalOpen] = useState(false);
   const [loadingSection, setLoadingSection] = useState<string | null>(null);
@@ -106,7 +107,7 @@ export function MachineDetailsClient({
         <div className="flex flex-col sm:flex-row gap-2 shrink-0">
           <Button onClick={handleOpenReport} disabled={isLoadingReport} size="sm">
             <FileText className="w-4 h-4 mr-2" />
-            {isLoadingReport ? 'Carregando...' : 'Ver Relatório'}
+            {isLoadingReport ? tActions('loading') : t('viewReport')}
           </Button>
           <Button variant="destructive" size="sm" onClick={() => setIsUrgentServiceModalOpen(true)}>
             <Wrench className="w-4 h-4 mr-2" />

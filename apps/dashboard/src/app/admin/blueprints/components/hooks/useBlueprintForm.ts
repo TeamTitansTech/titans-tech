@@ -159,7 +159,9 @@ export function useBlueprintForm(
     isLoading,
     result,
   } = useLazyQuery(
-    blueprintId ? (payload: any) => updateBlueprint(blueprintId, payload) : createBlueprint,
+    blueprintId
+      ? (payload: CreateBlueprintPayload) => updateBlueprint(blueprintId, payload)
+      : createBlueprint,
   );
 
   // Verifica se há dados preenchidos no formulário

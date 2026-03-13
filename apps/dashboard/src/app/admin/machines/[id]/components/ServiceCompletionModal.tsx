@@ -176,8 +176,7 @@ export function ServiceCompletionModal({
   // Memoize machineSections to prevent infinite loop
   const machineSections = useMemo(
     () => machineSectionsProp || Object.keys(SECTION_REGISTRY),
-
-    [JSON.stringify(machineSectionsProp)],
+    [machineSectionsProp],
   );
 
   const isCompletingService = !!serviceId;
@@ -835,7 +834,7 @@ export function ServiceCompletionModal({
               <div className="flex flex-1 items-center justify-center">
                 <div className="space-y-3 text-center">
                   <div className="mx-auto h-12 w-12 animate-spin rounded-full border-b-2 border-primary"></div>
-                  <Typography variant="muted">Carregando dados do serviço...</Typography>
+                  <Typography variant="muted">{tServices('loadingServiceData')}</Typography>
                 </div>
               </div>
             ) : currentStep === 'selection' ? (
@@ -848,7 +847,7 @@ export function ServiceCompletionModal({
                 translations={{
                   getSectionName: (i18nKey) => t(`sectionNames.${i18nKey}`),
                   areasSelected: (count) =>
-                    `${count} ${count === 1 ? 'área selecionada' : 'áreas selecionadas'}`,
+                    `${count} ${count === 1 ? tServices('areaSelected') : tServices('areasSelected')}`,
                   selectAreasAbove: tServices('modal.selectAreasAbove'),
                   cancel: tActions('cancel'),
                   continue: tActions('continue'),
@@ -996,14 +995,16 @@ export function ServiceCompletionModal({
                   title: isInspection
                     ? tServices('modal.inspectionSummary')
                     : tServices('modal.maintenanceSummary'),
-                  serviceDetailsTitle: 'Detalhes do Serviço',
+                  serviceDetailsTitle: tServices('modal.summary.serviceDetails'),
                   realizationDate: tServices('modal.realizationDate'),
                   performedBy: tServices('modal.performedBy'),
-                  completedAreasTitle: 'Áreas Preenchidas',
-                  detailedDataTitle: 'Dados Preenchidos',
+                  completedAreasTitle: tServices('modal.summary.filledAreas'),
+                  detailedDataTitle: tServices('modal.summary.filledData'),
                   getSectionName: (i18nKey) => t(`sectionNames.${i18nKey}`),
-                  completeService: isInspection ? 'Concluir Inspeção' : 'Concluir Manutenção',
-                  completing: 'Concluindo...',
+                  completeService: isInspection
+                    ? tServices('completeInspection')
+                    : tServices('completeMaintenance'),
+                  completing: tServices('modal.completing'),
                   attachedDocumentsTitle: tServices('modal.attachedDocuments.title'),
                   noDocuments: tServices('modal.attachedDocuments.noDocuments'),
                 }}

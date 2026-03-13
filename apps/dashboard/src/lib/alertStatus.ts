@@ -5,6 +5,7 @@
 
 import type { MachineWithStatus } from '@/data/types/production-lines.types';
 import type { LatestReport } from '@/data/types/services.types';
+import type { MachineService } from '@titans-tech/shared/types';
 
 export type AlertStatus = 'ok' | 'warning' | 'critical';
 export type SectionStatus = 'ok' | 'warning' | 'alert';
@@ -165,7 +166,7 @@ export const getAlertStatus = (machine: MachineWithStatus): AlertStatus => {
     return 'ok';
   }
 
-  const latestService = machine.services[0];
+  const latestService = machine.services[0] as MachineService | undefined;
   const allSeverities: AlertSeverity[] = [];
 
   // Check alertBearingClearance (double hammer - outer/inner)
@@ -189,8 +190,7 @@ export const getAlertStatus = (machine: MachineWithStatus): AlertStatus => {
   }
 
   // Check alertBearingClearanceSingleHammer
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const bearingSingleAlerts = (latestService as any)?.alertBearingClearanceSingleHammer;
+  const bearingSingleAlerts = latestService?.alertBearingClearanceSingleHammer;
   const bearingSingleAlert = Array.isArray(bearingSingleAlerts)
     ? bearingSingleAlerts[0]
     : bearingSingleAlerts;
@@ -219,24 +219,16 @@ export const getAlertStatus = (machine: MachineWithStatus): AlertStatus => {
   }
 
   // Check alertClutchCevolani
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const clutchCevolaniAlerts = (latestService as any)?.alertClutchCevolani;
+  const clutchCevolaniAlerts = latestService?.alertClutchCevolani;
   const clutchCevolaniAlert = Array.isArray(clutchCevolaniAlerts)
     ? clutchCevolaniAlerts[0]
     : clutchCevolaniAlerts;
   if (clutchCevolaniAlert) {
-    allSeverities.push(
-      clutchCevolaniAlert.hydClutchClearanceTotal_severity,
-      clutchCevolaniAlert.hydClutchClearanceRear_severity,
-      clutchCevolaniAlert.fb_severity,
-      clutchCevolaniAlert.fTB_severity,
-      clutchCevolaniAlert.rTB_severity,
-    );
+    allSeverities.push(clutchCevolaniAlert.pneumaticClutchClearanceTotal_severity);
   }
 
   // Check alertSlideDoubleHammer
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const slideDoubleAlerts = (latestService as any)?.alertSlideDoubleHammer;
+  const slideDoubleAlerts = latestService?.alertSlideDoubleHammer;
   const slideDoubleAlert = Array.isArray(slideDoubleAlerts)
     ? slideDoubleAlerts[0]
     : slideDoubleAlerts;
@@ -248,8 +240,7 @@ export const getAlertStatus = (machine: MachineWithStatus): AlertStatus => {
   }
 
   // Check alertSlideSingleHammer
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const slideSingleAlerts = (latestService as any)?.alertSlideSingleHammer;
+  const slideSingleAlerts = latestService?.alertSlideSingleHammer;
   const slideSingleAlert = Array.isArray(slideSingleAlerts)
     ? slideSingleAlerts[0]
     : slideSingleAlerts;
@@ -271,8 +262,7 @@ export const getAlertStatus = (machine: MachineWithStatus): AlertStatus => {
   }
 
   // Check alertPistons
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const pistonsAlerts = (latestService as any)?.alertPistons;
+  const pistonsAlerts = latestService?.alertPistons;
   const pistonsAlert = Array.isArray(pistonsAlerts) ? pistonsAlerts[0] : pistonsAlerts;
   if (pistonsAlert) {
     allSeverities.push(
@@ -288,8 +278,7 @@ export const getAlertStatus = (machine: MachineWithStatus): AlertStatus => {
   }
 
   // Check alertTramming
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const trammingAlerts = (latestService as any)?.alertTramming;
+  const trammingAlerts = latestService?.alertTramming;
   const trammingAlert = Array.isArray(trammingAlerts) ? trammingAlerts[0] : trammingAlerts;
   if (trammingAlert) {
     allSeverities.push(
@@ -614,7 +603,7 @@ export const getSectionStatus = (
     return 'ok';
   }
 
-  const latestService = machine.services[0];
+  const latestService = machine.services[0] as MachineService | undefined;
 
   switch (section) {
     case 'BEARING_CLEARANCE': {
@@ -654,8 +643,8 @@ export const getSectionStatus = (
 
     case 'BEARING_CLEARANCE_SINGLE_HAMMER': {
       // alertBearingClearanceSingleHammer is an array - get the first (most recent) one
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const alerts = (latestService as any)?.alertBearingClearanceSingleHammer;
+
+      const alerts = latestService?.alertBearingClearanceSingleHammer;
       const alert = Array.isArray(alerts) ? alerts[0] : alerts;
       if (!alert) {
         return 'ok';
@@ -707,20 +696,14 @@ export const getSectionStatus = (
 
     case 'CLUTCH_CEVOLANI': {
       // alertClutchCevolani is an array - get the first (most recent) one
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const alerts = (latestService as any)?.alertClutchCevolani;
+
+      const alerts = latestService?.alertClutchCevolani;
       const alert = Array.isArray(alerts) ? alerts[0] : alerts;
       if (!alert) {
         return 'ok';
       }
 
-      const severities = [
-        alert.hydClutchClearanceTotal_severity,
-        alert.hydClutchClearanceRear_severity,
-        alert.fb_severity,
-        alert.fTB_severity,
-        alert.rTB_severity,
-      ];
+      const severities = [alert.pneumaticClutchClearanceTotal_severity];
 
       if (severities.includes('RED')) {
         return 'alert';
@@ -733,7 +716,7 @@ export const getSectionStatus = (
 
     case 'SLIDE_SINGLE_HAMMER': {
       // alertSlideSingleHammer is an array - get the first (most recent) one
-      const alerts = (latestService as any)?.alertSlideSingleHammer;
+      const alerts = latestService?.alertSlideSingleHammer;
       const alert = Array.isArray(alerts) ? alerts[0] : alerts;
       if (!alert) {
         return 'ok';
@@ -754,7 +737,7 @@ export const getSectionStatus = (
 
     case 'SLIDE_DOUBLE_HAMMER': {
       // alertSlideDoubleHammer is an array - get the first (most recent) one
-      const alerts = (latestService as any)?.alertSlideDoubleHammer;
+      const alerts = latestService?.alertSlideDoubleHammer;
       const alert = Array.isArray(alerts) ? alerts[0] : alerts;
       if (!alert) {
         return 'ok';
@@ -792,8 +775,8 @@ export const getSectionStatus = (
 
     case 'PISTONS': {
       // Using type assertion since alertPistons may not be in the shared MachineService type yet
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const alerts = (latestService as any)?.alertPistons;
+
+      const alerts = latestService?.alertPistons;
       const alert = Array.isArray(alerts) ? alerts[0] : alerts;
       if (!alert) {
         return 'ok';
@@ -841,8 +824,8 @@ export const getSectionStatus = (
 
     case 'TRAMMING': {
       // Using type assertion since alertTramming may not be in the shared MachineService type yet
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const alerts = (latestService as any)?.alertTramming;
+
+      const alerts = latestService?.alertTramming;
       const alert = Array.isArray(alerts) ? alerts[0] : alerts;
       if (!alert) {
         return 'ok';

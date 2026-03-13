@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useOptimistic } from 'react';
+import { useState, useOptimistic, startTransition } from 'react';
 import { useInternalRouter } from '@/hooks/useInternalRouter';
 import { useTranslations } from 'next-intl';
 import { CompanyCard } from './CompanyCard';
@@ -23,10 +23,12 @@ export function CompaniesPage({ companies }: CompaniesPageProps) {
   );
 
   const handleSuccess = (newCompany?: Company) => {
-    if (newCompany) {
-      addOptimisticCompany(newCompany);
-    }
-    router.refresh();
+    startTransition(() => {
+      if (newCompany) {
+        addOptimisticCompany(newCompany);
+      }
+      router.refresh();
+    });
     setIsCreateDialogOpen(false);
   };
 

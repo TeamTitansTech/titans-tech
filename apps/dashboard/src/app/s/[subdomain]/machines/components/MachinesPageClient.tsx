@@ -218,8 +218,25 @@ export function MachinesPageClient() {
         return;
       }
 
-      // 1. Fetch all machines
-      const response = await getMachines();
+      // ===== BENCHMARK: Server Action vs API Route Proxy =====
+      const serverActionStart = performance.now();
+      const serverActionResponse = await getMachines();
+      const serverActionEnd = performance.now();
+
+      const proxyStart = performance.now();
+      const proxyRes = await fetch('/api/proxy/machines');
+      await proxyRes.json();
+      const proxyEnd = performance.now();
+
+      console.log('BENCHMARK — getMachines():');
+      console.log(`  Server Action: ${(serverActionEnd - serverActionStart).toFixed(0)}ms`);
+      console.log(`  API Route Proxy: ${(proxyEnd - proxyStart).toFixed(0)}ms`);
+      console.log(
+        `  Difference: ${(serverActionEnd - serverActionStart - (proxyEnd - proxyStart)).toFixed(0)}ms faster`,
+      );
+      // ===== END BENCHMARK =====
+
+      const response = serverActionResponse;
 
       if (response.errors) {
         setError(response.errors.join(', '));
@@ -230,7 +247,8 @@ export function MachinesPageClient() {
 
       const machinesData = response.data || [];
 
-      // 2. Fetch latest report for each machine
+      // BENCHMARK: getLatestReport for each machine
+      const reportsServerActionStart = performance.now();
       const machinesWithStatus = await Promise.all(
         machinesData.map(async (machine) => {
           try {
@@ -245,7 +263,6 @@ export function MachinesPageClient() {
             };
           } catch (error) {
             console.error(error);
-            // If report fetch fails, return machine with ok status
             return {
               ...machine,
               latestReport: null,
@@ -253,6 +270,24 @@ export function MachinesPageClient() {
             };
           }
         }),
+      );
+      const reportsServerActionEnd = performance.now();
+
+      const reportsProxyStart = performance.now();
+      await Promise.all(
+        machinesData.map((machine) =>
+          fetch(`/api/proxy/services/machines/${machine.id}/latest-report`).then((r) => r.json()),
+        ),
+      );
+      const reportsProxyEnd = performance.now();
+
+      console.log(`BENCHMARK — getLatestReport (${machinesData.length} machines):`);
+      console.log(
+        `  Server Actions: ${(reportsServerActionEnd - reportsServerActionStart).toFixed(0)}ms`,
+      );
+      console.log(`  API Route Proxy: ${(reportsProxyEnd - reportsProxyStart).toFixed(0)}ms`);
+      console.log(
+        `  Difference: ${(reportsServerActionEnd - reportsServerActionStart - (reportsProxyEnd - reportsProxyStart)).toFixed(0)}ms faster`,
       );
 
       setMachines(machinesWithStatus);
@@ -354,7 +389,7 @@ export function MachinesPageClient() {
                 {hasCreateMachinesPermission && (
                   <TooltipProvider>
                     <Tooltip>
-                      <TooltipTrigger>
+                      <TooltipTrigger asChild>
                         <Button
                           onClick={() => setIsModalOpen(true)}
                           data-testid="new-machine-button"
@@ -387,7 +422,7 @@ export function MachinesPageClient() {
               <div className="relative w-full sm:w-[180px]">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder={t('searchPlaceholder') || 'Search machines...'}
+                  placeholder={t('searchPlaceholder')}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-9"
@@ -402,7 +437,7 @@ export function MachinesPageClient() {
                   data-testid="machines-branch-filter"
                 >
                   <MapPin className="w-4 h-4 shrink-0" />
-                  <SelectValue placeholder={t('allBranches') || 'All Branches'} />
+                  <SelectValue placeholder={t('allBranches')} />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">{t('allBranches')}</SelectItem>
@@ -425,10 +460,10 @@ export function MachinesPageClient() {
               <Select value={blueprintFilter} onValueChange={setBlueprintFilter}>
                 <SelectTrigger className="w-full sm:w-[200px]">
                   <Cog className="w-4 h-4 shrink-0" />
-                  <SelectValue placeholder={t('filterByBlueprint') || 'All Models'} />
+                  <SelectValue placeholder={t('filterByBlueprint')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">{t('allModels') || 'All Models'}</SelectItem>
+                  <SelectItem value="all">{t('allModels')}</SelectItem>
                   {blueprintOptions.map((bp) => (
                     <SelectItem key={bp.id} value={bp.id}>
                       {bp.name}
@@ -441,21 +476,19 @@ export function MachinesPageClient() {
               <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <SelectTrigger className="w-full sm:w-[190px]">
                   <Activity className="w-4 h-4 shrink-0" />
-                  <SelectValue placeholder={t('filterByStatus') || 'All Status'} />
+                  <SelectValue placeholder={t('filterByStatus')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">{t('allStatus') || 'All Status'}</SelectItem>
-                  <SelectItem value="operational">
-                    {t('statusOperational') || 'Operational'}
-                  </SelectItem>
-                  <SelectItem value="maintenance">{t('statusMaintenance') || 'Warning'}</SelectItem>
-                  <SelectItem value="offline">{t('statusOffline') || 'Critical'}</SelectItem>
+                  <SelectItem value="all">{t('allStatus')}</SelectItem>
+                  <SelectItem value="operational">{t('statusOperational')}</SelectItem>
+                  <SelectItem value="maintenance">{t('statusMaintenance')}</SelectItem>
+                  <SelectItem value="offline">{t('statusOffline')}</SelectItem>
                 </SelectContent>
               </Select>
 
               {/* Results count */}
               <div className="hidden sm:flex items-center text-sm text-muted-foreground ml-auto">
-                {filteredMachines.length} of {machines.length} machines
+                {t('resultsCount', { filtered: filteredMachines.length, total: machines.length })}
               </div>
             </div>
           </div>
@@ -477,9 +510,7 @@ export function MachinesPageClient() {
           ) : filteredMachines.length === 0 ? (
             <div className="text-center py-12" data-testid="machines-empty-state">
               <Typography variant="muted">
-                {machines.length === 0
-                  ? t('emptyState')
-                  : t('noResults') || 'No machines match your filters'}
+                {machines.length === 0 ? t('emptyState') : t('noResults')}
               </Typography>
             </div>
           ) : (

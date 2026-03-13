@@ -67,7 +67,7 @@ export function BranchDetailPage({ branch, machines, companyId }: BranchDetailPa
           <p className="text-muted-foreground mt-1">{t('machinesSubtitle')}</p>
         </div>
         <Tooltip>
-          <TooltipTrigger>
+          <TooltipTrigger asChild>
             <Button
               onClick={() => setIsModalOpen(true)}
               disabled={!canCreateMachine}
