@@ -7,6 +7,13 @@
 
 import { cookies } from 'next/headers';
 
+import type { BearingClearanceThresholdsData } from '@/components/alerts/BearingClearanceThresholds';
+import type { ClutchThresholdsData } from '@/components/alerts/ClutchThresholds';
+import type { ClutchCevolaniThresholdsData } from '@/components/alerts/ClutchCevolaniThresholds';
+import type { SlideThresholdsData } from '@/components/alerts/SlideThresholds';
+import type { GibsThresholdsData } from '@/components/alerts/GibsThresholds';
+import type { PistonsThresholdsData } from '@/components/alerts/PistonsThresholds';
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
 /**
@@ -25,7 +32,7 @@ async function getAuthHeaders() {
 /**
  * Handle API response and errors
  */
-async function handleResponse<T>(
+async function handleResponse<T = Record<string, number | string | null | undefined>>(
   response: Response,
 ): Promise<{ data: T | null; error: string | null }> {
   if (!response.ok) {
@@ -319,7 +326,7 @@ export async function updateTrammingThreshold(
  */
 export async function updateBearingClearanceThreshold(
   blueprintId: string,
-  data: any,
+  data: BearingClearanceThresholdsData,
   recalculateAlerts: boolean = false,
 ) {
   try {
@@ -348,7 +355,7 @@ export async function updateBearingClearanceThreshold(
  */
 export async function updateBearingClearanceSingleHammerThreshold(
   blueprintId: string,
-  data: any,
+  data: BearingClearanceThresholdsData,
   recalculateAlerts: boolean = false,
 ) {
   try {
@@ -377,7 +384,7 @@ export async function updateBearingClearanceSingleHammerThreshold(
  */
 export async function updateClutchThreshold(
   blueprintId: string,
-  data: any,
+  data: ClutchThresholdsData,
   recalculateAlerts: boolean = false,
 ) {
   try {
@@ -404,7 +411,7 @@ export async function updateClutchThreshold(
  */
 export async function updateSlideThreshold(
   blueprintId: string,
-  data: any,
+  data: SlideThresholdsData,
   recalculateAlerts: boolean = false,
 ) {
   try {
@@ -430,7 +437,7 @@ export async function updateSlideThreshold(
  */
 export async function updateSlideSingleHammerThreshold(
   blueprintId: string,
-  data: any,
+  data: SlideThresholdsData,
   recalculateAlerts: boolean = false,
 ) {
   try {
@@ -459,7 +466,7 @@ export async function updateSlideSingleHammerThreshold(
  */
 export async function updateSlideDoubleHammerThreshold(
   blueprintId: string,
-  data: any,
+  data: SlideThresholdsData,
   recalculateAlerts: boolean = false,
 ) {
   try {
@@ -488,7 +495,7 @@ export async function updateSlideDoubleHammerThreshold(
  */
 export async function updateGibsThreshold(
   blueprintId: string,
-  data: any,
+  data: GibsThresholdsData,
   recalculateAlerts: boolean = false,
 ) {
   try {
@@ -514,7 +521,7 @@ export async function updateGibsThreshold(
  */
 export async function updatePistonsThreshold(
   blueprintId: string,
-  data: any,
+  data: PistonsThresholdsData,
   recalculateAlerts: boolean = false,
 ) {
   try {
@@ -565,7 +572,7 @@ export async function getClutchCevolaniThresholdByBlueprint(blueprintId: string)
  */
 export async function updateClutchCevolaniThreshold(
   blueprintId: string,
-  data: any,
+  data: ClutchCevolaniThresholdsData,
   recalculateAlerts: boolean = false,
 ) {
   try {

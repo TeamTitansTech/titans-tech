@@ -176,8 +176,7 @@ export function ServiceCompletionModal({
   // Memoize machineSections to prevent infinite loop
   const machineSections = useMemo(
     () => machineSectionsProp || Object.keys(SECTION_REGISTRY),
-
-    [JSON.stringify(machineSectionsProp)],
+    [machineSectionsProp],
   );
 
   const isCompletingService = !!serviceId;

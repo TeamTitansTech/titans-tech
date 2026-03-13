@@ -15,43 +15,6 @@ interface MachineField {
   value: string | number;
 }
 
-interface CreateMachinePayload {
-  blueprintId: string;
-  branchId: string;
-  name: string;
-  fields: MachineField[];
-  // Machine specifications
-  imageUrl?: string;
-  manufacturer?: string;
-  sizeTonnage?: string;
-  serialNumber: string;
-  stroke?: string;
-  foundationType?: FoundationType;
-  frameType?: FrameType;
-  clutchType?: MachineClutchType;
-  pneumaticSystem?: PneumaticSystemType;
-  pressMounting?: PressMountingType;
-  features?: MachineFeaturesType;
-}
-
-interface UpdateMachinePayload {
-  blueprintId?: string;
-  name?: string;
-  fields?: MachineField[];
-  // Machine specifications
-  imageUrl?: string;
-  manufacturer?: string;
-  sizeTonnage?: string;
-  serialNumber?: string;
-  stroke?: string;
-  foundationType?: FoundationType;
-  frameType?: FrameType;
-  clutchType?: MachineClutchType;
-  pneumaticSystem?: PneumaticSystemType;
-  pressMounting?: PressMountingType;
-  features?: MachineFeaturesType;
-}
-
 export interface Machine {
   id: string;
   blueprintId: string;
