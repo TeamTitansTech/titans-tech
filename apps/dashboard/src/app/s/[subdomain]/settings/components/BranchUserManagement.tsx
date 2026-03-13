@@ -113,9 +113,9 @@ export function BranchUserManagement({ branchId, refreshKey }: BranchUserManagem
   const handleResendActivation = async (userId: string) => {
     try {
       await resendActivation(userId);
-      toast.success(t('activationEmailSent') || 'Activation email sent successfully');
+      toast.success(t('activationEmailSent'));
     } catch {
-      toast.error(t('activationEmailFailed') || 'Failed to send activation email');
+      toast.error(t('activationEmailFailed'));
     }
   };
 
@@ -172,8 +172,7 @@ export function BranchUserManagement({ branchId, refreshKey }: BranchUserManagem
         </div>
         <div className="rounded-md border border-yellow-200 bg-yellow-50 p-6 text-center">
           <p className="text-sm text-yellow-800" data-testid="no-permission-message">
-            {t('noPermissionToViewUsers') ||
-              'Você não tem permissão para visualizar usuários nesta filial.'}
+            {t('noPermissionToViewUsers')}
           </p>
         </div>
       </div>
@@ -202,7 +201,7 @@ export function BranchUserManagement({ branchId, refreshKey }: BranchUserManagem
 
       {/* Active Users Section */}
       <div className="space-y-2" data-testid="client-active-users-section">
-        <h4 className="text-sm font-medium">{t('activeUsers') || 'Active Users'}</h4>
+        <h4 className="text-sm font-medium">{t('activeUsers')}</h4>
         <div className="rounded-md border">
           <Table data-testid="client-active-users-table">
             <TableHeader>
@@ -252,7 +251,7 @@ export function BranchUserManagement({ branchId, refreshKey }: BranchUserManagem
                           </Badge>
                           {user.pendingActivation && (
                             <Badge variant="outline" className="border-orange-500 text-orange-700">
-                              {t('pendingActivation') || 'Pendente'}
+                              {t('pendingActivation')}
                             </Badge>
                           )}
                         </div>
@@ -311,9 +310,7 @@ export function BranchUserManagement({ branchId, refreshKey }: BranchUserManagem
       {/* Deactivated Users Section */}
       {deactivatedUsers.length > 0 && (
         <div className="space-y-2" data-testid="client-deactivated-users-section">
-          <h4 className="text-sm font-medium text-muted-foreground">
-            {t('deactivatedUsers') || 'Deactivated Users'}
-          </h4>
+          <h4 className="text-sm font-medium text-muted-foreground">{t('deactivatedUsers')}</h4>
           <div className="rounded-md border border-muted">
             <Table data-testid="client-deactivated-users-table">
               <TableHeader>

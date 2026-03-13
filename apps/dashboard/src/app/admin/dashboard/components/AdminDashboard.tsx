@@ -332,7 +332,7 @@ export function AdminDashboard() {
                   <div className="flex items-baseline gap-2">
                     <span className="text-4xl font-bold tracking-tight">{stats.totalModels}</span>
                   </div>
-                  <p className="text-sm text-muted-foreground mt-2">blueprints</p>
+                  <p className="text-sm text-muted-foreground mt-2">{t('overview.blueprints')}</p>
                 </div>
                 <div className="p-3 rounded-lg bg-purple-50 dark:bg-purple-950">
                   <FolderKanban className="h-6 w-6 text-purple-600" />
@@ -539,12 +539,12 @@ export function AdminDashboard() {
                     </div>
                     <div className="min-w-0">
                       <p className="font-medium truncate">
-                        {service.machine?.name || 'Unknown Machine'}
+                        {service.machine?.name || t('recentActivity.unknownMachine')}
                       </p>
                       <p className="text-sm text-muted-foreground truncate">
                         {service.machine?.branch?.company?.name ||
                           service.machine?.branch?.name ||
-                          'Unknown'}
+                          t('recentActivity.unknown')}
                       </p>
                     </div>
                   </div>

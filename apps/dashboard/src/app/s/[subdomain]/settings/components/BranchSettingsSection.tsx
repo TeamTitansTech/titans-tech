@@ -132,10 +132,7 @@ export function BranchSettingsSection({ branchId }: BranchSettingsSectionProps) 
               className="rounded-lg bg-muted p-4 text-center"
               data-testid="no-update-permission-message"
             >
-              <p className="text-sm text-muted-foreground">
-                {t('noUpdatePermission') ||
-                  'Você não tem permissão para alterar as configurações desta filial.'}
-              </p>
+              <p className="text-sm text-muted-foreground">{t('noUpdatePermission')}</p>
             </div>
           )}
         </div>

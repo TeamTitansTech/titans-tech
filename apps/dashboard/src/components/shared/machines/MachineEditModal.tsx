@@ -85,6 +85,7 @@ const getInitialFormState = (machine: MachineEditModalProps['machine']): FormSta
 
 export function MachineEditModal({ isOpen, onClose, onSuccess, machine }: MachineEditModalProps) {
   const tInspections = useTranslations('inspections.form.enums');
+  const t = useTranslations('machines.editModal');
 
   const [formState, setFormState] = useState<FormState>(() => getInitialFormState(machine));
 
@@ -122,7 +123,7 @@ export function MachineEditModal({ isOpen, onClose, onSuccess, machine }: Machin
     const response = await submitUpdate(payload);
 
     if (response.data) {
-      toast.success('Machine updated successfully');
+      toast.success(t('updateSuccess'));
       onSuccess?.();
       onClose();
     } else if (response.errors) {
@@ -135,9 +136,9 @@ export function MachineEditModal({ isOpen, onClose, onSuccess, machine }: Machin
       <DialogContent className="flex max-w-4xl flex-col bg-background p-0">
         <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
           <DialogHeader className="shrink-0 border-b border-border p-6 pb-4">
-            <DialogTitle className="text-2xl text-foreground">Edit Machine</DialogTitle>
+            <DialogTitle className="text-2xl text-foreground">{t('title')}</DialogTitle>
             <DialogDescription className="text-muted-foreground">
-              Update machine details and specifications
+              {t('description')}
             </DialogDescription>
           </DialogHeader>
 
@@ -145,12 +146,12 @@ export function MachineEditModal({ isOpen, onClose, onSuccess, machine }: Machin
             {/* Model (Read-only) */}
             <section className="space-y-4">
               <div className="space-y-2">
-                <Label>Model</Label>
+                <Label>{t('labels.model')}</Label>
                 <div className="rounded-md border bg-muted/30 px-3 py-2 text-muted-foreground">
-                  {machine.blueprint?.name || 'No model'}
+                  {machine.blueprint?.name || t('noModel')}
                 </div>
                 <Typography variant="small" className="text-xs text-muted-foreground">
-                  Model cannot be changed after creation
+                  {t('modelCannotBeChanged')}
                 </Typography>
               </div>
             </section>
@@ -160,14 +161,14 @@ export function MachineEditModal({ isOpen, onClose, onSuccess, machine }: Machin
             {/* Machine Name */}
             <section className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="name">Machine Name *</Label>
+                <Label htmlFor="name">{t('labels.machineName')}</Label>
                 <Input
                   id="name"
                   type="text"
                   value={formState.name}
                   onChange={(e) => updateField('name', e.target.value)}
                   required
-                  placeholder="Enter machine name"
+                  placeholder={t('placeholders.machineName')}
                 />
               </div>
             </section>
@@ -176,69 +177,69 @@ export function MachineEditModal({ isOpen, onClose, onSuccess, machine }: Machin
 
             {/* Machine Specifications */}
             <section className="space-y-4">
-              <Typography variant="h3">Machine Specifications</Typography>
+              <Typography variant="h3">{t('machineSpecifications')}</Typography>
               <Typography variant="small" className="text-xs text-muted-foreground">
-                All fields are optional
+                {t('allFieldsOptional')}
               </Typography>
 
               <div className="grid grid-cols-2 gap-4">
                 {/* Manufacturer */}
                 <div className="space-y-2">
-                  <Label htmlFor="manufacturer">Manufacturer</Label>
+                  <Label htmlFor="manufacturer">{t('labels.manufacturer')}</Label>
                   <Input
                     id="manufacturer"
                     type="text"
                     value={formState.manufacturer}
                     onChange={(e) => updateField('manufacturer', e.target.value)}
-                    placeholder="Enter manufacturer"
+                    placeholder={t('placeholders.manufacturer')}
                   />
                 </div>
 
                 {/* Size/Tonnage */}
                 <div className="space-y-2">
-                  <Label htmlFor="sizeTonnage">Size/Tonnage</Label>
+                  <Label htmlFor="sizeTonnage">{t('labels.sizeTonnage')}</Label>
                   <Input
                     id="sizeTonnage"
                     type="text"
                     value={formState.sizeTonnage}
                     onChange={(e) => updateField('sizeTonnage', e.target.value)}
-                    placeholder="Enter size/tonnage"
+                    placeholder={t('placeholders.sizeTonnage')}
                   />
                 </div>
 
                 {/* Serial Number */}
                 <div className="space-y-2">
-                  <Label htmlFor="serialNumber">Serial Number</Label>
+                  <Label htmlFor="serialNumber">{t('labels.serialNumber')}</Label>
                   <Input
                     id="serialNumber"
                     type="text"
                     value={formState.serialNumber}
                     onChange={(e) => updateField('serialNumber', e.target.value)}
-                    placeholder="Enter serial number"
+                    placeholder={t('placeholders.serialNumber')}
                   />
                 </div>
 
                 {/* Stroke */}
                 <div className="space-y-2">
-                  <Label htmlFor="stroke">Stroke</Label>
+                  <Label htmlFor="stroke">{t('labels.stroke')}</Label>
                   <Input
                     id="stroke"
                     type="text"
                     value={formState.stroke}
                     onChange={(e) => updateField('stroke', e.target.value)}
-                    placeholder="Enter stroke"
+                    placeholder={t('placeholders.stroke')}
                   />
                 </div>
 
                 {/* Foundation Type */}
                 <div className="space-y-2">
-                  <Label htmlFor="foundationType">Foundation Type</Label>
+                  <Label htmlFor="foundationType">{t('labels.foundationType')}</Label>
                   <Select
                     value={formState.foundationType}
                     onValueChange={(val) => updateField('foundationType', val as FoundationType)}
                   >
                     <SelectTrigger id="foundationType">
-                      <SelectValue placeholder="Select foundation type" />
+                      <SelectValue placeholder={t('placeholders.foundationType')} />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value={FoundationType.PLANT_FLOOR}>
@@ -253,13 +254,13 @@ export function MachineEditModal({ isOpen, onClose, onSuccess, machine }: Machin
 
                 {/* Frame Type */}
                 <div className="space-y-2">
-                  <Label htmlFor="frameType">Frame Type</Label>
+                  <Label htmlFor="frameType">{t('labels.frameType')}</Label>
                   <Select
                     value={formState.frameType}
                     onValueChange={(val) => updateField('frameType', val as FrameType)}
                   >
                     <SelectTrigger id="frameType">
-                      <SelectValue placeholder="Select frame type" />
+                      <SelectValue placeholder={t('placeholders.frameType')} />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value={FrameType.GAP}>{tInspections('frameType.gap')}</SelectItem>
@@ -272,13 +273,13 @@ export function MachineEditModal({ isOpen, onClose, onSuccess, machine }: Machin
 
                 {/* Clutch Type */}
                 <div className="space-y-2">
-                  <Label htmlFor="clutchType">Clutch Type</Label>
+                  <Label htmlFor="clutchType">{t('labels.clutchType')}</Label>
                   <Select
                     value={formState.clutchType}
                     onValueChange={(val) => updateField('clutchType', val as MachineClutchType)}
                   >
                     <SelectTrigger id="clutchType">
-                      <SelectValue placeholder="Select clutch type" />
+                      <SelectValue placeholder={t('placeholders.clutchType')} />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value={MachineClutchType.AIR}>
@@ -299,7 +300,7 @@ export function MachineEditModal({ isOpen, onClose, onSuccess, machine }: Machin
 
                 {/* Pneumatic System */}
                 <div className="space-y-2">
-                  <Label htmlFor="pneumaticSystem">Pneumatic System</Label>
+                  <Label htmlFor="pneumaticSystem">{t('labels.pneumaticSystem')}</Label>
                   <Select
                     value={formState.pneumaticSystem}
                     onValueChange={(val) =>
@@ -307,7 +308,7 @@ export function MachineEditModal({ isOpen, onClose, onSuccess, machine }: Machin
                     }
                   >
                     <SelectTrigger id="pneumaticSystem">
-                      <SelectValue placeholder="Select pneumatic system" />
+                      <SelectValue placeholder={t('placeholders.pneumaticSystem')} />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value={PneumaticSystemType.NA}>
@@ -328,13 +329,13 @@ export function MachineEditModal({ isOpen, onClose, onSuccess, machine }: Machin
 
                 {/* Press Mounting */}
                 <div className="space-y-2">
-                  <Label htmlFor="pressMounting">Press Mounting</Label>
+                  <Label htmlFor="pressMounting">{t('labels.pressMounting')}</Label>
                   <Select
                     value={formState.pressMounting}
                     onValueChange={(val) => updateField('pressMounting', val as PressMountingType)}
                   >
                     <SelectTrigger id="pressMounting">
-                      <SelectValue placeholder="Select press mounting" />
+                      <SelectValue placeholder={t('placeholders.pressMounting')} />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value={PressMountingType.ADJUSTABLE}>
@@ -355,13 +356,13 @@ export function MachineEditModal({ isOpen, onClose, onSuccess, machine }: Machin
 
                 {/* Features */}
                 <div className="space-y-2">
-                  <Label htmlFor="features">Features</Label>
+                  <Label htmlFor="features">{t('labels.features')}</Label>
                   <Select
                     value={formState.features}
                     onValueChange={(val) => updateField('features', val as MachineFeaturesType)}
                   >
                     <SelectTrigger id="features">
-                      <SelectValue placeholder="Select features" />
+                      <SelectValue placeholder={t('placeholders.features')} />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value={MachineFeaturesType.AIM}>
@@ -385,7 +386,7 @@ export function MachineEditModal({ isOpen, onClose, onSuccess, machine }: Machin
 
           <div className="flex shrink-0 justify-end gap-3 border-t border-border bg-background p-6">
             <Button type="button" variant="outline" onClick={onClose} disabled={isLoading}>
-              Cancel
+              {t('cancel')}
             </Button>
             <Button
               type="submit"
@@ -393,7 +394,7 @@ export function MachineEditModal({ isOpen, onClose, onSuccess, machine }: Machin
               className="bg-primary text-primary-foreground hover:bg-primary/90"
               data-testid="machine-edit-update-button"
             >
-              {isLoading ? 'Updating...' : 'Update Machine'}
+              {isLoading ? t('updating') : t('updateMachine')}
             </Button>
           </div>
         </form>

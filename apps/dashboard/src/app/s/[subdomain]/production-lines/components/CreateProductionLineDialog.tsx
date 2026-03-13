@@ -64,7 +64,7 @@ export function CreateProductionLineDialog({
     () =>
       z.object({
         name: z.string().min(1, t('lineNameRequired')),
-        branchId: z.string().min(1, t('selectBranchRequired') || 'Selecione uma filial'),
+        branchId: z.string().min(1, t('selectBranchRequired')),
       }),
     [t],
   );
@@ -103,18 +103,18 @@ export function CreateProductionLineDialog({
       });
 
       if (response.errors) {
-        toast.error(t('createDialog.create') + ' falhou');
+        toast.error(t('createError'));
         return;
       }
 
       if (response.data) {
-        toast.success(t('createDialog.create') + ' com sucesso!');
+        toast.success(t('createSuccess'));
         reset();
         onSuccess?.(response.data);
         router.push(`/production-lines/${response.data.id}?tab=config`);
       }
     } catch (error) {
-      toast.error('Erro ao criar linha de produção');
+      toast.error(t('createError'));
       console.error(error);
     } finally {
       setIsSubmitting(false);
@@ -142,7 +142,7 @@ export function CreateProductionLineDialog({
           <DialogBody className="space-y-6 py-4">
             {/* Branch selection */}
             <div className="space-y-2">
-              <Label>{t('selectBranch') || 'Filial'}</Label>
+              <Label>{t('selectBranch')}</Label>
               <Controller
                 name="branchId"
                 control={control}
@@ -154,9 +154,7 @@ export function CreateProductionLineDialog({
                   >
                     <SelectTrigger className="w-full">
                       <MapPin className="mr-2 h-4 w-4 shrink-0" />
-                      <SelectValue
-                        placeholder={t('selectBranchPlaceholder') || 'Selecione uma filial'}
-                      />
+                      <SelectValue placeholder={t('selectBranchPlaceholder')} />
                     </SelectTrigger>
                     <SelectContent>
                       {branches.map((branch) => (
@@ -166,7 +164,7 @@ export function CreateProductionLineDialog({
                               <span>{branch.name}</span>
                               <span className="text-xs text-muted-foreground">
                                 {branch.machineCount}{' '}
-                                {branch.machineCount === 1 ? 'machine' : 'machines'}
+                                {branch.machineCount === 1 ? t('machine') : t('machines')}
                               </span>
                             </div>
                             {branch.location && (
@@ -198,9 +196,7 @@ export function CreateProductionLineDialog({
               {errors.name && <p className="text-sm text-destructive">{errors.name.message}</p>}
             </div>
 
-            <p className="text-sm text-muted-foreground">
-              Você poderá adicionar máquinas à linha após a criação, na aba de configuração.
-            </p>
+            <p className="text-sm text-muted-foreground">{t('addMachinesAfterCreation')}</p>
           </DialogBody>
 
           <DialogFooter>
@@ -216,7 +212,7 @@ export function CreateProductionLineDialog({
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Criando...
+                  {t('creating')}
                 </>
               ) : (
                 t('createDialog.create')

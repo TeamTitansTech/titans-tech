@@ -28,6 +28,7 @@ export function MachineDetails({
   initialLatestReport,
 }: MachineDetailsComponentProps) {
   const t = useTranslations('machines');
+  const tActions = useTranslations('actions');
   const router = useInternalRouter();
   const [loadingSection, setLoadingSection] = useState<string | null>(null);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
@@ -108,7 +109,7 @@ export function MachineDetails({
           </Link>
           <Button onClick={handleOpenReport} disabled={isLoadingReport} size="sm">
             <FileText className="w-4 h-4 mr-2" />
-            {isLoadingReport ? 'Carregando...' : 'Ver Relatório'}
+            {isLoadingReport ? tActions('loading') : t('viewReport')}
           </Button>
         </div>
       </div>

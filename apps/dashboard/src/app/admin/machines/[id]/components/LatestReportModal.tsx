@@ -74,6 +74,7 @@ function LatestReportModalContent({
   onOpenChange,
 }: Omit<LatestReportModalProps, 'defaultMeasurementUnit'>) {
   const t = useTranslations('machines.latestReport');
+  const tActions = useTranslations('actions');
   const contentRef = useRef<HTMLDivElement>(null);
   const [isExporting, setIsExporting] = useState(false);
   const { lengthUnit, setLengthUnit, convertLengthFromDefault, getLengthUnitLabel } =
@@ -465,7 +466,7 @@ function LatestReportModalContent({
   ) => {
     const sections = [
       {
-        name: 'Outer',
+        name: t('outer'),
         positions: [
           data.outerData?.position1,
           data.outerData?.position2,
@@ -477,7 +478,7 @@ function LatestReportModalContent({
         severity: alert?.maxDeviationOuter_severity || 'NONE',
       },
       {
-        name: 'Inner',
+        name: t('inner'),
         positions: [
           data.innerData?.position1,
           data.innerData?.position2,
@@ -734,7 +735,7 @@ function LatestReportModalContent({
               <div className="rounded-lg border p-4">
                 <div className="mb-3 flex items-center justify-between">
                   <Typography variant="h4" className="font-semibold">
-                    Bearing Clearance - CP 2
+                    {t('bearingClearanceCP2')}
                   </Typography>
                   <div className="flex items-center gap-3">
                     {getSeverityBadge(getOverallSeverity())}
@@ -750,17 +751,19 @@ function LatestReportModalContent({
                   {bearingClearance.outerData && (
                     <div className="overflow-hidden rounded-md border">
                       <div className="flex items-center justify-between bg-muted/30 px-4 py-2 font-semibold">
-                        <span>Outer</span>
+                        <span>{t('outer')}</span>
                         {getSeverityBadge(getBearingSeverity('outer'))}
                       </div>
                       <Table>
                         <TableHeader>
                           <TableRow className="bg-muted/50">
-                            <TableHead className="font-semibold">Measurement</TableHead>
+                            <TableHead className="font-semibold">{t('measurement')}</TableHead>
                             <TableHead className="text-center font-semibold">
-                              Differential ({unitLabel})
+                              {t('differential')} ({unitLabel})
                             </TableHead>
-                            <TableHead className="text-center font-semibold">Status</TableHead>
+                            <TableHead className="text-center font-semibold">
+                              {t('status')}
+                            </TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -786,17 +789,19 @@ function LatestReportModalContent({
                   {bearingClearance.innerData && (
                     <div className="overflow-hidden rounded-md border">
                       <div className="flex items-center justify-between bg-muted/30 px-4 py-2 font-semibold">
-                        <span>Inner</span>
+                        <span>{t('inner')}</span>
                         {getSeverityBadge(getBearingSeverity('inner'))}
                       </div>
                       <Table>
                         <TableHeader>
                           <TableRow className="bg-muted/50">
-                            <TableHead className="font-semibold">Measurement</TableHead>
+                            <TableHead className="font-semibold">{t('measurement')}</TableHead>
                             <TableHead className="text-center font-semibold">
-                              Differential ({unitLabel})
+                              {t('differential')} ({unitLabel})
                             </TableHead>
-                            <TableHead className="text-center font-semibold">Status</TableHead>
+                            <TableHead className="text-center font-semibold">
+                              {t('status')}
+                            </TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -839,11 +844,11 @@ function LatestReportModalContent({
                   <Table>
                     <TableHeader>
                       <TableRow className="bg-muted/50">
-                        <TableHead className="font-semibold">Measurement</TableHead>
+                        <TableHead className="font-semibold">{t('measurement')}</TableHead>
                         <TableHead className="text-center font-semibold">
-                          Value ({unitLabel})
+                          {t('value')} ({unitLabel})
                         </TableHead>
-                        <TableHead className="text-center font-semibold">Status</TableHead>
+                        <TableHead className="text-center font-semibold">{t('status')}</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -881,11 +886,11 @@ function LatestReportModalContent({
                   <Table>
                     <TableHeader>
                       <TableRow className="bg-muted/50">
-                        <TableHead className="font-semibold">Measurement</TableHead>
+                        <TableHead className="font-semibold">{t('measurement')}</TableHead>
                         <TableHead className="text-center font-semibold">
-                          Value ({unitLabel})
+                          {t('value')} ({unitLabel})
                         </TableHead>
-                        <TableHead className="text-center font-semibold">Status</TableHead>
+                        <TableHead className="text-center font-semibold">{t('status')}</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -1040,7 +1045,7 @@ function LatestReportModalContent({
               <div className="rounded-lg border p-4">
                 <div className="mb-3 flex items-center justify-between">
                   <Typography variant="h4" className="font-semibold">
-                    GIBS - Outer After Adjustment
+                    {t('gibsOuterAfterAdjustment')}
                   </Typography>
                   <div className="flex items-center gap-3">
                     {getSeverityBadge(getGibsOverallSeverity())}
@@ -1068,7 +1073,9 @@ function LatestReportModalContent({
 
                   {/* Display measurement points with diagram */}
                   <div className="overflow-hidden rounded-md border">
-                    <div className="bg-muted/30 px-4 py-2 font-semibold">Measurement Points</div>
+                    <div className="bg-muted/30 px-4 py-2 font-semibold">
+                      {t('measurementPoints')}
+                    </div>
 
                     {/* Mobile layout: Image first, then two columns */}
                     <div className="flex flex-col gap-4 p-4 sm:hidden">
@@ -1159,7 +1166,7 @@ function LatestReportModalContent({
                   {/* Second section: Points 9-16 (Left to Right) */}
                   <div className="mt-3 overflow-hidden rounded-md border">
                     <div className="bg-muted/30 px-4 py-2 font-semibold">
-                      Left to Right Measurements
+                      {t('leftToRightMeasurements')}
                     </div>
 
                     {/* Mobile layout: Image first, then two columns */}
@@ -1270,17 +1277,19 @@ function LatestReportModalContent({
                   {pistons.data.outerData && (
                     <div className="overflow-hidden rounded-md border">
                       <div className="flex items-center justify-between bg-muted/30 px-4 py-2 font-semibold">
-                        <span>Outer</span>
+                        <span>{t('outer')}</span>
                         {getSeverityBadge(getPistonsSeverity('outer'))}
                       </div>
                       <Table>
                         <TableHeader>
                           <TableRow className="bg-muted/50">
-                            <TableHead className="font-semibold">Measurement</TableHead>
+                            <TableHead className="font-semibold">{t('measurement')}</TableHead>
                             <TableHead className="text-center font-semibold">
-                              Sum ({unitLabel})
+                              {t('sum')} ({unitLabel})
                             </TableHead>
-                            <TableHead className="text-center font-semibold">Status</TableHead>
+                            <TableHead className="text-center font-semibold">
+                              {t('status')}
+                            </TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -1302,17 +1311,19 @@ function LatestReportModalContent({
                   {pistons.data.innerData && (
                     <div className="overflow-hidden rounded-md border">
                       <div className="flex items-center justify-between bg-muted/30 px-4 py-2 font-semibold">
-                        <span>Inner</span>
+                        <span>{t('inner')}</span>
                         {getSeverityBadge(getPistonsSeverity('inner'))}
                       </div>
                       <Table>
                         <TableHeader>
                           <TableRow className="bg-muted/50">
-                            <TableHead className="font-semibold">Measurement</TableHead>
+                            <TableHead className="font-semibold">{t('measurement')}</TableHead>
                             <TableHead className="text-center font-semibold">
-                              Sum ({unitLabel})
+                              {t('sum')} ({unitLabel})
                             </TableHead>
-                            <TableHead className="text-center font-semibold">Status</TableHead>
+                            <TableHead className="text-center font-semibold">
+                              {t('status')}
+                            </TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -1602,19 +1613,23 @@ function LatestReportModalContent({
                 <div className="space-y-4">
                   {tramming.data.outerData && tramming.alert && (
                     <div className="overflow-hidden rounded-md border">
-                      <div className="bg-muted/30 px-4 py-2 font-semibold">Outer</div>
+                      <div className="bg-muted/30 px-4 py-2 font-semibold">{t('outer')}</div>
                       <Table>
                         <TableHeader>
                           <TableRow className="bg-muted/50">
-                            <TableHead className="font-semibold">Position</TableHead>
+                            <TableHead className="font-semibold">{t('position')}</TableHead>
                             <TableHead className="text-center font-semibold">
-                              Vertical Sum ({unitLabel})
+                              {t('verticalSum')} ({unitLabel})
                             </TableHead>
-                            <TableHead className="text-center font-semibold">Status</TableHead>
                             <TableHead className="text-center font-semibold">
-                              Horizontal Sum ({unitLabel})
+                              {t('status')}
                             </TableHead>
-                            <TableHead className="text-center font-semibold">Status</TableHead>
+                            <TableHead className="text-center font-semibold">
+                              {t('horizontalSum')} ({unitLabel})
+                            </TableHead>
+                            <TableHead className="text-center font-semibold">
+                              {t('status')}
+                            </TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -1666,19 +1681,23 @@ function LatestReportModalContent({
 
                   {tramming.data.innerData && tramming.alert && (
                     <div className="overflow-hidden rounded-md border">
-                      <div className="bg-muted/30 px-4 py-2 font-semibold">Inner</div>
+                      <div className="bg-muted/30 px-4 py-2 font-semibold">{t('inner')}</div>
                       <Table>
                         <TableHeader>
                           <TableRow className="bg-muted/50">
-                            <TableHead className="font-semibold">Position</TableHead>
+                            <TableHead className="font-semibold">{t('position')}</TableHead>
                             <TableHead className="text-center font-semibold">
-                              Vertical Sum ({unitLabel})
+                              {t('verticalSum')} ({unitLabel})
                             </TableHead>
-                            <TableHead className="text-center font-semibold">Status</TableHead>
                             <TableHead className="text-center font-semibold">
-                              Horizontal Sum ({unitLabel})
+                              {t('status')}
                             </TableHead>
-                            <TableHead className="text-center font-semibold">Status</TableHead>
+                            <TableHead className="text-center font-semibold">
+                              {t('horizontalSum')} ({unitLabel})
+                            </TableHead>
+                            <TableHead className="text-center font-semibold">
+                              {t('status')}
+                            </TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -1736,7 +1755,7 @@ function LatestReportModalContent({
               <div className="rounded-lg border p-4">
                 <div className="mb-3 flex items-center justify-between">
                   <Typography variant="h4" className="font-semibold">
-                    Bearing Clearance - Single Hammer
+                    {t('bearingClearanceSingleHammer')}
                   </Typography>
                   <div className="flex items-center gap-3">
                     {getSeverityBadge(getBearingClearanceSingleHammerOverallSeverity())}
@@ -1752,15 +1771,19 @@ function LatestReportModalContent({
                 <div className="space-y-4">
                   {bearingClearanceSingleHammer.data.data && (
                     <div className="overflow-hidden rounded-md border">
-                      <div className="bg-muted/30 px-4 py-2 font-semibold">After Adjustment</div>
+                      <div className="bg-muted/30 px-4 py-2 font-semibold">
+                        {t('afterAdjustment')}
+                      </div>
                       <Table>
                         <TableHeader>
                           <TableRow className="bg-muted/50">
-                            <TableHead className="font-semibold">Measurement</TableHead>
+                            <TableHead className="font-semibold">{t('measurement')}</TableHead>
                             <TableHead className="text-center font-semibold">
-                              Differential ({unitLabel})
+                              {t('differential')} ({unitLabel})
                             </TableHead>
-                            <TableHead className="text-center font-semibold">Status</TableHead>
+                            <TableHead className="text-center font-semibold">
+                              {t('status')}
+                            </TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -1789,7 +1812,7 @@ function LatestReportModalContent({
               <div className="rounded-lg border p-4">
                 <div className="mb-3 flex items-center justify-between">
                   <Typography variant="h4" className="font-semibold">
-                    Shim Thickness
+                    {t('shimThickness')}
                   </Typography>
                   <span className="text-sm text-muted-foreground">
                     {t('updatedAt')}{' '}
@@ -1799,22 +1822,22 @@ function LatestReportModalContent({
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   {shimThickness.data.outerLhData && (
                     <div className="rounded-md border p-3">
-                      <div className="mb-2 font-semibold">Outer LH</div>
+                      <div className="mb-2 font-semibold">{t('outerLH')}</div>
                       <div className="space-y-1 text-sm">
                         <div className="flex justify-between">
-                          <span className="text-muted-foreground">Top:</span>
+                          <span className="text-muted-foreground">{t('top')}:</span>
                           <span>{formatLength(shimThickness.data.outerLhData.top)}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-muted-foreground">Bottom:</span>
+                          <span className="text-muted-foreground">{t('bottom')}:</span>
                           <span>{formatLength(shimThickness.data.outerLhData.bottom)}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-muted-foreground">Left:</span>
+                          <span className="text-muted-foreground">{t('left')}:</span>
                           <span>{formatLength(shimThickness.data.outerLhData.left)}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-muted-foreground">Right:</span>
+                          <span className="text-muted-foreground">{t('right')}:</span>
                           <span>{formatLength(shimThickness.data.outerLhData.right)}</span>
                         </div>
                       </div>
@@ -1822,22 +1845,22 @@ function LatestReportModalContent({
                   )}
                   {shimThickness.data.outerRhData && (
                     <div className="rounded-md border p-3">
-                      <div className="mb-2 font-semibold">Outer RH</div>
+                      <div className="mb-2 font-semibold">{t('outerRH')}</div>
                       <div className="space-y-1 text-sm">
                         <div className="flex justify-between">
-                          <span className="text-muted-foreground">Top:</span>
+                          <span className="text-muted-foreground">{t('top')}:</span>
                           <span>{formatLength(shimThickness.data.outerRhData.top)}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-muted-foreground">Bottom:</span>
+                          <span className="text-muted-foreground">{t('bottom')}:</span>
                           <span>{formatLength(shimThickness.data.outerRhData.bottom)}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-muted-foreground">Left:</span>
+                          <span className="text-muted-foreground">{t('left')}:</span>
                           <span>{formatLength(shimThickness.data.outerRhData.left)}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-muted-foreground">Right:</span>
+                          <span className="text-muted-foreground">{t('right')}:</span>
                           <span>{formatLength(shimThickness.data.outerRhData.right)}</span>
                         </div>
                       </div>
@@ -1845,22 +1868,22 @@ function LatestReportModalContent({
                   )}
                   {shimThickness.data.innerLhData && (
                     <div className="rounded-md border p-3">
-                      <div className="mb-2 font-semibold">Inner LH</div>
+                      <div className="mb-2 font-semibold">{t('innerLH')}</div>
                       <div className="space-y-1 text-sm">
                         <div className="flex justify-between">
-                          <span className="text-muted-foreground">Top:</span>
+                          <span className="text-muted-foreground">{t('top')}:</span>
                           <span>{formatLength(shimThickness.data.innerLhData.top)}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-muted-foreground">Bottom:</span>
+                          <span className="text-muted-foreground">{t('bottom')}:</span>
                           <span>{formatLength(shimThickness.data.innerLhData.bottom)}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-muted-foreground">Left:</span>
+                          <span className="text-muted-foreground">{t('left')}:</span>
                           <span>{formatLength(shimThickness.data.innerLhData.left)}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-muted-foreground">Right:</span>
+                          <span className="text-muted-foreground">{t('right')}:</span>
                           <span>{formatLength(shimThickness.data.innerLhData.right)}</span>
                         </div>
                       </div>
@@ -1868,22 +1891,22 @@ function LatestReportModalContent({
                   )}
                   {shimThickness.data.innerRhData && (
                     <div className="rounded-md border p-3">
-                      <div className="mb-2 font-semibold">Inner RH</div>
+                      <div className="mb-2 font-semibold">{t('innerRH')}</div>
                       <div className="space-y-1 text-sm">
                         <div className="flex justify-between">
-                          <span className="text-muted-foreground">Top:</span>
+                          <span className="text-muted-foreground">{t('top')}:</span>
                           <span>{formatLength(shimThickness.data.innerRhData.top)}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-muted-foreground">Bottom:</span>
+                          <span className="text-muted-foreground">{t('bottom')}:</span>
                           <span>{formatLength(shimThickness.data.innerRhData.bottom)}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-muted-foreground">Left:</span>
+                          <span className="text-muted-foreground">{t('left')}:</span>
                           <span>{formatLength(shimThickness.data.innerRhData.left)}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-muted-foreground">Right:</span>
+                          <span className="text-muted-foreground">{t('right')}:</span>
                           <span>{formatLength(shimThickness.data.innerRhData.right)}</span>
                         </div>
                       </div>
@@ -2178,10 +2201,10 @@ function LatestReportModalContent({
           ) : (
             <Download className="h-4 w-4" />
           )}
-          Baixar PDF
+          {t('downloadPDF')}
         </Button>
         <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-          Fechar
+          {tActions('close')}
         </Button>
       </div>
     </DialogContent>

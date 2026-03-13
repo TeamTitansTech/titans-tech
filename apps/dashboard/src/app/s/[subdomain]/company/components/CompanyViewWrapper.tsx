@@ -5,6 +5,7 @@ import { CompanyView } from './CompanyView';
 import type { Company } from '@/data/services/companies.api';
 import type { CompanyBranch } from '@/data/services/company-branches.api';
 import type { Machine } from '@/data/services/machines.api';
+import { useTranslations } from 'next-intl';
 
 interface BranchWithMachineCount extends CompanyBranch {
   machineCount: number;
@@ -18,14 +19,14 @@ interface CompanyViewWrapperProps {
 
 export function CompanyViewWrapper({ company, branches }: CompanyViewWrapperProps) {
   const { companyUser, isLoading } = useCompanyUser();
+  const t = useTranslations('common');
+  const tErrors = useTranslations('errors');
 
   // If still loading, show loading state
   if (isLoading) {
     return (
       <div className="container mx-auto p-6">
-        <div className="text-center text-muted-foreground">
-          Carregando informações do usuário...
-        </div>
+        <div className="text-center text-muted-foreground">{t('loadingUserInfo')}</div>
       </div>
     );
   }
@@ -34,9 +35,7 @@ export function CompanyViewWrapper({ company, branches }: CompanyViewWrapperProp
   if (!companyUser) {
     return (
       <div className="container mx-auto p-6">
-        <div className="text-center text-muted-foreground">
-          Usuário não autenticado. Por favor, faça login novamente.
-        </div>
+        <div className="text-center text-muted-foreground">{tErrors('userNotAuthenticated')}</div>
       </div>
     );
   }

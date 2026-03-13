@@ -68,7 +68,9 @@
       "maxFilesExceeded": "Only {max} files allowed. Some files were not uploaded."
     },
     "cancel": "Cancel",
-    "save": "Save"
+    "save": "Save",
+    "selectBranch": "Select branch",
+    "loadingUserInfo": "Loading user information..."
   },
   "validation": {
     "required": "This field is required",
@@ -264,7 +266,12 @@
         "companyAdmin": "Company Admin",
         "companyManager": "Manager",
         "branchManager": "Br. Manager"
-      }
+      },
+      "pendingActivation": "Pending",
+      "resendActivationEmail": "Resend Activation Email",
+      "activationEmailSent": "Activation email sent successfully",
+      "activationEmailFailed": "Failed to send activation email",
+      "unknownUser": "Unknown User"
     },
     "addUserDialog": {
       "title": "Add User",
@@ -341,7 +348,9 @@
       "submit": "Save Changes",
       "submitting": "Saving...",
       "success": "User updated successfully",
-      "error": "Failed to update user"
+      "error": "Failed to update user",
+      "cannotEditAdmin": "Company Administrators cannot be edited. Please contact system support to modify admin accounts.",
+      "noPermissionToEdit": "You do not have permission to edit this user."
     },
     "deleteUserDialog": {
       "title": "Deactivate User",
@@ -695,7 +704,8 @@
         "operating": "operating",
         "services": "Services",
         "pending": "pending",
-        "thisMonth": "this month"
+        "thisMonth": "this month",
+        "blueprints": "blueprints"
       },
       "companiesOverview": {
         "title": "Registered Companies",
@@ -714,7 +724,9 @@
         "maintenance": "Maintenance",
         "completed": "Completed",
         "pending": "Pending",
-        "viewAll": "View all"
+        "viewAll": "View all",
+        "unknownMachine": "Unknown Machine",
+        "unknown": "Unknown"
       },
       "serviceTrends": {
         "title": "Service Trends",
@@ -974,6 +986,7 @@
     "statusOperational": "Operational",
     "statusMaintenance": "Warning",
     "statusOffline": "Critical",
+    "resultsCount": "{filtered} of {total} machines",
     "noBlueprint": "No model",
     "noBlueprintAssigned": "No model assigned",
     "errorLoading": "Error loading machines",
@@ -1047,6 +1060,7 @@
     "client": "Client",
     "model": "Model",
     "noImageAvailable": "No Image Available",
+    "viewReport": "View Report",
     "inspectionSections": "Inspection Sections",
     "noSectionsAvailable": "No inspection sections available for this machine type.",
     "statusBar": {
@@ -1253,7 +1267,7 @@
         "leftTop": "Left-Top",
         "leftBottom": "Left-Bottom",
         "leftLeft": "Left-Left",
-        "leftRight": "Left-Right",
+        "leftRight": "Left-Right (L-R)",
         "rightTop": "Right-Top",
         "rightBottom": "Right-Bottom",
         "rightLeft": "Right-Left",
@@ -1261,7 +1275,6 @@
         "beforeAdjustment": "Before Adjustment",
         "afterAdjustment": "After Adjustment",
         "frontRear": "Front-Rear (F-R)",
-        "leftRight": "Left-Right (L-R)",
         "hasBeenAdjusted": "Has Been Adjusted",
         "yes": "Yes",
         "no": "No",
@@ -1294,6 +1307,32 @@
       "exportSuccess": "PDF exported successfully!",
       "updatedAt": "Updated on",
       "problems": "Problem(s)",
+      "downloadPDF": "Download PDF",
+      "outer": "Outer",
+      "inner": "Inner",
+      "measurement": "Measurement",
+      "status": "Status",
+      "differential": "Differential",
+      "value": "Value",
+      "sum": "Sum",
+      "position": "Position",
+      "verticalSum": "Vertical Sum",
+      "horizontalSum": "Horizontal Sum",
+      "bearingClearanceCP2": "Bearing Clearance - CP 2",
+      "bearingClearanceSingleHammer": "Bearing Clearance - Single Hammer",
+      "gibsOuterAfterAdjustment": "GIBS - Outer After Adjustment",
+      "measurementPoints": "Measurement Points",
+      "leftToRightMeasurements": "Left to Right Measurements",
+      "afterAdjustment": "After Adjustment",
+      "shimThickness": "Shim Thickness",
+      "outerLH": "Outer LH",
+      "outerRH": "Outer RH",
+      "innerLH": "Inner LH",
+      "innerRH": "Inner RH",
+      "top": "Top",
+      "bottom": "Bottom",
+      "left": "Left",
+      "right": "Right",
       "severity": {
         "critical": "Critical",
         "warning": "Warning",
@@ -1527,6 +1566,45 @@
       "mappingRequiredPartNumber": "Part Number column must be mapped",
       "mappingRequiredDescription": "Description column must be mapped",
       "importRows": "Import {count} rows"
+    },
+    "editModal": {
+      "title": "Edit Machine",
+      "description": "Update machine details and specifications",
+      "labels": {
+        "model": "Model",
+        "machineName": "Machine Name *",
+        "manufacturer": "Manufacturer",
+        "sizeTonnage": "Size/Tonnage",
+        "serialNumber": "Serial Number",
+        "stroke": "Stroke",
+        "foundationType": "Foundation Type",
+        "frameType": "Frame Type",
+        "clutchType": "Clutch Type",
+        "pneumaticSystem": "Pneumatic System",
+        "pressMounting": "Press Mounting",
+        "features": "Features"
+      },
+      "placeholders": {
+        "machineName": "Enter machine name",
+        "manufacturer": "Enter manufacturer",
+        "sizeTonnage": "Enter size/tonnage",
+        "serialNumber": "Enter serial number",
+        "stroke": "Enter stroke",
+        "foundationType": "Select foundation type",
+        "frameType": "Select frame type",
+        "clutchType": "Select clutch type",
+        "pneumaticSystem": "Select pneumatic system",
+        "pressMounting": "Select press mounting",
+        "features": "Select features"
+      },
+      "noModel": "No model",
+      "modelCannotBeChanged": "Model cannot be changed after creation",
+      "machineSpecifications": "Machine Specifications",
+      "allFieldsOptional": "All fields are optional",
+      "updateSuccess": "Machine updated successfully",
+      "cancel": "Cancel",
+      "updating": "Updating...",
+      "updateMachine": "Update Machine"
     }
   },
   "inspections": {
@@ -2278,6 +2356,11 @@
     }
   },
   "services": {
+    "loadingServiceData": "Loading service data...",
+    "areaSelected": "area selected",
+    "areasSelected": "areas selected",
+    "completeInspection": "Complete Inspection",
+    "completeMaintenance": "Complete Maintenance",
     "createNewService": "Create New Service",
     "createServiceDescription": "Fill in the service details below",
     "serviceDate": "Service Date",
@@ -2407,7 +2490,8 @@
       "upcoming": "Upcoming",
       "history": "History",
       "all": "All Services"
-    }
+    },
+    "pickDate": "Pick a date"
   },
   "table": {
     "field": "Field",
@@ -2749,6 +2833,14 @@
     "error": "Error"
   },
   "productionLines": {
+    "createError": "Error creating production line",
+    "createSuccess": "Production line created successfully!",
+    "addMachinesAfterCreation": "You can add machines to the line after creation, in the configuration tab.",
+    "creating": "Creating...",
+    "machine": "machine",
+    "machines": "machines",
+    "errorLoadingMachines": "Error loading machines",
+    "loadingMachines": "Loading machines...",
     "pageTitle": "Production Lines",
     "pageDescription": "Manage and visualize your production lines",
     "newButton": "New Line",
@@ -2949,7 +3041,9 @@
       "userNotBelongToCompany": "User does not belong to this company",
       "connectionError": "Connection error",
       "unknownError": "An unknown error occurred"
-    }
+    },
+    "userNotAuthenticated": "User not authenticated. Please log in again.",
+    "unexpectedError": "An unexpected error occurred"
   },
   "parts": {
     "title": "Parts Replacement List",

@@ -45,6 +45,7 @@ export default function SimpleServiceCreationModal({
 }: SimpleServiceCreationModalProps) {
   const t = useTranslations('services');
   const tActions = useTranslations('actions');
+  const tErrors = useTranslations('errors');
   const router = useInternalRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -94,7 +95,7 @@ export default function SimpleServiceCreationModal({
       router.refresh();
     } catch (err) {
       console.error('Error creating service:', err);
-      setError('An unexpected error occurred');
+      setError(tErrors('unexpectedError'));
       setIsSubmitting(false);
     }
   };
@@ -120,7 +121,7 @@ export default function SimpleServiceCreationModal({
                     data-testid="service-date-input"
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {date ? format(date, 'PPP') : <span>Pick a date</span>}
+                    {date ? format(date, 'PPP') : <span>{t('pickDate')}</span>}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0">
