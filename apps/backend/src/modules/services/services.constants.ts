@@ -12,3 +12,4 @@
  */
 export const OIL_CHANGE_INTERVAL_DAYS = 333;
 export const OIL_CHANGE_WARNING_THRESHOLD_DAYS = 30;
+export const IGNORE_ME = 0;
